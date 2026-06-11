@@ -1,1 +1,48 @@
 @import "tailwindcss";
+
+/* Tiptap editor styles */
+.tiptap-editor .ProseMirror {
+  outline: none;
+  min-height: 400px;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #1a1a1a;
+}
+
+.tiptap-editor .ProseMirror h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.tiptap-editor .ProseMirror h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.tiptap-editor .ProseMirror h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+.tiptap-editor .ProseMirror p {
+  margin: 0.5rem 0;
+}
+
+.tiptap-editor .ProseMirror strong {
+  font-weight: 700;
+}
+
+.tiptap-editor .ProseMirror em {
+  font-style: italic;
+}
+
+.tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #adb5bd;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
