@@ -134,6 +134,14 @@ export async function downloadBlob(token: string, fileId: string): Promise<Blob>
   return res.blob()
 }
 
+export async function trashFile(token: string, fileId: string): Promise<void> {
+  await apiFetch(token, `${BASE}/files/${fileId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ trashed: true }),
+  })
+}
+
 export async function getHeadRevisionId(token: string, fileId: string): Promise<string> {
   const res = await apiFetch(token, `${BASE}/files/${fileId}?fields=headRevisionId`)
   const data = await res.json() as { headRevisionId: string }
