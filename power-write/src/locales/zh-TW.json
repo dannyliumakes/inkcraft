@@ -1,0 +1,12 @@
+{
+  "app": {
+    "title": "Power Write"
+  },
+  "nav": {
+    "manuscript": "稿件",
+    "plot": "大綱",
+    "characters": "角色",
+    "research": "資料",
+    "overview": "概覽"
+  }
+}
