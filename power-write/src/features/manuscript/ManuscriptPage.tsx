@@ -16,8 +16,47 @@ import {
 import { saveProject } from '../../services/projectRepo'
 import { loadProject } from '../../services/projectRepo'
 import { countWords } from '../../lib/wordCount'
+import { uploadImage, getImageUrl } from '../../services/assets'
+import { CustomImage } from '../../lib/customImage'
 import ChapterTree from './ChapterTree'
 import type { Chapter, Project, Todo } from '../../types/project'
+
+// ─── Image markdown helpers ─────────────────────────────────────────────────
+// We store images in markdown as ![caption](drive:ASSET_ID).
+// On load: replace drive:ASSET_ID with a blob URL.
+// On save: replace blob: URLs back to drive:ASSET_ID.
+
+/** Replace all drive:ASSET_ID occurrences in markdown with blob URLs */
+async function expandDriveUrls(md: string, token: string): Promise<string> {
+  const pattern = /!\[([^\]]*)\]\(drive:([^)]+)\)/g
+  const matches = [...md.matchAll(pattern)]
+  if (matches.length === 0) return md
+
+  let result = md
+  await Promise.all(
+    matches.map(async ([full, caption, assetId]) => {
+      try {
+        const blobUrl = await getImageUrl(token, assetId)
+        result = result.replace(full, `![${caption}](${blobUrl})`)
+      } catch (e) {
+        console.error('Failed to expand drive URL for asset', assetId, e)
+      }
+    }),
+  )
+  return result
+}
+
+/** Replace all blob: src attributes on image nodes back to drive:ASSET_ID */
+function collapseBlobUrls(md: string, blobToAsset: Map<string, string>): string {
+  if (blobToAsset.size === 0) return md
+  let result = md
+  blobToAsset.forEach((assetId, blobUrl) => {
+    // Escape special regex chars in blobUrl
+    const escaped = blobUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    result = result.replace(new RegExp(escaped, 'g'), `drive:${assetId}`)
+  })
+  return result
+}
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -219,6 +258,10 @@ export default function ManuscriptPage() {
   const projectDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [chapterTitle, setChapterTitle] = useState('')
   const [editingChapterTitle, setEditingChapterTitle] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // blobUrl -> assetId map for collapsing on save
+  const blobToAssetRef = useRef<Map<string, string>>(new Map())
 
   // ── Load project on mount ────────────────────────────────────────────────
   useEffect(() => {
@@ -244,13 +287,27 @@ export default function ManuscriptPage() {
     setActiveChapter(ch.id)
     setChapterTitle(ch.title)
     setSaveStatus('idle')
+    // Reset blob→asset map on chapter switch (blob URLs from previous chapter are gone)
+    blobToAssetRef.current = new Map()
     try {
-      const [text, revId] = await Promise.all([
+      const [rawText, revId] = await Promise.all([
         downloadText(token, ch.fileId),
         getHeadRevisionId(token, ch.fileId),
       ])
       setHeadRevisionId(revId)
-      setChapterContent(text)
+      // Expand drive:ASSET_ID → blob URLs
+      const expandedText = await expandDriveUrls(rawText, token)
+      // Rebuild blobToAsset map from the expanded markdown
+      const pattern = /!\[([^\]]*)\]\((blob:[^)]+)\)/g
+      const drivePattern = /!\[([^\]]*)\]\(drive:([^)]+)\)/g
+      const rawMatches = [...rawText.matchAll(drivePattern)]
+      const expandedMatches = [...expandedText.matchAll(pattern)]
+      rawMatches.forEach((rm, i) => {
+        const assetId = rm[2]
+        const blobUrl = expandedMatches[i]?.[1]
+        if (blobUrl) blobToAssetRef.current.set(blobUrl, assetId)
+      })
+      setChapterContent(expandedText)
     } catch (e) {
       console.error('Failed to load chapter', e)
     }
@@ -262,6 +319,7 @@ export default function ManuscriptPage() {
       StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
       Markdown,
       CharacterCount,
+      CustomImage.configure({ inline: false, allowBase64: true }),
     ],
     content: chapterContent,
     onUpdate: ({ editor: ed }) => {
@@ -321,7 +379,9 @@ export default function ManuscriptPage() {
 
     setSaveStatus('saving')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const md = (ed.storage as any).markdown.getMarkdown() as string
+    const rawMd = (ed.storage as any).markdown.getMarkdown() as string
+    // Collapse blob: URLs back to drive:ASSET_ID before saving
+    const md = collapseBlobUrls(rawMd, blobToAssetRef.current)
     const wc = countWords(ed.getText())
 
     try {
@@ -388,6 +448,31 @@ export default function ManuscriptPage() {
     setProject(updated)
     setEditingChapterTitle(false)
     await saveProject(token, updated)
+  }
+
+  // ── Image upload ─────────────────────────────────────────────────────────
+  async function handleImageFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !editor) return
+    // Reset input so the same file can be re-selected
+    e.target.value = ''
+
+    const token = getAccessToken()
+    if (!token) return
+
+    // bookId is the Drive folder ID (ShelfBook.id)
+    const bookFolderId = bookId
+    if (!bookFolderId) return
+
+    try {
+      const assetId = await uploadImage(token, file, bookFolderId)
+      const blobUrl = await getImageUrl(token, assetId)
+      // Track blob→assetId mapping for save-time substitution
+      blobToAssetRef.current.set(blobUrl, assetId)
+      editor.commands.setImage({ src: blobUrl, assetId, caption: '' } as Parameters<typeof editor.commands.setImage>[0])
+    } catch (err) {
+      console.error('Image upload failed', err)
+    }
   }
 
   // Word count for active chapter
@@ -470,6 +555,29 @@ export default function ManuscriptPage() {
             lastSavedAt={lastSavedAt}
             onRetry={() => triggerSave(editor)}
           />
+
+          {/* Hidden file input for image upload */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageFileSelected}
+          />
+
+          {/* Insert image button */}
+          <button
+            title="插入圖片"
+            className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-gray-100 text-gray-400 disabled:opacity-40"
+            disabled={!activeChapterId}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="3" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+              <circle cx="5.5" cy="6.5" r="1" fill="currentColor"/>
+              <path d="M1 11l3.5-3.5 2.5 2.5 2.5-2 3.5 3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
 
           {/* Focus mode toggle */}
           <button
