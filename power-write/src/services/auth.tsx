@@ -8,7 +8,7 @@ export function LoginButton() {
 
   const login = useGoogleLogin({
     flow: 'implicit',
-    scope: 'https://www.googleapis.com/auth/drive.file',
+    scope: 'https://www.googleapis.com/auth/drive.appdata',
     onSuccess: (tokenResponse) => {
       setAccessToken(tokenResponse.access_token)
     },

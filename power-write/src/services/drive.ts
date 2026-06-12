@@ -29,17 +29,9 @@ async function apiFetch(token: string, url: string, init?: RequestInit): Promise
   return res
 }
 
-export async function findOrCreateRootFolder(token: string): Promise<string> {
-  const q = "name='PowerWrite' and mimeType='application/vnd.google-apps.folder' and trashed=false and 'root' in parents"
-  const url = `${BASE}/files?q=${encodeURIComponent(q)}&fields=files(id,name)&spaces=drive`
-  const res = await apiFetch(token, url)
-  const data = await res.json() as { files: Array<{ id: string; name: string }> }
-
-  if (data.files.length > 0) {
-    return data.files[0].id
-  }
-
-  return createFolder(token, 'PowerWrite', 'root')
+// Returns the special hidden appDataFolder — no need to create or search
+export async function findOrCreateRootFolder(_token: string): Promise<string> {
+  return 'appDataFolder'
 }
 
 export async function createFolder(token: string, name: string, parentId: string): Promise<string> {
@@ -66,7 +58,7 @@ export async function listChildren(
 ): Promise<Array<{ id: string; name: string }>> {
   let q = `'${parentId}' in parents and trashed=false`
   if (extraQ) q += ` and ${extraQ}`
-  const url = `${BASE}/files?q=${encodeURIComponent(q)}&fields=files(id,name)&spaces=drive`
+  const url = `${BASE}/files?q=${encodeURIComponent(q)}&fields=files(id,name)&spaces=appDataFolder`
   const res = await apiFetch(token, url)
   const data = await res.json() as { files: Array<{ id: string; name: string }> }
   return data.files

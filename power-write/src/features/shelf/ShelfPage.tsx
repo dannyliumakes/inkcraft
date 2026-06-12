@@ -304,7 +304,7 @@ function ShelfContent() {
               <BookCard
                 key={book.id}
                 book={book}
-                onOpen={() => navigate(`/book/${book.id}/manuscript`)}
+                onOpen={() => navigate(`/book/${book.id}`)}
                 onRename={() => setRenaming(book)}
                 onDelete={() => handleDelete(book)}
               />
