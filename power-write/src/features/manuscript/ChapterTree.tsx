@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { Project, Chapter } from '../../types/project'
 import { createTextFile, trashFile } from '../../services/drive'
 import { saveProject } from '../../services/projectRepo'
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function ChapterTree({ project, activeChapterId, onSelectChapter, onProjectUpdate }: Props) {
+  const { t } = useTranslation()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
   const [loading, setLoading] = useState(false)
@@ -102,9 +104,9 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center gap-1 px-3 py-2 border-b border-gray-100">
-        <span className="text-xs font-semibold text-gray-500 flex-1 uppercase tracking-wide">目錄結構</span>
+        <span className="text-xs font-semibold text-gray-500 flex-1 uppercase tracking-wide">{t('chapter_tree.header')}</span>
         <button
-          title="新增資料夾"
+          title={t('chapter_tree.add_folder')}
           className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400"
           disabled={loading}
         >
@@ -114,7 +116,7 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
           </svg>
         </button>
         <button
-          title="新增章節"
+          title={t('chapter_tree.add_chapter')}
           className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400"
           onClick={handleAddChapter}
           disabled={loading}
@@ -129,7 +131,7 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
       {/* Chapter list */}
       <div className="flex-1 overflow-y-auto">
         {sorted.length === 0 && (
-          <p className="text-xs text-gray-400 text-center mt-6 px-3">尚無章節，點擊上方按鈕新增</p>
+          <p className="text-xs text-gray-400 text-center mt-6 px-3">{t('chapter_tree.empty')}</p>
         )}
         {sorted.map((ch, idx) => (
           <div
@@ -163,12 +165,12 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
               <span className="flex-1 truncate">{ch.title}</span>
             )}
 
-            <span className="text-xs text-gray-400 shrink-0">{ch.wordCount > 0 ? `${ch.wordCount}字` : ''}</span>
+            <span className="text-xs text-gray-400 shrink-0">{ch.wordCount > 0 ? `${ch.wordCount}${t('chapter_tree.word_count_unit')}` : ''}</span>
 
             {/* Hover actions */}
             <div className="hidden group-hover:flex items-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
               <button
-                title="重命名"
+                title={t('chapter_tree.rename')}
                 className="w-5 h-5 flex items-center justify-center rounded hover:bg-gray-200 text-gray-400"
                 onClick={() => { setEditingId(ch.id); setEditingTitle(ch.title) }}
               >
@@ -177,7 +179,7 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
                 </svg>
               </button>
               <button
-                title="上移"
+                title={t('chapter_tree.move_up')}
                 disabled={idx === 0}
                 className="w-5 h-5 flex items-center justify-center rounded hover:bg-gray-200 text-gray-400 disabled:opacity-30"
                 onClick={() => handleMove(ch, 'up')}
@@ -187,7 +189,7 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
                 </svg>
               </button>
               <button
-                title="下移"
+                title={t('chapter_tree.move_down')}
                 disabled={idx === sorted.length - 1}
                 className="w-5 h-5 flex items-center justify-center rounded hover:bg-gray-200 text-gray-400 disabled:opacity-30"
                 onClick={() => handleMove(ch, 'down')}
@@ -197,7 +199,7 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
                 </svg>
               </button>
               <button
-                title="刪除"
+                title={t('chapter_tree.delete')}
                 className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-50 text-gray-400 hover:text-red-400"
                 onClick={() => handleDeleteChapter(ch)}
               >

@@ -3,10 +3,112 @@
     "title": "Power Write"
   },
   "nav": {
-    "manuscript": "稿件",
-    "plot": "大綱",
+    "manuscript": "原稿",
+    "plot": "情節",
     "characters": "角色",
-    "research": "資料",
-    "overview": "概覽"
+    "research": "研究",
+    "overview": "總覽",
+    "milestone": "里程碑",
+    "user": "使用者"
+  },
+  "mobile_banner": "建議在 768px 以上的螢幕使用以獲得最佳體驗",
+  "overview": {
+    "title": "專案概覽",
+    "export": "匯出原稿",
+    "exporting": "匯出中…",
+    "chart_title": "寫作進度追蹤",
+    "chart_subtitle": "過去 7 天的字數產出分析",
+    "today": "今日字數",
+    "week_total": "本週總計",
+    "remaining_goal": "剩餘目標",
+    "goal_settings": "寫作目標設定",
+    "project_goal": "專案總目標（字）",
+    "daily_goal": "每日目標（字）",
+    "loading": "載入中…"
+  },
+  "milestone": {
+    "title": "里程碑記錄",
+    "create_btn": "＋ 標記里程碑",
+    "placeholder": "里程碑名稱（如：第三稿完成）",
+    "confirm": "確認標記",
+    "creating": "標記中…",
+    "cancel": "取消",
+    "empty": "尚無里程碑",
+    "close": "關閉"
+  },
+  "reminder": {
+    "no_today": "今日尚未寫作",
+    "goal_reached": "已達成今日目標 🎉",
+    "no_notifications": "沒有待讀通知"
+  },
+  "chapter_tree": {
+    "header": "目錄結構",
+    "add_folder": "新增資料夾",
+    "add_chapter": "新增章節",
+    "empty": "尚無章節，點擊上方按鈕新增",
+    "rename": "重命名",
+    "move_up": "上移",
+    "move_down": "下移",
+    "delete": "刪除",
+    "word_count_unit": "字"
+  },
+  "manuscript": {
+    "notes": "筆記",
+    "notes_placeholder": "在這裡記下靈感…",
+    "todos": "待辦事項",
+    "todo_placeholder": "新增待辦…",
+    "todo_add": "新增",
+    "daily_goal": "每日目標",
+    "adjust_goal": "調整目標 →",
+    "complete_pct": "{{pct}}% 完成",
+    "characters": "角色",
+    "view_all_characters": "查看全部角色 →",
+    "loading_chapter": "載入中…",
+    "loading_editor": "載入編輯器…",
+    "untitled": "（無標題）",
+    "select_chapter": "選擇章節",
+    "word_count": "{{count}} 字",
+    "focus_mode": "專注模式 (F11)"
+  },
+  "save": {
+    "typing": "正在輸入…",
+    "saving": "儲存中…",
+    "saved": "已儲存 ✓",
+    "error": "⚠ 儲存失敗，點此重試"
+  },
+  "shelf": {
+    "title": "我的作品集",
+    "new_book": "建立新作品",
+    "last_edited": "最後編輯：",
+    "open_edit": "開啟編輯 →",
+    "more_options": "更多選項",
+    "rename": "重新命名",
+    "delete": "刪除",
+    "new_story": "展開新的故事",
+    "click_to_start": "點擊此處開始",
+    "user": "使用者",
+    "rename_title": "重新命名",
+    "save": "儲存",
+    "cancel": "取消",
+    "create_title": "建立新作品",
+    "book_name_label": "作品名稱",
+    "book_name_placeholder": "輸入作品標題…",
+    "creating": "建立中…",
+    "create": "建立",
+    "loading": "載入中…",
+    "error": "發生錯誤"
+  },
+  "error_boundary": {
+    "title": "發生錯誤",
+    "message": "請重新整理頁面，或聯絡支援。",
+    "reload": "重新整理"
+  },
+  "common": {
+    "loading": "載入中…",
+    "user": "使用者",
+    "just_now": "剛剛",
+    "minutes_ago": "{{count}}分鐘前",
+    "hours_ago": "{{count}}小時前",
+    "days_ago": "{{count}}天前"
   }
 }

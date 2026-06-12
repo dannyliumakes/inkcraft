@@ -139,3 +139,23 @@ export async function getHeadRevisionId(token: string, fileId: string): Promise<
   const data = await res.json() as { headRevisionId: string }
   return data.headRevisionId
 }
+
+export async function listRevisions(
+  token: string,
+  fileId: string,
+): Promise<{ id: string; modifiedTime: string; keepForever: boolean }[]> {
+  const res = await apiFetch(
+    token,
+    `${BASE}/files/${fileId}/revisions?fields=revisions(id,modifiedTime,keepForever)`,
+  )
+  const data = await res.json() as { revisions?: { id: string; modifiedTime: string; keepForever: boolean }[] }
+  return data.revisions ?? []
+}
+
+export async function keepRevision(token: string, fileId: string, revisionId: string): Promise<void> {
+  await apiFetch(token, `${BASE}/files/${fileId}/revisions/${revisionId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ keepForever: true }),
+  })
+}
