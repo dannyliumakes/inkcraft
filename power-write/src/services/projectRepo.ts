@@ -9,6 +9,9 @@ export async function loadProject(token: string, projectFileId: string): Promise
     projectWordGoal: parsed.projectWordGoal ?? 80000,
     wordHistory: parsed.wordHistory ?? [],
     milestones: parsed.milestones ?? [],
+    research: parsed.research ?? [],
+    characters: parsed.characters ?? [],
+    plotBoard: parsed.plotBoard ?? { acts: [] },
   }
 }
 

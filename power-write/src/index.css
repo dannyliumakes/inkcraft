@@ -4,6 +4,14 @@ body {
   overflow-x: hidden;
 }
 
+/* Search result highlight */
+mark {
+  background-color: #fef08a;
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
 /* Tiptap editor styles */
 .tiptap-editor .ProseMirror {
   outline: none;
