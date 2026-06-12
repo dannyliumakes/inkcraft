@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
@@ -13,8 +14,8 @@ import {
   updateFileContent,
   getHeadRevisionId,
 } from '../../services/drive'
-import { saveProject } from '../../services/projectRepo'
-import { loadProject } from '../../services/projectRepo'
+import { saveProject, loadProject } from '../../services/projectRepo'
+import { takeSnapshot } from '../../services/wordSnapshot'
 import { countWords } from '../../lib/wordCount'
 import ChapterTree from './ChapterTree'
 import type { Chapter, Project, Todo } from '../../types/project'
@@ -40,19 +41,20 @@ function SaveTag({
   lastSavedAt: Date | null
   onRetry: () => void
 }) {
+  const { t } = useTranslation()
   if (status === 'idle') return null
-  if (status === 'typing') return <span className="text-xs text-gray-400">正在輸入…</span>
-  if (status === 'saving') return <span className="text-xs text-gray-400">儲存中…</span>
+  if (status === 'typing') return <span className="text-xs text-gray-400">{t('save.typing')}</span>
+  if (status === 'saving') return <span className="text-xs text-gray-400">{t('save.saving')}</span>
   if (status === 'saved')
     return (
       <span className="text-xs text-green-600">
-        已儲存 ✓ {lastSavedAt ? fmtTime(lastSavedAt) : ''}
+        {t('save.saved')} {lastSavedAt ? fmtTime(lastSavedAt) : ''}
       </span>
     )
   if (status === 'error')
     return (
-      <button className="text-xs text-red-500 underline" onClick={onRetry}>
-        ⚠ 儲存失敗，點此重試
+      <button className="text-xs text-red-500 underline focus-visible:ring-2 focus-visible:ring-blue-400" onClick={onRetry}>
+        {t('save.error')}
       </button>
     )
   return null
@@ -61,6 +63,7 @@ function SaveTag({
 // ─── Right column ────────────────────────────────────────────────────────────
 
 function SidePanel({ project, onProjectUpdate }: { project: Project; onProjectUpdate: (p: Project) => void }) {
+  const { t } = useTranslation()
   const [notes, setNotes] = useState(project.notes)
   const [newTodo, setNewTodo] = useState('')
 
@@ -126,10 +129,10 @@ function SidePanel({ project, onProjectUpdate }: { project: Project; onProjectUp
     <div className="flex flex-col gap-0 h-full overflow-y-auto">
       {/* Notes */}
       <section className="p-4 border-b border-gray-100">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">筆記</h3>
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('manuscript.notes')}</h3>
         <textarea
           className="w-full text-sm text-gray-700 bg-transparent resize-none outline-none min-h-[120px]"
-          placeholder="在這裡記下靈感…"
+          placeholder={t('manuscript.notes_placeholder')}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           onBlur={saveNotes}
@@ -138,7 +141,7 @@ function SidePanel({ project, onProjectUpdate }: { project: Project; onProjectUp
 
       {/* Todos */}
       <section className="p-4 border-b border-gray-100">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">待辦事項</h3>
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('manuscript.todos')}</h3>
         <ul className="space-y-1.5 mb-2">
           {project.todos.map((todo) => (
             <li key={todo.id} className="flex items-center gap-2">
@@ -157,27 +160,27 @@ function SidePanel({ project, onProjectUpdate }: { project: Project; onProjectUp
         <div className="flex gap-1">
           <input
             className="flex-1 text-sm border border-gray-200 rounded px-2 py-1 outline-none focus:border-[#7c6ee0]"
-            placeholder="新增待辦…"
+            placeholder={t('manuscript.todo_placeholder')}
             value={newTodo}
             onChange={(e) => setNewTodo(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') addTodo() }}
           />
           <button
-            className="px-2 py-1 bg-[#7c6ee0] text-white text-xs rounded hover:bg-[#6a5ec8]"
+            className="px-2 py-1 bg-[#7c6ee0] text-white text-xs rounded hover:bg-[#6a5ec8] focus-visible:ring-2 focus-visible:ring-blue-400"
             onClick={addTodo}
           >
-            新增
+            {t('manuscript.todo_add')}
           </button>
         </div>
       </section>
 
       {/* Daily goal */}
       <section className="p-4">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">每日目標</h3>
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('manuscript.daily_goal')}</h3>
         <div className="flex items-center justify-between mb-1">
           <span className="text-sm text-gray-700">{totalWords} / {goal} 字</span>
-          <button className="text-xs text-[#7c6ee0] hover:underline" onClick={adjustGoal}>
-            調整目標 →
+          <button className="text-xs text-[#7c6ee0] hover:underline focus-visible:ring-2 focus-visible:ring-blue-400" onClick={adjustGoal}>
+            {t('manuscript.adjust_goal')}
           </button>
         </div>
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -186,7 +189,7 @@ function SidePanel({ project, onProjectUpdate }: { project: Project; onProjectUp
             style={{ width: `${progress}%` }}
           />
         </div>
-        <p className="text-xs text-gray-400 mt-1">{progress}% 完成</p>
+        <p className="text-xs text-gray-400 mt-1">{t('manuscript.complete_pct', { pct: progress })}</p>
       </section>
     </div>
   )
@@ -195,6 +198,7 @@ function SidePanel({ project, onProjectUpdate }: { project: Project; onProjectUp
 // ─── Main page ───────────────────────────────────────────────────────────────
 
 export default function ManuscriptPage() {
+  const { t } = useTranslation()
   const { bookId } = useParams<{ bookId: string }>()
   const shelf = useShelfStore((s) => s.books)
 
@@ -219,6 +223,7 @@ export default function ManuscriptPage() {
   const projectDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [chapterTitle, setChapterTitle] = useState('')
   const [editingChapterTitle, setEditingChapterTitle] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   // ── Load project on mount ────────────────────────────────────────────────
   useEffect(() => {
@@ -344,7 +349,9 @@ export default function ManuscriptPage() {
       if (projectDebounceRef.current) clearTimeout(projectDebounceRef.current)
       projectDebounceRef.current = setTimeout(async () => {
         try {
-          await saveProject(token, updatedProject)
+          const snapshotProject = takeSnapshot(updatedProject)
+          setProject(snapshotProject)
+          await saveProject(token, snapshotProject)
         } catch (e) {
           console.error('Failed to save project.json', e)
         }
@@ -399,7 +406,7 @@ export default function ManuscriptPage() {
     <div className="flex h-[calc(100vh-57px)]" style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
       {/* Left column */}
       {!focusMode && (
-        <aside className="w-64 shrink-0 bg-white border-r border-gray-100 flex flex-col overflow-hidden">
+        <aside className={`${sidebarOpen ? 'w-64' : 'hidden'} shrink-0 bg-white border-r border-gray-100 flex flex-col overflow-hidden`}>
           {/* Chapter tree */}
           <div className="flex-1 overflow-hidden flex flex-col">
             {project ? (
@@ -414,7 +421,7 @@ export default function ManuscriptPage() {
                 onProjectUpdate={setProject}
               />
             ) : (
-              <div className="p-4 text-xs text-gray-400">載入中…</div>
+              <div className="p-4 text-xs text-gray-400">{t('manuscript.loading_chapter')}</div>
             )}
           </div>
 
@@ -429,7 +436,7 @@ export default function ManuscriptPage() {
                   </li>
                 ))}
               </ul>
-              <button className="text-xs text-[#7c6ee0] mt-2 hover:underline">查看全部角色 →</button>
+              <button className="text-xs text-[#7c6ee0] mt-2 hover:underline focus-visible:ring-2 focus-visible:ring-blue-400">{t('manuscript.view_all_characters')}</button>
             </div>
           )}
         </aside>
@@ -439,6 +446,18 @@ export default function ManuscriptPage() {
       <div className="flex-1 flex flex-col overflow-hidden bg-[#f8f8f8]">
         {/* Top app bar */}
         <div className="bg-white shadow-sm px-6 py-3 flex items-center gap-4 shrink-0 z-10">
+          {/* Sidebar toggle (visible when not in focus mode) */}
+          {!focusMode && (
+            <button
+              title={sidebarOpen ? '收起側欄' : '展開側欄'}
+              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 shrink-0"
+              onClick={() => setSidebarOpen(o => !o)}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+              </svg>
+            </button>
+          )}
           {/* Chapter title */}
           {editingChapterTitle ? (
             <input
@@ -457,11 +476,11 @@ export default function ManuscriptPage() {
               className="text-lg font-semibold text-[#181c1e] cursor-pointer hover:text-[#7c6ee0] transition-colors"
               onClick={() => setEditingChapterTitle(true)}
             >
-              {chapterTitle || (activeChapterId ? '（無標題）' : '選擇章節')}
+              {chapterTitle || (activeChapterId ? t('manuscript.untitled') : t('manuscript.select_chapter'))}
             </h2>
           )}
 
-          <span className="text-sm text-gray-400 ml-2">{wordCount.toLocaleString()} 字</span>
+          <span className="text-sm text-gray-400 ml-2">{wordCount.toLocaleString()} {t('chapter_tree.word_count_unit')}</span>
 
           <div className="flex-1" />
 
@@ -473,7 +492,7 @@ export default function ManuscriptPage() {
 
           {/* Focus mode toggle */}
           <button
-            title="專注模式 (F11)"
+            title={t('manuscript.focus_mode')}
             className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
               focusMode ? 'bg-[#7c6ee0] text-white' : 'hover:bg-gray-100 text-gray-400'
             }`}
@@ -494,7 +513,7 @@ export default function ManuscriptPage() {
                 className="prose prose-lg max-w-none focus:outline-none tiptap-editor"
               />
             ) : (
-              <p className="text-gray-400 text-sm">載入編輯器…</p>
+              <p className="text-gray-400 text-sm">{t('manuscript.loading_editor')}</p>
             )}
           </div>
         </div>

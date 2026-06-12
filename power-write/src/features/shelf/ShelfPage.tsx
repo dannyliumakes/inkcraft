@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { RequireAuth } from '../../services/auth'
 import { findOrCreateRootFolder, listChildren, trashFile, downloadText, updateFileContent } from '../../services/drive'
 import { loadProject } from '../../services/projectRepo'
@@ -34,6 +35,7 @@ function BookCard({ book, onOpen, onRename, onDelete }: {
   onRename: () => void
   onDelete: () => void
 }) {
+  const { t } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -56,12 +58,12 @@ function BookCard({ book, onOpen, onRename, onDelete }: {
       <div className="px-5 py-4 flex flex-col gap-1">
         <h3 className="text-lg font-medium text-[#181c1e] truncate">{book.title}</h3>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-[#6d6d6d]">最後編輯：{relativeTime(book.updatedAt)}</span>
+          <span className="text-xs text-[#6d6d6d]">{t('shelf.last_edited')}{relativeTime(book.updatedAt)}</span>
           <button
-            className="text-xs text-[#4c5354] hover:text-[#181c1e] font-medium"
+            className="text-xs text-[#4c5354] hover:text-[#181c1e] font-medium focus-visible:ring-2 focus-visible:ring-blue-400"
             onClick={(e) => { e.stopPropagation(); onOpen() }}
           >
-            開啟編輯 →
+            {t('shelf.open_edit')}
           </button>
         </div>
       </div>
@@ -70,7 +72,7 @@ function BookCard({ book, onOpen, onRename, onDelete }: {
       <button
         className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-sm"
         onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v) }}
-        aria-label="更多選項"
+        aria-label={t('shelf.more_options')}
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <circle cx="8" cy="3" r="1.5" fill="#4c5354"/>
@@ -90,13 +92,13 @@ function BookCard({ book, onOpen, onRename, onDelete }: {
               className="w-full text-left px-4 py-2 text-sm text-[#181c1e] hover:bg-gray-50"
               onClick={() => { setMenuOpen(false); onRename() }}
             >
-              重新命名
+              {t('shelf.rename')}
             </button>
             <button
               className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50"
               onClick={() => { setMenuOpen(false); onDelete() }}
             >
-              刪除
+              {t('shelf.delete')}
             </button>
           </div>
         </>
@@ -108,6 +110,7 @@ function BookCard({ book, onOpen, onRename, onDelete }: {
 // ── NewBookCard ───────────────────────────────────────────────────────────────
 
 function NewBookCard({ onClick }: { onClick: () => void }) {
+  const { t } = useTranslation()
   return (
     <button
       className="bg-[#f2f4ff] rounded-3xl border-2 border-dashed border-[#b0b8f0] flex flex-col items-center justify-center gap-4 hover:bg-[#e8eaff] transition-colors"
@@ -121,8 +124,8 @@ function NewBookCard({ onClick }: { onClick: () => void }) {
         </svg>
       </div>
       <div className="text-center">
-        <p className="text-base font-medium text-[#4c5354]">展開新的故事</p>
-        <p className="text-sm text-[#6d6d6d] mt-1">點擊此處開始</p>
+        <p className="text-base font-medium text-[#4c5354]">{t('shelf.new_story')}</p>
+        <p className="text-sm text-[#6d6d6d] mt-1">{t('shelf.click_to_start')}</p>
       </div>
     </button>
   )
@@ -135,11 +138,12 @@ function RenameModal({ book, onClose, onSave }: {
   onClose: () => void
   onSave: (title: string) => void
 }) {
+  const { t } = useTranslation()
   const [title, setTitle] = useState(book.title)
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-8">
-        <h2 className="text-lg font-bold text-[#181c1e] mb-5">重新命名</h2>
+        <h2 className="text-lg font-bold text-[#181c1e] mb-5">{t('shelf.rename_title')}</h2>
         <input
           type="text"
           value={title}
@@ -148,12 +152,12 @@ function RenameModal({ book, onClose, onSave }: {
           autoFocus
         />
         <div className="flex gap-3 justify-end mt-5">
-          <button onClick={onClose} className="px-5 py-2.5 rounded-full text-sm font-medium text-[#4c5354] hover:bg-gray-100">取消</button>
+          <button onClick={onClose} className="px-5 py-2.5 rounded-full text-sm font-medium text-[#4c5354] hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-400">{t('shelf.cancel')}</button>
           <button
             onClick={() => title.trim() && onSave(title.trim())}
             disabled={!title.trim()}
-            className="px-5 py-2.5 rounded-full text-sm font-medium bg-[#181c1e] text-white hover:bg-[#2e3538] disabled:opacity-50"
-          >儲存</button>
+            className="px-5 py-2.5 rounded-full text-sm font-medium bg-[#181c1e] text-white hover:bg-[#2e3538] disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-400"
+          >{t('shelf.save')}</button>
         </div>
       </div>
     </div>
@@ -163,10 +167,11 @@ function RenameModal({ book, onClose, onSave }: {
 // ── TopNav ────────────────────────────────────────────────────────────────────
 
 function TopNav() {
+  const { t } = useTranslation()
   return (
-    <nav className="bg-white border-b border-gray-100 px-8 py-3 flex items-center gap-4 sticky top-0 z-30">
+    <nav className="bg-white border-b border-gray-100 px-4 md:px-8 py-3 flex items-center gap-4 sticky top-0 z-30">
       <span
-        className="font-black text-[32px] text-[#181c1e] tracking-tight mr-6"
+        className="font-black text-xl md:text-[32px] text-[#181c1e] tracking-tight mr-2 md:mr-6"
         style={{ fontFamily: "'Noto Sans TC', sans-serif" }}
       >
         Power write
@@ -180,7 +185,7 @@ function TopNav() {
         </svg>
       </button>
       <div className="flex items-center gap-2">
-        <span className="text-sm text-[#4c5354]">使用者</span>
+        <span className="text-sm text-[#4c5354]">{t('shelf.user')}</span>
         <div className="w-8 h-8 rounded-full bg-[#e8eaff] flex items-center justify-center text-[#7c6ee0] font-bold text-sm">U</div>
       </div>
     </nav>
@@ -190,6 +195,7 @@ function TopNav() {
 // ── ShelfContent ──────────────────────────────────────────────────────────────
 
 function ShelfContent() {
+  const { t } = useTranslation()
   const { books, loading, error, setBooks, setLoading, setError, removeBook, updateBook } = useShelfStore()
   const [showCreate, setShowCreate] = useState(false)
   const [renaming, setRenaming] = useState<ShelfBook | null>(null)
@@ -273,18 +279,18 @@ function ShelfContent() {
     <div className="min-h-screen bg-[#f8f8f8]" style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
       <TopNav />
 
-      <main className="max-w-[1280px] mx-auto px-8 py-10">
+      <main className="max-w-[1280px] mx-auto px-4 md:px-8 py-10">
         {/* Header row */}
         <div className="flex items-end justify-between mb-8">
           <div>
             <p className="text-sm text-[#6d6d6d] mb-1">{formatDate(today)}</p>
-            <h1 className="text-[28px] font-bold text-[#181c1e]">我的作品集</h1>
+            <h1 className="text-[28px] font-bold text-[#181c1e]">{t('shelf.title')}</h1>
           </div>
           <button
             onClick={() => setShowCreate(true)}
-            className="px-6 py-3 bg-[#181c1e] text-white text-sm font-medium rounded-full hover:bg-[#2e3538] transition-colors"
+            className="px-6 py-3 bg-[#181c1e] text-white text-sm font-medium rounded-full hover:bg-[#2e3538] transition-colors focus-visible:ring-2 focus-visible:ring-blue-400"
           >
-            建立新作品
+            {t('shelf.new_book')}
           </button>
         </div>
 
@@ -299,7 +305,7 @@ function ShelfContent() {
             <div className="w-8 h-8 border-2 border-[#4c5354]/30 border-t-[#4c5354] rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 384px))' }}>
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {books.map((book) => (
               <BookCard
                 key={book.id}

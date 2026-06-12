@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+body {
+  overflow-x: hidden;
+}
+
 /* Tiptap editor styles */
 .tiptap-editor .ProseMirror {
   outline: none;

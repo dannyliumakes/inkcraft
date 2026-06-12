@@ -31,6 +31,9 @@ export interface Project {
   notes: string;
   todos: Todo[];
   dailyWordGoal: number;
+  projectWordGoal: number;   // default 80000
+  wordHistory: { date: string; total: number }[];  // YYYY-MM-DD entries
+  milestones: { id: string; label: string; createdAt: string; driveRevisionId?: string }[];
   updatedAt: string;    // ISO timestamp
   rev: number;
 }

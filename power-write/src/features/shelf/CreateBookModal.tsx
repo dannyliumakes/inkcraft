@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { findOrCreateRootFolder, createFolder, createTextFile, updateFileContent } from '../../services/drive'
 import { getAccessToken } from '../../stores/authStore'
 import type { Project } from '../../types/project'
@@ -9,10 +10,17 @@ interface Props {
 }
 
 export default function CreateBookModal({ onClose }: Props) {
+  const { t } = useTranslation()
   const [title, setTitle] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onClose])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -46,6 +54,9 @@ export default function CreateBookModal({ onClose }: Props) {
         notes: '',
         todos: [],
         dailyWordGoal: 3000,
+        projectWordGoal: 80000,
+        wordHistory: [],
+        milestones: [],
         updatedAt: now,
         rev: 0,
       }
@@ -71,15 +82,15 @@ export default function CreateBookModal({ onClose }: Props) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-8">
-        <h2 className="text-xl font-bold text-[#181c1e] mb-6">建立新作品</h2>
+        <h2 className="text-xl font-bold text-[#181c1e] mb-6">{t('shelf.create_title')}</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-sm font-medium text-[#4c5354] mb-1">作品名稱</label>
+            <label className="block text-sm font-medium text-[#4c5354] mb-1">{t('shelf.book_name_label')}</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="輸入作品標題…"
+              placeholder={t('shelf.book_name_placeholder')}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#181c1e] placeholder-[#6d6d6d] focus:outline-none focus:ring-2 focus:ring-[#4c5354]/30"
               autoFocus
               disabled={submitting}
@@ -91,16 +102,16 @@ export default function CreateBookModal({ onClose }: Props) {
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="px-5 py-2.5 rounded-full text-sm font-medium text-[#4c5354] hover:bg-gray-100 transition-colors"
+              className="px-5 py-2.5 rounded-full text-sm font-medium text-[#4c5354] hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-blue-400"
             >
-              取消
+              {t('shelf.cancel')}
             </button>
             <button
               type="submit"
               disabled={submitting || !title.trim()}
-              className="px-5 py-2.5 rounded-full text-sm font-medium bg-[#181c1e] text-white hover:bg-[#2e3538] disabled:opacity-50 transition-colors"
+              className="px-5 py-2.5 rounded-full text-sm font-medium bg-[#181c1e] text-white hover:bg-[#2e3538] disabled:opacity-50 transition-colors focus-visible:ring-2 focus-visible:ring-blue-400"
             >
-              {submitting ? '建立中…' : '建立'}
+              {submitting ? t('shelf.creating') : t('shelf.create')}
             </button>
           </div>
         </form>
