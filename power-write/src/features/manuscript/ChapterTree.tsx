@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { Project, Chapter } from '../../types/project'
-import { createTextFile, trashFile } from '../../services/drive'
-import { saveProject } from '../../services/projectRepo'
-import { getAccessToken } from '../../stores/authStore'
+import type { Project, Chapter } from '../../shared/types/project'
+import { createTextFile, trashFile } from '../../shared/services/drive'
+import { saveProject } from '../../shared/services/projectRepo'
+import { getAccessToken } from '../../shared/stores/authStore'
+import { Input } from '../../shared/components/ui'
 
 interface Props {
   project: Project
@@ -149,8 +150,8 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
             </svg>
 
             {editingId === ch.id ? (
-              <input
-                className="flex-1 text-sm border border-[#7c6ee0] rounded px-1 outline-none"
+              <Input
+                className="flex-1 text-sm"
                 value={editingTitle}
                 autoFocus
                 onClick={(e) => e.stopPropagation()}

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Project } from '../types/project'
+import type { Project } from '../../shared/types/project'
 
 export type SaveStatus = 'idle' | 'typing' | 'saving' | 'saved' | 'error'
 

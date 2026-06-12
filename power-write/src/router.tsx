@@ -3,7 +3,7 @@ import ShelfPage from './features/shelf/ShelfPage';
 import BookLayout from './features/layout/BookLayout';
 import ManuscriptPage from './features/manuscript/ManuscriptPage';
 import Overview from './features/overview/Overview';
-import ErrorBoundary from './components/ErrorBoundary';
+import ErrorBoundary from './shared/components/ErrorBoundary';
 import CharacterList from './features/characters/CharacterList';
 import ResearchList from './features/research/ResearchList';
 import PlotBoard from './features/plot/PlotBoard';

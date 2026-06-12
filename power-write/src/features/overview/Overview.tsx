@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { useManuscriptStore } from '../../stores/manuscriptStore';
-import { getAccessToken } from '../../stores/authStore';
-import { saveProject } from '../../services/projectRepo';
+import { useManuscriptStore } from '../manuscript/manuscriptStore';
+import { getAccessToken } from '../../shared/stores/authStore';
+import { saveProject } from '../../shared/services/projectRepo';
 import { getDailyOutput, getWeekTotal, getRemainingGoal } from '../../lib/wordStats';
-import { downloadManuscript } from '../../services/exportService';
+import { downloadManuscript } from '../../shared/services/exportService';
+import { Button, Input } from '../../shared/components/ui';
 
 export default function Overview() {
   const { t } = useTranslation();
@@ -48,13 +49,9 @@ export default function Overview() {
     <div className="p-6 max-w-3xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">{t('overview.title')}</h1>
-        <button
-          onClick={handleExport}
-          disabled={exporting}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-400"
-        >
-          {exporting ? t('overview.exporting') : t('overview.export')}
-        </button>
+        <Button onClick={handleExport} disabled={exporting} loading={exporting}>
+          {t('overview.export')}
+        </Button>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-6">
@@ -87,26 +84,22 @@ export default function Overview() {
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
         <h2 className="text-lg font-semibold mb-4">{t('overview.goal_settings')}</h2>
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">{t('overview.project_goal')}</label>
-            <input
-              type="number"
-              defaultValue={project.projectWordGoal ?? 80000}
-              onChange={e => setGoalInput(e.target.value)}
-              onBlur={() => handleSaveGoal('projectWordGoal', goalInput)}
-              className="w-48 border rounded px-3 py-1.5 text-sm focus-visible:ring-2 focus-visible:ring-blue-400"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">{t('overview.daily_goal')}</label>
-            <input
-              type="number"
-              defaultValue={project.dailyWordGoal ?? 1000}
-              onChange={e => setDailyGoalInput(e.target.value)}
-              onBlur={() => handleSaveGoal('dailyWordGoal', dailyGoalInput)}
-              className="w-48 border rounded px-3 py-1.5 text-sm focus-visible:ring-2 focus-visible:ring-blue-400"
-            />
-          </div>
+          <Input
+            label={t('overview.project_goal')}
+            type="number"
+            defaultValue={project.projectWordGoal ?? 80000}
+            onChange={e => setGoalInput(e.target.value)}
+            onBlur={() => handleSaveGoal('projectWordGoal', goalInput)}
+            className="w-48"
+          />
+          <Input
+            label={t('overview.daily_goal')}
+            type="number"
+            defaultValue={project.dailyWordGoal ?? 1000}
+            onChange={e => setDailyGoalInput(e.target.value)}
+            onBlur={() => handleSaveGoal('dailyWordGoal', dailyGoalInput)}
+            className="w-48"
+          />
         </div>
       </div>
     </div>

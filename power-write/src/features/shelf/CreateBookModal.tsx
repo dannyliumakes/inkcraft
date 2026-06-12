@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { findOrCreateRootFolder, createFolder, createTextFile, updateFileContent } from '../../services/drive'
-import { getAccessToken } from '../../stores/authStore'
-import type { Project } from '../../types/project'
+import { findOrCreateRootFolder, createFolder, createTextFile, updateFileContent } from '../../shared/services/drive'
+import { getAccessToken } from '../../shared/stores/authStore'
+import type { Project } from '../../shared/types/project'
+import { Button, Input, Modal } from '../../shared/components/ui'
 
 interface Props {
   onClose: () => void
@@ -79,45 +80,25 @@ export default function CreateBookModal({ onClose }: Props) {
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 p-8">
-        <h2 className="text-xl font-bold text-[#181c1e] mb-6">{t('shelf.create_title')}</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium text-[#4c5354] mb-1">{t('shelf.book_name_label')}</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder={t('shelf.book_name_placeholder')}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#181c1e] placeholder-[#6d6d6d] focus:outline-none focus:ring-2 focus:ring-[#4c5354]/30"
-              autoFocus
-              disabled={submitting}
-            />
-          </div>
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          <div className="flex gap-3 justify-end mt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={submitting}
-              className="px-5 py-2.5 rounded-full text-sm font-medium text-[#4c5354] hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-blue-400"
-            >
-              {t('shelf.cancel')}
-            </button>
-            <button
-              type="submit"
-              disabled={submitting || !title.trim()}
-              className="px-5 py-2.5 rounded-full text-sm font-medium bg-[#181c1e] text-white hover:bg-[#2e3538] disabled:opacity-50 transition-colors focus-visible:ring-2 focus-visible:ring-blue-400"
-            >
-              {submitting ? t('shelf.creating') : t('shelf.create')}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Modal open onClose={onClose} title={t('shelf.create_title')}>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <Input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder={t('shelf.book_name_placeholder')}
+          autoFocus
+          disabled={submitting}
+        />
+        {error && <p className="text-sm text-red-500">{error}</p>}
+        <div className="flex gap-3 justify-end mt-2">
+          <Button variant="ghost" type="button" onClick={onClose} disabled={submitting}>
+            {t('shelf.cancel')}
+          </Button>
+          <Button type="submit" disabled={submitting || !title.trim()} loading={submitting}>
+            {submitting ? t('shelf.creating') : t('shelf.create')}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }

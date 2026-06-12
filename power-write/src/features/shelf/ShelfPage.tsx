@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { RequireAuth } from '../../services/auth'
-import { findOrCreateRootFolder, listChildren, trashFile, downloadText, updateFileContent } from '../../services/drive'
-import { loadProject } from '../../services/projectRepo'
-import { getAccessToken } from '../../stores/authStore'
-import { useShelfStore } from '../../stores/shelfStore'
-import type { ShelfBook } from '../../stores/shelfStore'
+import { RequireAuth } from '../../shared/services/auth'
+import { findOrCreateRootFolder, listChildren, trashFile, downloadText, updateFileContent } from '../../shared/services/drive'
+import { loadProject } from '../../shared/services/projectRepo'
+import { getAccessToken } from '../../shared/stores/authStore'
+import { useShelfStore } from './shelfStore'
+import type { ShelfBook } from './shelfStore'
+import { Button, Input, Modal, Spinner } from '../../shared/components/ui'
 import CreateBookModal from './CreateBookModal'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -141,26 +142,17 @@ function RenameModal({ book, onClose, onSave }: {
   const { t } = useTranslation()
   const [title, setTitle] = useState(book.title)
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-8">
-        <h2 className="text-lg font-bold text-[#181c1e] mb-5">{t('shelf.rename_title')}</h2>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#181c1e] focus:outline-none focus:ring-2 focus:ring-[#4c5354]/30"
-          autoFocus
-        />
-        <div className="flex gap-3 justify-end mt-5">
-          <button onClick={onClose} className="px-5 py-2.5 rounded-full text-sm font-medium text-[#4c5354] hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-400">{t('shelf.cancel')}</button>
-          <button
-            onClick={() => title.trim() && onSave(title.trim())}
-            disabled={!title.trim()}
-            className="px-5 py-2.5 rounded-full text-sm font-medium bg-[#181c1e] text-white hover:bg-[#2e3538] disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue-400"
-          >{t('shelf.save')}</button>
-        </div>
+    <Modal open onClose={onClose} title={t('shelf.rename_title')}>
+      <Input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        autoFocus
+      />
+      <div className="flex gap-3 justify-end mt-5">
+        <Button variant="ghost" onClick={onClose}>{t('shelf.cancel')}</Button>
+        <Button onClick={() => title.trim() && onSave(title.trim())} disabled={!title.trim()}>{t('shelf.save')}</Button>
       </div>
-    </div>
+    </Modal>
   )
 }
 
@@ -286,12 +278,9 @@ function ShelfContent() {
             <p className="text-sm text-[#6d6d6d] mb-1">{formatDate(today)}</p>
             <h1 className="text-[28px] font-bold text-[#181c1e]">{t('shelf.title')}</h1>
           </div>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="px-6 py-3 bg-[#181c1e] text-white text-sm font-medium rounded-full hover:bg-[#2e3538] transition-colors focus-visible:ring-2 focus-visible:ring-blue-400"
-          >
+          <Button onClick={() => setShowCreate(true)}>
             {t('shelf.new_book')}
-          </button>
+          </Button>
         </div>
 
         {/* Error */}
@@ -302,7 +291,7 @@ function ShelfContent() {
         {/* Loading */}
         {loading ? (
           <div className="flex items-center justify-center py-32">
-            <div className="w-8 h-8 border-2 border-[#4c5354]/30 border-t-[#4c5354] rounded-full animate-spin" />
+<Spinner size="md" />
           </div>
         ) : (
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">

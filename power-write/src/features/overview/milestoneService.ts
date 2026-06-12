@@ -1,5 +1,5 @@
-import type { Project } from '../types/project'
-import { listRevisions, keepRevision } from './drive'
+import type { Project } from '../../shared/types/project'
+import { listRevisions, keepRevision } from '../../shared/services/drive'
 
 export async function createMilestone(
   token: string,

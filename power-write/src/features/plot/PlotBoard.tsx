@@ -18,10 +18,11 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-import type { PlotAct, PlotChapter, PlotScene, Project } from '../../types/project'
-import { getAccessToken } from '../../stores/authStore'
-import { useShelfStore } from '../../stores/shelfStore'
-import { loadProject, saveProject } from '../../services/projectRepo'
+import type { PlotAct, PlotChapter, PlotScene, Project } from '../../shared/types/project'
+import { getAccessToken } from '../../shared/stores/authStore'
+import { useShelfStore } from '../shelf/shelfStore'
+import { loadProject, saveProject } from '../../shared/services/projectRepo'
+import { Button, Input } from '../../shared/components/ui'
 import SceneModal from './SceneModal'
 
 // ─── Scene Card ───────────────────────────────────────────────────────────────
@@ -151,7 +152,7 @@ function ChapterColumn({
       {/* Column header */}
       <div className="px-4 pt-4 pb-2">
         {editing ? (
-          <input
+          <Input
             ref={inputRef}
             value={draftTitle}
             onChange={(e) => setDraftTitle(e.target.value)}
@@ -160,7 +161,7 @@ function ChapterColumn({
               if (e.key === 'Enter') commitRename()
               if (e.key === 'Escape') { setDraftTitle(chapter.title); setEditing(false) }
             }}
-            className="w-full text-sm font-semibold text-[#181c1e] bg-white border border-[#c7cbff] rounded-lg px-2 py-1 focus:outline-none"
+            className="w-full text-sm font-semibold"
           />
         ) : (
           <button
@@ -502,20 +503,13 @@ export default function PlotBoard() {
           </select>
         )}
 
-        <button
-          onClick={addAct}
-          className="px-4 py-2 rounded-full text-sm font-medium bg-[#f2f4ff] text-[#4c5354] hover:bg-[#e0e4ff] transition-colors"
-        >
+        <Button variant="ghost" onClick={addAct}>
           ＋ 新增幕
-        </button>
+        </Button>
 
-        <button
-          onClick={handleSave}
-          disabled={!dirty || saving}
-          className="px-4 py-2 rounded-full text-sm font-medium bg-[#181c1e] text-white hover:bg-[#2e3538] disabled:opacity-40 transition-colors"
-        >
-          {saving ? '儲存中…' : '儲存變更'}
-        </button>
+        <Button onClick={handleSave} disabled={!dirty || saving} loading={saving}>
+          儲存變更
+        </Button>
       </div>
 
       {saveError && (
@@ -533,12 +527,7 @@ export default function PlotBoard() {
           {filteredActs.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-[#a0aec0]">
               <p className="text-lg mb-4">尚無情節結構</p>
-              <button
-                onClick={addAct}
-                className="px-6 py-3 rounded-full text-sm font-medium bg-[#181c1e] text-white hover:bg-[#2e3538] transition-colors"
-              >
-                ＋ 新增第一幕
-              </button>
+              <Button onClick={addAct}>＋ 新增第一幕</Button>
             </div>
           ) : (
             filteredActs.map((act, actIndex) => (
@@ -620,7 +609,7 @@ function ActSection({
       <div className="flex items-center gap-3 mb-4">
         <div className="h-px flex-1 bg-gray-200" />
         {editingTitle ? (
-          <input
+          <Input
             ref={inputRef}
             value={draftTitle}
             onChange={(e) => setDraftTitle(e.target.value)}
@@ -629,7 +618,7 @@ function ActSection({
               if (e.key === 'Enter') commitRename()
               if (e.key === 'Escape') { setDraftTitle(act.title); setEditingTitle(false) }
             }}
-            className="text-sm font-bold text-[#4c5354] bg-white border border-[#c7cbff] rounded-lg px-2 py-1 focus:outline-none w-40"
+            className="text-sm font-bold w-40"
           />
         ) : (
           <button

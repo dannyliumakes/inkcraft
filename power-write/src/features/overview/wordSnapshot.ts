@@ -1,4 +1,4 @@
-import type { Project } from '../types/project';
+import type { Project } from '../../shared/types/project';
 
 export function takeSnapshot(project: Project): Project {
   const todayTotal = project.chapters.reduce((sum, ch) => sum + ch.wordCount, 0);

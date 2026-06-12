@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { NavLink, Outlet, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useManuscriptSearch } from '../../lib/useManuscriptSearch';
-import { useManuscriptStore } from '../../stores/manuscriptStore';
-import { getAccessToken } from '../../stores/authStore';
-import { downloadText, getHeadRevisionId } from '../../services/drive';
+import { useManuscriptSearch } from '../manuscript/useManuscriptSearch';
+import { useManuscriptStore } from '../manuscript/manuscriptStore';
+import { getAccessToken } from '../../shared/stores/authStore';
+import { downloadText, getHeadRevisionId } from '../../shared/services/drive';
 import NotificationBell from './NotificationBell';
 import MilestonePanel from './MilestonePanel';
 

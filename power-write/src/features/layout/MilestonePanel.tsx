@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useManuscriptStore } from '../../stores/manuscriptStore'
-import { getAccessToken } from '../../stores/authStore'
-import { createMilestone } from '../../services/milestoneService'
-import { saveProject } from '../../services/projectRepo'
+import { useManuscriptStore } from '../manuscript/manuscriptStore'
+import { getAccessToken } from '../../shared/stores/authStore'
+import { createMilestone } from '../overview/milestoneService'
+import { saveProject } from '../../shared/services/projectRepo'
+import { Button, Input } from '../../shared/components/ui'
 
 interface Props { onClose: () => void }
 
@@ -58,32 +59,27 @@ export default function MilestonePanel({ onClose }: Props) {
       <div className="p-4 border-b">
         {showInput ? (
           <div className="space-y-2">
-            <input
+            <Input
               autoFocus
               value={label}
               onChange={e => setLabel(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleCreate()}
               placeholder={t('milestone.placeholder')}
-              className="w-full border rounded px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-blue-400"
             />
             <div className="flex gap-2">
-              <button
-                onClick={handleCreate}
-                disabled={creating || !label.trim()}
-                className="flex-1 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:opacity-50 focus-visible:ring-2"
-              >
+              <Button onClick={handleCreate} disabled={creating || !label.trim()} loading={creating} size="sm">
                 {creating ? t('milestone.creating') : t('milestone.confirm')}
-              </button>
-              <button onClick={() => setShowInput(false)} className="px-3 text-sm text-gray-500 hover:text-gray-700 focus-visible:ring-2 focus-visible:ring-blue-400">{t('milestone.cancel')}</button>
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setShowInput(false)}>{t('milestone.cancel')}</Button>
             </div>
           </div>
         ) : (
-          <button
+          <Button
+            variant="ghost"
             onClick={() => setShowInput(true)}
-            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 focus-visible:ring-2"
           >
             {t('milestone.create_btn')}
-          </button>
+          </Button>
         )}
       </div>
 

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import Fuse from 'fuse.js'
-import type { Project } from '../types/project'
+import type { Project } from '../../shared/types/project'
 
 export interface SearchDoc {
   id: string

@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import type { PlotChapter, PlotScene } from '../../types/project'
-import { getAccessToken } from '../../stores/authStore'
-import { uploadImage } from '../../services/assets'
-import { getImageUrl } from '../../services/assets'
+import type { PlotChapter, PlotScene } from '../../shared/types/project'
+import { getAccessToken } from '../../shared/stores/authStore'
+import { uploadImage } from '../../shared/services/assets'
+import { getImageUrl } from '../../shared/services/assets'
+import { Button, Input, Textarea, Badge } from '../../shared/components/ui'
 
 interface Props {
   scene?: PlotScene | null
@@ -105,31 +106,22 @@ export default function SceneModal({
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-[#4c5354] mb-1">
-              場景標題 <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="輸入場景標題…"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#181c1e] placeholder-[#6d6d6d] focus:outline-none focus:ring-2 focus:ring-[#4c5354]/30"
-              autoFocus
-            />
-          </div>
+          <Input
+            label="場景標題"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="輸入場景標題…"
+            autoFocus
+          />
 
           {/* Summary */}
-          <div>
-            <label className="block text-sm font-medium text-[#4c5354] mb-1">摘要</label>
-            <textarea
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-              placeholder="場景摘要…"
-              rows={3}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#181c1e] placeholder-[#6d6d6d] focus:outline-none focus:ring-2 focus:ring-[#4c5354]/30 resize-none"
-            />
-          </div>
+          <Textarea
+            label="摘要"
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+            placeholder="場景摘要…"
+            rows={3}
+          />
 
           {/* Chapter */}
           {chapters.length > 0 && (
@@ -152,15 +144,12 @@ export default function SceneModal({
             <label className="block text-sm font-medium text-[#4c5354] mb-1">標籤</label>
             <div className="flex gap-2 flex-wrap mb-2">
               {tags.map((t) => (
-                <span
-                  key={t}
-                  className="inline-flex items-center gap-1 bg-[#f2f4ff] text-[#4c5354] text-xs px-2 py-1 rounded-full"
-                >
-                  {t}
+                <span key={t} className="inline-flex items-center gap-1">
+                  <Badge>{t}</Badge>
                   <button
                     type="button"
                     onClick={() => removeTag(t)}
-                    className="hover:text-red-500 text-[#4c5354]"
+                    className="hover:text-red-500 text-[#4c5354] text-xs"
                   >
                     ×
                   </button>
@@ -168,21 +157,13 @@ export default function SceneModal({
               ))}
             </div>
             <div className="flex gap-2">
-              <input
-                type="text"
+              <Input
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag() } }}
                 placeholder="新增標籤…"
-                className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm text-[#181c1e] placeholder-[#6d6d6d] focus:outline-none focus:ring-2 focus:ring-[#4c5354]/30"
               />
-              <button
-                type="button"
-                onClick={addTag}
-                className="px-3 py-2 rounded-xl text-sm bg-[#f2f4ff] text-[#4c5354] hover:bg-[#e0e4ff] transition-colors"
-              >
-                新增
-              </button>
+              <Button variant="ghost" type="button" onClick={addTag}>新增</Button>
             </div>
           </div>
 
@@ -203,33 +184,21 @@ export default function SceneModal({
               className="hidden"
               onChange={handleImageUpload}
             />
-            <button
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
-              className="w-full border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-[#6d6d6d] hover:border-[#4c5354] hover:text-[#4c5354] transition-colors disabled:opacity-50"
             >
               {uploading ? '上傳中…' : imageAssetId ? '更換圖片' : '上傳圖片'}
-            </button>
+            </Button>
           </div>
 
           {error && <p className="text-sm text-red-500">{error}</p>}
 
           <div className="flex gap-3 justify-end mt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-5 py-2.5 rounded-full text-sm font-medium text-[#4c5354] hover:bg-gray-100 transition-colors"
-            >
-              取消
-            </button>
-            <button
-              type="submit"
-              disabled={!title.trim()}
-              className="px-5 py-2.5 rounded-full text-sm font-medium bg-[#181c1e] text-white hover:bg-[#2e3538] disabled:opacity-50 transition-colors"
-            >
-              儲存
-            </button>
+            <Button variant="ghost" type="button" onClick={onClose}>取消</Button>
+            <Button type="submit" disabled={!title.trim()}>儲存</Button>
           </div>
         </form>
       </div>

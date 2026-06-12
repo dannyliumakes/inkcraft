@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import type { ResearchItem, Project } from '../../types/project'
-import { getAccessToken } from '../../stores/authStore'
-import { useShelfStore } from '../../stores/shelfStore'
-import { loadProject, saveProject } from '../../services/projectRepo'
-import { getImageUrl } from '../../services/assets'
+import type { ResearchItem, Project } from '../../shared/types/project'
+import { getAccessToken } from '../../shared/stores/authStore'
+import { useShelfStore } from '../shelf/shelfStore'
+import { loadProject, saveProject } from '../../shared/services/projectRepo'
+import { getImageUrl } from '../../shared/services/assets'
+import { Button, Modal, Badge } from '../../shared/components/ui'
 import ResearchModal from './ResearchModal'
 
 // ─── Image component ──────────────────────────────────────────────────────────
@@ -68,9 +69,9 @@ function ResearchCard({
               <button
                 key={i}
                 onClick={(e) => { e.stopPropagation(); onTagClick(tag) }}
-                className="text-xs bg-[#e8eaff] text-[#7c6ee0] rounded-full px-2.5 py-0.5 hover:bg-[#d0d4ff] transition-colors"
+                className="hover:opacity-80 transition-opacity"
               >
-                {tag}
+                <Badge>{tag}</Badge>
               </button>
             ))}
           </div>
@@ -201,13 +202,10 @@ export default function ResearchList() {
           )}
 
           {/* Add button */}
-          <button
-            onClick={() => setModalItem(null)}
-            className="flex items-center gap-1.5 bg-[#4c5354] text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-[#3a4041] transition-colors"
-          >
+          <Button onClick={() => setModalItem(null)}>
             <span className="text-base leading-none">＋</span>
             新增素材
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -256,30 +254,15 @@ export default function ResearchList() {
       )}
 
       {/* Delete confirm dialog */}
-      {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4">
-            <h3 className="text-base font-bold text-[#181c1e] mb-2">刪除素材</h3>
-            <p className="text-sm text-gray-500 mb-5">
-              確定要刪除「{deleteTarget.title}」嗎？此操作無法復原。
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setDeleteTarget(null)}
-                className="px-4 py-2 text-sm text-[#4c5354] hover:bg-gray-100 rounded-lg"
-              >
-                取消
-              </button>
-              <button
-                onClick={() => handleDelete(deleteTarget)}
-                className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600"
-              >
-                刪除
-              </button>
-            </div>
-          </div>
+      <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="刪除素材">
+        <p className="text-sm text-gray-500 mb-6">
+          確定要刪除「{deleteTarget?.title}」嗎？此操作無法復原。
+        </p>
+        <div className="flex justify-end gap-3">
+          <Button variant="ghost" onClick={() => setDeleteTarget(null)}>取消</Button>
+          <Button variant="danger" onClick={() => deleteTarget && handleDelete(deleteTarget)}>刪除</Button>
         </div>
-      )}
+      </Modal>
     </div>
   )
 }

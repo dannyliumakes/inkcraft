@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import type { ResearchItem } from '../../types/project'
-import { getAccessToken } from '../../stores/authStore'
-import { uploadImage, getImageUrl } from '../../services/assets'
+import type { ResearchItem } from '../../shared/types/project'
+import { getAccessToken } from '../../shared/stores/authStore'
+import { uploadImage, getImageUrl } from '../../shared/services/assets'
+import { Button, Input, Textarea, Badge } from '../../shared/components/ui'
 
 interface Props {
   item?: ResearchItem | null
@@ -103,12 +104,9 @@ export default function ResearchModal({
           <h2 className="text-lg font-bold text-[#181c1e]">
             {isNew ? '新增素材' : '編輯素材'}
           </h2>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400"
-          >
+          <Button variant="ghost" onClick={onClose} aria-label="關閉">
             ✕
-          </button>
+          </Button>
         </div>
 
         <div className="px-6 py-5 flex flex-col gap-5">
@@ -152,80 +150,56 @@ export default function ResearchModal({
           </div>
 
           {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-[#181c1e] mb-1">
-              標題 <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => { setTitle(e.target.value); setTitleError(false) }}
-              placeholder="輸入素材標題"
-              className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c6ee0] ${titleError ? 'border-red-400' : 'border-gray-200'}`}
-            />
-            {titleError && <p className="text-xs text-red-500 mt-1">請輸入標題</p>}
-          </div>
+          <Input
+            label="標題"
+            value={title}
+            onChange={(e) => { setTitle(e.target.value); setTitleError(false) }}
+            placeholder="輸入素材標題"
+            error={titleError ? '請輸入標題' : undefined}
+          />
 
           {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-[#181c1e] mb-1">描述</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={4}
-              placeholder="輸入素材描述、筆記或摘要…"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c6ee0] resize-none"
-            />
-          </div>
+          <Textarea
+            label="描述"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            placeholder="輸入素材描述、筆記或摘要…"
+          />
 
           {/* Tags */}
           <div>
             <label className="block text-sm font-medium text-[#181c1e] mb-1">標籤</label>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {tags.map((t, i) => (
-                <span key={i} className="flex items-center gap-1 bg-[#e8eaff] text-[#7c6ee0] rounded-full px-2.5 py-0.5 text-xs">
-                  {t}
-                  <button onClick={() => setTags(tags.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-400">×</button>
+                <span key={i} className="flex items-center gap-1">
+                  <Badge>{t}</Badge>
+                  <button onClick={() => setTags(tags.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-400 text-xs">×</button>
                 </span>
               ))}
             </div>
-            <input
-              type="text"
+            <Input
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={handleTagKeyDown}
               placeholder="輸入後按 Enter 新增標籤"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c6ee0]"
             />
           </div>
 
           {/* Source URL */}
-          <div>
-            <label className="block text-sm font-medium text-[#181c1e] mb-1">來源連結（選填）</label>
-            <input
-              type="url"
-              value={sourceUrl}
-              onChange={(e) => setSourceUrl(e.target.value)}
-              placeholder="https://..."
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c6ee0]"
-            />
-          </div>
+          <Input
+            label="來源連結（選填）"
+            type="url"
+            value={sourceUrl}
+            onChange={(e) => setSourceUrl(e.target.value)}
+            placeholder="https://..."
+          />
         </div>
 
         {/* Footer */}
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm text-[#4c5354] hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            取消
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="px-5 py-2 text-sm bg-[#4c5354] text-white rounded-lg hover:bg-[#3a4041] transition-colors"
-          >
-            {isNew ? '新增' : '儲存'}
-          </button>
+          <Button variant="ghost" onClick={onClose}>取消</Button>
+          <Button onClick={handleSubmit}>{isNew ? '新增' : '儲存'}</Button>
         </div>
       </div>
     </div>

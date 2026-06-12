@@ -1,5 +1,5 @@
-import type { Project } from '../types/project';
-import { getDailyOutput } from '../lib/wordStats';
+import type { Project } from '../../shared/types/project';
+import { getDailyOutput } from '../../lib/wordStats';
 
 export interface Reminder {
   id: string;

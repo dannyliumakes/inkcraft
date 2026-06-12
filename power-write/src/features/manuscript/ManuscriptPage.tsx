@@ -6,21 +6,22 @@ import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
 import CharacterCount from '@tiptap/extension-character-count'
 
-import { useManuscriptStore } from '../../stores/manuscriptStore'
-import { getAccessToken } from '../../stores/authStore'
-import { useShelfStore } from '../../stores/shelfStore'
+import { useManuscriptStore } from './manuscriptStore'
+import { getAccessToken } from '../../shared/stores/authStore'
+import { useShelfStore } from '../shelf/shelfStore'
 import {
   downloadText,
   updateFileContent,
   getHeadRevisionId,
-} from '../../services/drive'
-import { saveProject, loadProject } from '../../services/projectRepo'
-import { takeSnapshot } from '../../services/wordSnapshot'
+} from '../../shared/services/drive'
+import { saveProject, loadProject } from '../../shared/services/projectRepo'
+import { takeSnapshot } from '../overview/wordSnapshot'
 import { countWords } from '../../lib/wordCount'
-import { uploadImage, getImageUrl } from '../../services/assets'
+import { uploadImage, getImageUrl } from '../../shared/services/assets'
 import { CustomImage } from '../../lib/customImage'
+import { Input } from '../../shared/components/ui'
 import ChapterTree from './ChapterTree'
-import type { Chapter, Project, Todo } from '../../types/project'
+import type { Chapter, Project, Todo } from '../../shared/types/project'
 
 // ─── Image markdown helpers ─────────────────────────────────────────────────
 // We store images in markdown as ![caption](drive:ASSET_ID).
@@ -545,8 +546,8 @@ export default function ManuscriptPage() {
           )}
           {/* Chapter title */}
           {editingChapterTitle ? (
-            <input
-              className="text-lg font-semibold text-[#181c1e] border-b border-[#7c6ee0] outline-none bg-transparent"
+            <Input
+              className="text-lg font-semibold border-b border-[#7c6ee0] w-auto"
               value={chapterTitle}
               autoFocus
               onChange={(e) => setChapterTitle(e.target.value)}

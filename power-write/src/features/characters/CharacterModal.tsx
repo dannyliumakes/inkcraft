@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Character } from '../../types/project'
-import { getAccessToken } from '../../stores/authStore'
-import { uploadImage, getImageUrl } from '../../services/assets'
+import type { Character } from '../../shared/types/project'
+import { getAccessToken } from '../../shared/stores/authStore'
+import { uploadImage, getImageUrl } from '../../shared/services/assets'
+import { Button, Input, Textarea, Badge } from '../../shared/components/ui'
 
 interface Props {
   character?: Character | null
@@ -117,12 +118,9 @@ export default function CharacterModal({
           <h2 className="text-lg font-bold text-[#181c1e]">
             {isNew ? '新增角色' : '編輯角色'}
           </h2>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400"
-          >
+          <Button variant="ghost" onClick={onClose} aria-label="關閉">
             ✕
-          </button>
+          </Button>
         </div>
 
         <div className="px-6 py-5 flex flex-col gap-5">
@@ -142,14 +140,14 @@ export default function CharacterModal({
               )}
             </div>
             <div>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
-                className="text-sm text-[#7c6ee0] hover:underline disabled:opacity-50"
+                size="sm"
               >
                 {uploading ? '上傳中…' : '上傳肖像'}
-              </button>
+              </Button>
               <input
                 ref={fileRef}
                 type="file"
@@ -162,31 +160,21 @@ export default function CharacterModal({
           </div>
 
           {/* Name */}
-          <div>
-            <label className="block text-sm font-medium text-[#181c1e] mb-1">
-              角色名稱 <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => { setName(e.target.value); setNameError(false) }}
-              placeholder="輸入角色名稱"
-              className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c6ee0] ${nameError ? 'border-red-400' : 'border-gray-200'}`}
-            />
-            {nameError && <p className="text-xs text-red-500 mt-1">請輸入角色名稱</p>}
-          </div>
+          <Input
+            label="角色名稱"
+            value={name}
+            onChange={(e) => { setName(e.target.value); setNameError(false) }}
+            placeholder="輸入角色名稱"
+            error={nameError ? '請輸入角色名稱' : undefined}
+          />
 
           {/* Label */}
-          <div>
-            <label className="block text-sm font-medium text-[#181c1e] mb-1">標籤分類</label>
-            <input
-              type="text"
-              value={label}
-              onChange={(e) => setLabel(e.target.value)}
-              placeholder="例如：主角、配角、反派"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c6ee0]"
-            />
-          </div>
+          <Input
+            label="標籤分類"
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            placeholder="例如：主角、配角、反派"
+          />
 
           {/* Aliases */}
           <div>
@@ -199,64 +187,47 @@ export default function CharacterModal({
                 </span>
               ))}
             </div>
-            <input
-              type="text"
+            <Input
               value={aliasInput}
               onChange={(e) => setAliasInput(e.target.value)}
               onKeyDown={handleAliasKeyDown}
               placeholder="輸入後按 Enter 新增"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c6ee0]"
             />
           </div>
 
           {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-[#181c1e] mb-1">描述</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={4}
-              placeholder="描述這個角色的背景、個性、外貌等…"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c6ee0] resize-none"
-            />
-          </div>
+          <Textarea
+            label="描述"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={4}
+            placeholder="描述這個角色的背景、個性、外貌等…"
+          />
 
           {/* Tags */}
           <div>
             <label className="block text-sm font-medium text-[#181c1e] mb-1">標籤</label>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {tags.map((t, i) => (
-                <span key={i} className="flex items-center gap-1 bg-[#e8eaff] text-[#7c6ee0] rounded-full px-2.5 py-0.5 text-xs">
-                  {t}
-                  <button onClick={() => setTags(tags.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-400">×</button>
+                <span key={i} className="flex items-center gap-1">
+                  <Badge>{t}</Badge>
+                  <button onClick={() => setTags(tags.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-400 text-xs">×</button>
                 </span>
               ))}
             </div>
-            <input
-              type="text"
+            <Input
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyDown={handleTagKeyDown}
               placeholder="輸入後按 Enter 新增標籤"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#7c6ee0]"
             />
           </div>
         </div>
 
         {/* Footer */}
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-sm text-[#4c5354] hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            取消
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="px-5 py-2 text-sm bg-[#4c5354] text-white rounded-lg hover:bg-[#3a4041] transition-colors"
-          >
-            {isNew ? '新增' : '儲存'}
-          </button>
+          <Button variant="ghost" onClick={onClose}>取消</Button>
+          <Button onClick={handleSubmit}>{isNew ? '新增' : '儲存'}</Button>
         </div>
       </div>
     </div>
