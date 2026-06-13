@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import type { ResearchItem, Project } from '../../../shared/types/project'
+import type { ResearchItem } from '../../../shared/types/project'
 import { getAccessToken } from '../../../shared/stores/authStore'
 import { useShelfStore } from '../../shelf/shelfStore'
-import { loadProject, saveProject } from '../../../shared/services/projectRepo'
+import { useManuscriptStore } from '../../manuscript/manuscriptStore'
+import { saveProject } from '../../../shared/services/projectRepo'
 import { getImageUrl } from '../../../shared/services/assets'
 import { Button, Modal, Badge } from '../../../shared/components/ui'
 import ResearchModal from './ResearchModal'
@@ -111,28 +112,13 @@ export default function ResearchList() {
   const books = useShelfStore((s) => s.books)
   const book = books.find((b) => b.id === bookId)
 
-  const [project, setProject] = useState<Project | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const project = useManuscriptStore((s) => s.project)
+  const setProject = useManuscriptStore((s) => s.setProject)
+  const projectLoading = useManuscriptStore((s) => s.projectLoading)
 
   const [filterTag, setFilterTag] = useState<string | null>(null)
   const [modalItem, setModalItem] = useState<ResearchItem | null | undefined>(undefined)
   const [deleteTarget, setDeleteTarget] = useState<ResearchItem | null>(null)
-
-  // Load project
-  useEffect(() => {
-    if (!book) return
-    const token = getAccessToken()
-    if (!token) { setError('未登入'); setLoading(false); return }
-    setLoading(true)
-    loadProject(token, book.projectFileId)
-      .then((p) => {
-        // Ensure research array exists (backward compat)
-        setProject({ ...p, research: p.research ?? [] })
-      })
-      .catch((e) => setError(String(e)))
-      .finally(() => setLoading(false))
-  }, [book])
 
   // Filtered items
   const filtered = useMemo(() => {
@@ -178,12 +164,8 @@ export default function ResearchList() {
     await saveProject(token, newProject)
   }
 
-  if (loading) {
+  if (projectLoading || !project) {
     return <div className={pageStyles.loadingState}>載入中…</div>
-  }
-
-  if (error || !project) {
-    return <div className={pageStyles.errorState}>{error ?? '找不到專案'}</div>
   }
 
   return (

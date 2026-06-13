@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import type { Character, Project } from '../../../shared/types/project'
+import type { Character } from '../../../shared/types/project'
 import { getAccessToken } from '../../../shared/stores/authStore'
 import { useShelfStore } from '../../shelf/shelfStore'
-import { loadProject, saveProject } from '../../../shared/services/projectRepo'
+import { useManuscriptStore } from '../../manuscript/manuscriptStore'
+import { saveProject } from '../../../shared/services/projectRepo'
 import { getImageUrl } from '../../../shared/services/assets'
 import { Button, Modal, Badge } from '../../../shared/components/ui'
 import CharacterModal from './CharacterModal'
@@ -105,25 +106,13 @@ export default function CharacterList() {
   const books = useShelfStore((s) => s.books)
   const book = books.find((b) => b.id === bookId)
 
-  const [project, setProject] = useState<Project | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const project = useManuscriptStore((s) => s.project)
+  const setProject = useManuscriptStore((s) => s.setProject)
+  const projectLoading = useManuscriptStore((s) => s.projectLoading)
 
   const [filterLabel, setFilterLabel] = useState<string>('全部')
   const [modalChar, setModalChar] = useState<Character | null | undefined>(undefined) // undefined = closed
   const [deleteTarget, setDeleteTarget] = useState<Character | null>(null)
-
-  // Load project
-  useEffect(() => {
-    if (!book) return
-    const token = getAccessToken()
-    if (!token) { setError('未登入'); setLoading(false); return }
-    setLoading(true)
-    loadProject(token, book.projectFileId)
-      .then(setProject)
-      .catch((e) => setError(String(e)))
-      .finally(() => setLoading(false))
-  }, [book])
 
   // Derived label tabs
   const labelTabs = useMemo(() => {
@@ -173,12 +162,8 @@ export default function CharacterList() {
     await saveProject(token, newProject)
   }
 
-  if (loading) {
+  if (projectLoading || !project) {
     return <div className={pageStyles.loadingState}>載入中…</div>
-  }
-
-  if (error || !project) {
-    return <div className={pageStyles.errorState}>{error ?? '找不到專案'}</div>
   }
 
   return (

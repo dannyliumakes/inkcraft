@@ -3,8 +3,10 @@ import { NavLink, Outlet, useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useManuscriptSearch } from '../manuscript/useManuscriptSearch';
 import { useManuscriptStore } from '../manuscript/manuscriptStore';
+import { useShelfStore } from '../shelf/shelfStore';
 import { getAccessToken } from '../../shared/stores/authStore';
-import { downloadText, getHeadRevisionId } from '../../shared/services/drive';
+import { downloadText, getHeadRevisionId, listChildren } from '../../shared/services/drive';
+import { loadProject } from '../../shared/services/projectRepo';
 import NotificationBell from './components/NotificationBell';
 import MilestonePanel from './components/MilestonePanel';
 
@@ -223,6 +225,36 @@ export default function BookLayout() {
   const { bookId } = useParams<{ bookId: string }>();
   const [milestoneOpen, setMilestoneOpen] = useState(false);
   const { t } = useTranslation();
+
+  const books = useShelfStore((s) => s.books);
+  const { loadedBookId, setProject, setLoadedBookId, setProjectLoading } = useManuscriptStore();
+
+  // Load project once per book — all tabs read from store, no per-tab fetching.
+  // Works even on hard refresh (when shelfStore is empty) by resolving projectFileId from Drive.
+  useEffect(() => {
+    if (!bookId || loadedBookId === bookId) return;
+    const token = getAccessToken();
+    if (!token) return;
+
+    setProjectLoading(true);
+
+    async function resolveAndLoad() {
+      const book = books.find((b) => b.id === bookId);
+      if (book) return loadProject(token!, book.projectFileId);
+      // shelfStore empty (hard refresh) — find project.json directly in the folder
+      const children = await listChildren(token!, bookId!, "name='project.json'");
+      if (!children.length) throw new Error('project.json not found');
+      return loadProject(token!, children[0].id);
+    }
+
+    resolveAndLoad()
+      .then((p) => {
+        setProject(p);
+        setLoadedBookId(bookId);
+      })
+      .catch(console.error)
+      .finally(() => setProjectLoading(false));
+  }, [bookId, books, loadedBookId, setProject, setLoadedBookId, setProjectLoading]);
 
   return (
     <div className={layoutStyles.root} style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>

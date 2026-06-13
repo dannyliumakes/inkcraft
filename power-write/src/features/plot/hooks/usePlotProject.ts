@@ -1,30 +1,29 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useShelfStore } from '../../shelf/shelfStore'
+import { useManuscriptStore } from '../../manuscript/manuscriptStore'
 import { getAccessToken } from '../../../shared/stores/authStore'
-import { loadProject, saveProject } from '../../../shared/services/projectRepo'
-import type { PlotAct, Project } from '../../../shared/types/project'
+import { saveProject } from '../../../shared/services/projectRepo'
+import type { PlotAct } from '../../../shared/types/project'
 
 export function usePlotProject() {
   const { bookId } = useParams<{ bookId: string }>()
   const shelf = useShelfStore((s) => s.books)
   const book = shelf.find((b) => b.id === bookId)
 
-  const [project, setProject] = useState<Project | null>(null)
+  const project = useManuscriptStore((s) => s.project)
+  const setProject = useManuscriptStore((s) => s.setProject)
+
   const [localActs, setLocalActs] = useState<PlotAct[]>([])
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
+  // Sync localActs from store when project loads
   useEffect(() => {
-    if (!book) return
-    const token = getAccessToken()
-    if (!token) return
-    loadProject(token, book.projectFileId).then((p) => {
-      setProject(p)
-      setLocalActs(p.plotBoard?.acts ?? [])
-    }).catch(console.error)
-  }, [book])
+    if (!project) return
+    setLocalActs(project.plotBoard?.acts ?? [])
+  }, [project])
 
   function updateActs(fn: (acts: PlotAct[]) => PlotAct[]) {
     setLocalActs((prev) => fn(prev))
@@ -38,7 +37,7 @@ export function usePlotProject() {
     setSaving(true)
     setSaveError(null)
     try {
-      const updated: Project = { ...project, plotBoard: { acts: localActs } }
+      const updated = { ...project, plotBoard: { acts: localActs } }
       await saveProject(token, updated)
       setProject(updated)
       setDirty(false)
