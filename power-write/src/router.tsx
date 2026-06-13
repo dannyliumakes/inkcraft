@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import ShelfPage from './features/shelf/ShelfPage';
+import DesignSystemPage from './features/design-system/DesignSystemPage';
 import BookLayout from './features/layout/BookLayout';
 import ManuscriptPage from './features/manuscript/ManuscriptPage';
 import Overview from './features/overview/Overview';
@@ -14,6 +15,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <ShelfPage />,
+  },
+  {
+    path: '/design-system',
+    element: <DesignSystemPage />,
   },
   {
     path: '/book/:bookId',
