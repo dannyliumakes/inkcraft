@@ -7,6 +7,8 @@ import ErrorBoundary from './shared/components/ErrorBoundary';
 import CharacterList from './features/characters/CharacterList';
 import ResearchList from './features/research/ResearchList';
 import PlotBoard from './features/plot/PlotBoard';
+import SearchPage from './features/search/SearchPage';
+import { searchLoader } from './features/search/services/searchLoader';
 
 const router = createBrowserRouter([
   {
@@ -22,6 +24,7 @@ const router = createBrowserRouter([
       { path: 'characters', element: <CharacterList /> },
       { path: 'research', element: <ResearchList /> },
       { path: 'overview', element: <Overview /> },
+      { path: 'search/:query', loader: searchLoader, element: <SearchPage /> },
     ],
   },
 ]);

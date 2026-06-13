@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ResearchItem } from '../../shared/types/project'
 import { getAccessToken } from '../../shared/stores/authStore'
 import { uploadImage, getImageUrl } from '../../shared/services/assets'
-import { Button, Input, Textarea, Badge } from '../../shared/components/ui'
+import { Button, Input, Textarea, TagInput } from '../../shared/components/ui'
 
 interface Props {
   item?: ResearchItem | null
@@ -26,7 +26,6 @@ export default function ResearchModal({
   const [imageAssetId, setImageAssetId] = useState<string | null>(item?.imageAssetId ?? null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [tags, setTags] = useState<string[]>(item?.tags ?? [])
-  const [tagInput, setTagInput] = useState('')
   const [sourceUrl, setSourceUrl] = useState(item?.sourceUrl ?? '')
   const [uploading, setUploading] = useState(false)
   const [titleError, setTitleError] = useState(false)
@@ -65,14 +64,6 @@ export default function ResearchModal({
       console.error('Image upload failed', err)
     } finally {
       setUploading(false)
-    }
-  }
-
-  function handleTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter' && tagInput.trim()) {
-      e.preventDefault()
-      setTags((prev) => [...prev, tagInput.trim()])
-      setTagInput('')
     }
   }
 
@@ -168,23 +159,7 @@ export default function ResearchModal({
           />
 
           {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-[#181c1e] mb-1">標籤</label>
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {tags.map((t, i) => (
-                <span key={i} className="flex items-center gap-1">
-                  <Badge>{t}</Badge>
-                  <button onClick={() => setTags(tags.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-400 text-xs">×</button>
-                </span>
-              ))}
-            </div>
-            <Input
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={handleTagKeyDown}
-              placeholder="輸入後按 Enter 新增標籤"
-            />
-          </div>
+          <TagInput tags={tags} onChange={setTags} />
 
           {/* Source URL */}
           <Input

@@ -15,6 +15,7 @@ import {
   getHeadRevisionId,
 } from '../../shared/services/drive'
 import { saveProject, loadProject } from '../../shared/services/projectRepo'
+import { patchProject } from '../../shared/lib/projectPatch'
 import { takeSnapshot } from '../overview/wordSnapshot'
 import { countWords } from '../../lib/wordCount'
 import { uploadImage, getImageUrl } from '../../shared/services/assets'
@@ -110,7 +111,7 @@ function SidePanel({ project, onProjectUpdate }: { project: Project; onProjectUp
   async function saveNotes() {
     const token = getAccessToken()
     if (!token) return
-    const updated: Project = { ...project, notes, updatedAt: new Date().toISOString(), rev: project.rev + 1 }
+    const updated = patchProject(project, { notes })
     onProjectUpdate(updated)
     await saveProject(token, updated)
   }
@@ -118,12 +119,9 @@ function SidePanel({ project, onProjectUpdate }: { project: Project; onProjectUp
   async function toggleTodo(id: string) {
     const token = getAccessToken()
     if (!token) return
-    const updated: Project = {
-      ...project,
+    const updated = patchProject(project, {
       todos: project.todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
-      updatedAt: new Date().toISOString(),
-      rev: project.rev + 1,
-    }
+    })
     onProjectUpdate(updated)
     await saveProject(token, updated)
   }
@@ -133,12 +131,7 @@ function SidePanel({ project, onProjectUpdate }: { project: Project; onProjectUp
     const token = getAccessToken()
     if (!token) return
     const todo: Todo = { id: `todo_${Date.now()}`, text: newTodo.trim(), done: false }
-    const updated: Project = {
-      ...project,
-      todos: [...project.todos, todo],
-      updatedAt: new Date().toISOString(),
-      rev: project.rev + 1,
-    }
+    const updated = patchProject(project, { todos: [...project.todos, todo] })
     onProjectUpdate(updated)
     setNewTodo('')
     await saveProject(token, updated)
@@ -151,12 +144,7 @@ function SidePanel({ project, onProjectUpdate }: { project: Project; onProjectUp
     if (isNaN(n) || n <= 0) return
     const token = getAccessToken()
     if (!token) return
-    const updated: Project = {
-      ...project,
-      dailyWordGoal: n,
-      updatedAt: new Date().toISOString(),
-      rev: project.rev + 1,
-    }
+    const updated = patchProject(project, { dailyWordGoal: n })
     onProjectUpdate(updated)
     await saveProject(token, updated)
   }

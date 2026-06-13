@@ -164,14 +164,28 @@ function SearchBar() {
           </div>
           <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
             <p className="text-xs text-gray-400">{results.length} 個結果　按 Esc 關閉</p>
+            {results.length > 0 && (
+              <button
+                onClick={() => { closeSearch(); navigate(`/book/${bookId}/search/${encodeURIComponent(debouncedQuery)}`); }}
+                className="mt-1 text-xs text-[#7c6ee0] hover:underline"
+              >
+                在搜尋頁面中檢視全部
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      {/* No results */}
+      {/* No results — link to full search page */}
       {open && debouncedQuery.trim() && results.length === 0 && (
         <div className="absolute top-full right-0 mt-2 w-[320px] bg-white border border-gray-200 rounded-2xl shadow-xl z-50 px-4 py-6 text-center">
           <p className="text-sm text-gray-400">找不到「{debouncedQuery}」的相關內容</p>
+          <button
+            onClick={() => { closeSearch(); navigate(`/book/${bookId}/search/${encodeURIComponent(debouncedQuery)}`); }}
+            className="mt-2 text-xs text-[#7c6ee0] hover:underline"
+          >
+            在搜尋頁面中開啟
+          </button>
         </div>
       )}
     </div>

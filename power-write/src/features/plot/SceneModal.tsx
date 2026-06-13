@@ -3,7 +3,7 @@ import type { PlotChapter, PlotScene } from '../../shared/types/project'
 import { getAccessToken } from '../../shared/stores/authStore'
 import { uploadImage } from '../../shared/services/assets'
 import { getImageUrl } from '../../shared/services/assets'
-import { Button, Input, Textarea, Badge } from '../../shared/components/ui'
+import { Button, Input, Textarea, TagInput } from '../../shared/components/ui'
 
 interface Props {
   scene?: PlotScene | null
@@ -25,7 +25,6 @@ export default function SceneModal({
   const [title, setTitle] = useState(scene?.title ?? '')
   const [summary, setSummary] = useState(scene?.summary ?? '')
   const [tags, setTags] = useState<string[]>(scene?.tags ?? [])
-  const [tagInput, setTagInput] = useState('')
   const [chapterId, setChapterId] = useState(
     scene?.chapterRef ?? defaultChapterId ?? chapters[0]?.id ?? ''
   )
@@ -51,16 +50,6 @@ export default function SceneModal({
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, [onClose])
-
-  function addTag() {
-    const t = tagInput.trim()
-    if (t && !tags.includes(t)) setTags((prev) => [...prev, t])
-    setTagInput('')
-  }
-
-  function removeTag(t: string) {
-    setTags((prev) => prev.filter((x) => x !== t))
-  }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -140,32 +129,7 @@ export default function SceneModal({
           )}
 
           {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-[#4c5354] mb-1">標籤</label>
-            <div className="flex gap-2 flex-wrap mb-2">
-              {tags.map((t) => (
-                <span key={t} className="inline-flex items-center gap-1">
-                  <Badge>{t}</Badge>
-                  <button
-                    type="button"
-                    onClick={() => removeTag(t)}
-                    className="hover:text-red-500 text-[#4c5354] text-xs"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Input
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addTag() } }}
-                placeholder="新增標籤…"
-              />
-              <Button variant="ghost" type="button" onClick={addTag}>新增</Button>
-            </div>
-          </div>
+          <TagInput tags={tags} onChange={setTags} placeholder="新增標籤…" />
 
           {/* Image */}
           <div>

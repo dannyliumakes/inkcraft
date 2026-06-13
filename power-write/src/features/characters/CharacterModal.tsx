@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { Character } from '../../shared/types/project'
 import { getAccessToken } from '../../shared/stores/authStore'
 import { uploadImage, getImageUrl } from '../../shared/services/assets'
-import { Button, Input, Textarea, Badge } from '../../shared/components/ui'
+import { Button, Input, Textarea, TagInput } from '../../shared/components/ui'
 
 interface Props {
   character?: Character | null
@@ -25,6 +25,7 @@ export default function CharacterModal({
   const [label, setLabel] = useState(character?.label ?? '')
   const [description, setDescription] = useState(character?.description ?? '')
   const [aliases, setAliases] = useState<string[]>(character?.aliases ?? [])
+  const [aliasInput, setAliasInput] = useState('')
   const [tags, setTags] = useState<string[]>(character?.tags ?? [])
   const [portraitAssetId, setPortraitAssetId] = useState<string | null>(
     character?.portraitAssetId ?? null,
@@ -32,9 +33,6 @@ export default function CharacterModal({
   const [portraitUrl, setPortraitUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [nameError, setNameError] = useState(false)
-
-  const [aliasInput, setAliasInput] = useState('')
-  const [tagInput, setTagInput] = useState('')
 
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -78,14 +76,6 @@ export default function CharacterModal({
       e.preventDefault()
       setAliases((prev) => [...prev, aliasInput.trim()])
       setAliasInput('')
-    }
-  }
-
-  function handleTagKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter' && tagInput.trim()) {
-      e.preventDefault()
-      setTags((prev) => [...prev, tagInput.trim()])
-      setTagInput('')
     }
   }
 
@@ -205,23 +195,7 @@ export default function CharacterModal({
           />
 
           {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-[#181c1e] mb-1">標籤</label>
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {tags.map((t, i) => (
-                <span key={i} className="flex items-center gap-1">
-                  <Badge>{t}</Badge>
-                  <button onClick={() => setTags(tags.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-400 text-xs">×</button>
-                </span>
-              ))}
-            </div>
-            <Input
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={handleTagKeyDown}
-              placeholder="輸入後按 Enter 新增標籤"
-            />
-          </div>
+          <TagInput tags={tags} onChange={setTags} />
         </div>
 
         {/* Footer */}

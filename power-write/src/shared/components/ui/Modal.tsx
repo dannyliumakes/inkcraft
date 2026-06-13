@@ -8,6 +8,10 @@ interface ModalProps {
   children: ReactNode
   /** When true, clicking the overlay does not close the modal */
   disableBackdropClose?: boolean
+  /** Modal width: 'sm' (max-w-sm) or 'lg' (max-w-lg). Default 'sm' */
+  size?: 'sm' | 'lg'
+  /** Optional footer content, rendered below a border-t separator */
+  footer?: ReactNode
 }
 
 export function Modal({
@@ -16,6 +20,8 @@ export function Modal({
   title,
   children,
   disableBackdropClose = false,
+  size = 'sm',
+  footer,
 }: ModalProps) {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -42,6 +48,8 @@ export function Modal({
       ? document.getElementById('modal-root')
       : null
 
+  const sizeClass = size === 'lg' ? 'max-w-lg' : 'max-w-sm'
+
   const content = (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
@@ -55,11 +63,11 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-8"
+        className={`bg-white rounded-2xl shadow-xl w-full ${sizeClass} mx-4 max-h-[90vh] overflow-y-auto`}
       >
         {title && (
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-[#181c1e]">{title}</h2>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <h2 className="text-lg font-bold text-[#181c1e]">{title}</h2>
             <button
               type="button"
               onClick={onClose}
@@ -70,7 +78,14 @@ export function Modal({
             </button>
           </div>
         )}
-        {children}
+        <div className={title ? 'px-6 py-5 flex flex-col gap-5' : 'p-8'}>
+          {children}
+        </div>
+        {footer && (
+          <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
+            {footer}
+          </div>
+        )}
       </div>
     </div>
   )
