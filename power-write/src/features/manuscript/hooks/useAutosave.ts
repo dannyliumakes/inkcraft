@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useManuscriptStore } from '../manuscriptStore'
 import { getAccessToken } from '../../../shared/stores/authStore'
-import { updateFileContent, downloadText, getHeadRevisionId } from '../../../shared/services/drive'
+import { updateFileContent } from '../../../shared/services/drive'
 import { saveProject } from '../../../shared/services/projectRepo'
 import { takeSnapshot } from '../../overview/wordSnapshot'
 import { countWords } from '../../../lib/wordCount'
@@ -15,8 +15,6 @@ export function useAutosave(
   const {
     setSaveStatus,
     setLastSavedAt,
-    setChapterContent,
-    setHeadRevisionId,
     setProject,
   } = useManuscriptStore()
 
@@ -27,28 +25,11 @@ export function useAutosave(
     const token = getAccessToken()
     if (!token) return
     const state = useManuscriptStore.getState()
-    const { project: proj, activeChapterId: chId, headRevisionId: localRev } = state
+    const { project: proj, activeChapterId: chId } = state
     if (!proj || !chId) return
 
     const ch = proj.chapters.find((c) => c.id === chId)
     if (!ch) return
-
-    try {
-      const remoteRev = await getHeadRevisionId(token, ch.fileId)
-      if (localRev && remoteRev !== localRev) {
-        const overwrite = window.confirm(
-          '⚠ 雲端版本已更新，確定要覆蓋嗎？\n按「取消」將重新載入雲端版本。',
-        )
-        if (!overwrite) {
-          const text = await downloadText(token, ch.fileId)
-          setChapterContent(text)
-          setHeadRevisionId(remoteRev)
-          return
-        }
-      }
-    } catch (e) {
-      console.error('Conflict check failed', e)
-    }
 
     setSaveStatus('saving')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,7 +67,7 @@ export function useAutosave(
       console.error('Save failed', e)
       setSaveStatus('error')
     }
-  }, [setSaveStatus, setLastSavedAt, setChapterContent, setHeadRevisionId, setProject, blobToAssetRef])
+  }, [setSaveStatus, setLastSavedAt, setProject, blobToAssetRef])
 
   // Cmd/Ctrl+S shortcut
   useEffect(() => {
@@ -98,6 +79,17 @@ export function useAutosave(
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
+  }, [triggerSave, editorRef])
+
+  // Save when tab loses visibility (switching apps, closing tab, switching device)
+  useEffect(() => {
+    function onVisibilityChange() {
+      if (document.visibilityState === 'hidden') {
+        triggerSave(editorRef.current)
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
   }, [triggerSave, editorRef])
 
   return { triggerSave }

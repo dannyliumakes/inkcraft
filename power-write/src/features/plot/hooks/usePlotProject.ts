@@ -1,32 +1,25 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { useShelfStore } from '../../shelf/shelfStore'
 import { useManuscriptStore } from '../../manuscript/manuscriptStore'
 import { getAccessToken } from '../../../shared/stores/authStore'
 import { saveProject } from '../../../shared/services/projectRepo'
-import type { PlotAct } from '../../../shared/types/project'
+import type { PlotScene } from '../../../shared/types/project'
 
 export function usePlotProject() {
-  const { bookId } = useParams<{ bookId: string }>()
-  const shelf = useShelfStore((s) => s.books)
-  const book = shelf.find((b) => b.id === bookId)
-
   const project = useManuscriptStore((s) => s.project)
   const setProject = useManuscriptStore((s) => s.setProject)
 
-  const [localActs, setLocalActs] = useState<PlotAct[]>([])
+  const [localScenes, setLocalScenes] = useState<Record<string, PlotScene[]>>({})
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
 
-  // Sync localActs from store when project loads
   useEffect(() => {
     if (!project) return
-    setLocalActs(project.plotBoard?.acts ?? [])
+    setLocalScenes(project.plotBoard?.scenes ?? {})
   }, [project])
 
-  function updateActs(fn: (acts: PlotAct[]) => PlotAct[]) {
-    setLocalActs((prev) => fn(prev))
+  function updateScenes(fn: (prev: Record<string, PlotScene[]>) => Record<string, PlotScene[]>) {
+    setLocalScenes((prev) => fn(prev))
     setDirty(true)
   }
 
@@ -37,7 +30,7 @@ export function usePlotProject() {
     setSaving(true)
     setSaveError(null)
     try {
-      const updated = { ...project, plotBoard: { acts: localActs } }
+      const updated = { ...project, plotBoard: { scenes: localScenes } }
       await saveProject(token, updated)
       setProject(updated)
       setDirty(false)
@@ -48,5 +41,9 @@ export function usePlotProject() {
     }
   }
 
-  return { book, project, localActs, dirty, saving, saveError, updateActs, handleSave }
+  const chapters = project
+    ? [...project.chapters].sort((a, b) => a.order - b.order)
+    : []
+
+  return { project, chapters, localScenes, dirty, saving, saveError, updateScenes, handleSave }
 }

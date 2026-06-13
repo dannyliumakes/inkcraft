@@ -38,20 +38,9 @@ export interface PlotScene {
   order: number;
 }
 
-export interface PlotChapter {
-  id: string;
-  title: string;
-  scenes: PlotScene[];
-}
-
-export interface PlotAct {
-  id: string;
-  title: string;
-  chapters: PlotChapter[];
-}
-
 export interface PlotBoard {
-  acts: PlotAct[];
+  // keyed by Chapter.id
+  scenes: Record<string, PlotScene[]>;
 }
 
 export interface Todo {

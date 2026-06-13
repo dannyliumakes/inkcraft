@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { useManuscriptSearch } from '../manuscript/useManuscriptSearch';
 import { useManuscriptStore } from '../manuscript/manuscriptStore';
 import { useShelfStore } from '../shelf/shelfStore';
-import { getAccessToken } from '../../shared/stores/authStore';
-import { downloadText, getHeadRevisionId, listChildren } from '../../shared/services/drive';
+import { useAuthStore, getAccessToken } from '../../shared/stores/authStore';
+import { LoginButton } from '../../shared/services/auth';
+import { downloadText, listChildren } from '../../shared/services/drive';
 import { loadProject } from '../../shared/services/projectRepo';
 import NotificationBell from './components/NotificationBell';
 import MilestonePanel from './components/MilestonePanel';
@@ -73,7 +74,6 @@ function SearchBar() {
   const setActiveChapter = useManuscriptStore((s) => s.setActiveChapter);
   const setChapterContent = useManuscriptStore((s) => s.setChapterContent);
   const setSaveStatus = useManuscriptStore((s) => s.setSaveStatus);
-  const setHeadRevisionId = useManuscriptStore((s) => s.setHeadRevisionId);
 
   const { search } = useManuscriptSearch(project, chapterContent, activeChapterId);
 
@@ -134,16 +134,12 @@ function SearchBar() {
     setActiveChapter(ch.id);
     setSaveStatus('idle');
     try {
-      const [text, revId] = await Promise.all([
-        downloadText(token, ch.fileId),
-        getHeadRevisionId(token, ch.fileId),
-      ]);
-      setHeadRevisionId(revId);
+      const text = await downloadText(token, ch.fileId);
       setChapterContent(text);
     } catch (e) {
       console.error('Failed to load chapter from search', e);
     }
-  }, [project, bookId, navigate, setActiveChapter, setSaveStatus, setHeadRevisionId, setChapterContent]);
+  }, [project, bookId, navigate, setActiveChapter, setSaveStatus, setChapterContent]);
 
   return (
     <div ref={containerRef} className={searchStyles.root}>
@@ -227,24 +223,23 @@ export default function BookLayout() {
   const { t } = useTranslation();
 
   const books = useShelfStore((s) => s.books);
+  const accessToken = useAuthStore((s) => s.accessToken);
   const { loadedBookId, setProject, setLoadedBookId, setProjectLoading } = useManuscriptStore();
 
-  // Load project once per book — all tabs read from store, no per-tab fetching.
-  // Works even on hard refresh (when shelfStore is empty) by resolving projectFileId from Drive.
+  // Load project once per book — reactive to accessToken so hard-refresh works:
+  // after the user re-authenticates, this effect re-fires and loads the project.
   useEffect(() => {
-    if (!bookId || loadedBookId === bookId) return;
-    const token = getAccessToken();
-    if (!token) return;
+    if (!bookId || !accessToken || loadedBookId === bookId) return;
 
     setProjectLoading(true);
 
     async function resolveAndLoad() {
       const book = books.find((b) => b.id === bookId);
-      if (book) return loadProject(token!, book.projectFileId);
+      if (book) return loadProject(accessToken!, book.projectFileId);
       // shelfStore empty (hard refresh) — find project.json directly in the folder
-      const children = await listChildren(token!, bookId!, "name='project.json'");
+      const children = await listChildren(accessToken!, bookId!, "name='project.json'");
       if (!children.length) throw new Error('project.json not found');
-      return loadProject(token!, children[0].id);
+      return loadProject(accessToken!, children[0].id);
     }
 
     resolveAndLoad()
@@ -254,7 +249,17 @@ export default function BookLayout() {
       })
       .catch(console.error)
       .finally(() => setProjectLoading(false));
-  }, [bookId, books, loadedBookId, setProject, setLoadedBookId, setProjectLoading]);
+  }, [bookId, books, accessToken, loadedBookId, setProject, setLoadedBookId, setProjectLoading]);
+
+  if (!accessToken) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <h1 className="page-title">Power Write</h1>
+        <p className="text-secondary">請重新登入以繼續</p>
+        <LoginButton />
+      </div>
+    );
+  }
 
   return (
     <div className={layoutStyles.root} style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>

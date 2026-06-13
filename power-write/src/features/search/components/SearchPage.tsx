@@ -3,7 +3,7 @@ import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { useManuscriptStore } from '../../manuscript/manuscriptStore'
 import { useManuscriptSearch } from '../../manuscript/useManuscriptSearch'
 import { getAccessToken } from '../../../shared/stores/authStore'
-import { downloadText, getHeadRevisionId } from '../../../shared/services/drive'
+import { downloadText } from '../../../shared/services/drive'
 import type { SearchLoaderData } from '../services/searchLoader'
 
 const styles = {
@@ -32,7 +32,6 @@ export default function SearchPage() {
   const setActiveChapter = useManuscriptStore((s) => s.setActiveChapter)
   const setChapterContent = useManuscriptStore((s) => s.setChapterContent)
   const setSaveStatus = useManuscriptStore((s) => s.setSaveStatus)
-  const setHeadRevisionId = useManuscriptStore((s) => s.setHeadRevisionId)
 
   const { search } = useManuscriptSearch(project, chapterContent, activeChapterId)
 
@@ -50,12 +49,8 @@ export default function SearchPage() {
 
     setActiveChapter(ch.id)
     setSaveStatus('idle')
-    Promise.all([
-      downloadText(token, ch.fileId),
-      getHeadRevisionId(token, ch.fileId),
-    ])
-      .then(([text, revId]) => {
-        setHeadRevisionId(revId)
+    downloadText(token, ch.fileId)
+      .then((text) => {
         setChapterContent(text)
       })
       .catch((err) => console.error('Failed to load chapter from search', err))

@@ -1,15 +1,12 @@
 import { useCallback, useEffect } from 'react'
 import { useManuscriptStore } from '../manuscriptStore'
-import { getAccessToken } from '../../../shared/stores/authStore'
-import { downloadText, getHeadRevisionId } from '../../../shared/services/drive'
+import { useAuthStore } from '../../../shared/stores/authStore'
+import { downloadText } from '../../../shared/services/drive'
 import { expandDriveUrls } from '../lib/driveImageHelpers'
 import type { Chapter, Project } from '../../../shared/types/project'
 
 async function fetchAndProcessChapter(ch: Chapter, token: string) {
-  const [rawText, headRevisionId] = await Promise.all([
-    downloadText(token, ch.fileId),
-    getHeadRevisionId(token, ch.fileId),
-  ])
+  const rawText = await downloadText(token, ch.fileId)
   const expandedText = await expandDriveUrls(rawText, token)
   const drivePattern = /!\[([^\]]*)\]\(drive:([^)]+)\)/g
   const blobPattern = /!\[([^\]]*)\]\((blob:[^)]+)\)/g
@@ -21,10 +18,11 @@ async function fetchAndProcessChapter(ch: Chapter, token: string) {
     const blobUrl = expandedMatches[i]?.[1]
     if (blobUrl) blobToAssetMap.set(blobUrl, assetId)
   })
-  return { expandedText, blobToAssetMap, headRevisionId }
+  return { expandedText, blobToAssetMap }
 }
 
 export function useChapterLoader(blobToAssetRef: React.MutableRefObject<Map<string, string>>) {
+  const accessToken = useAuthStore((s) => s.accessToken)
   const {
     project,
     activeChapterId,
@@ -32,7 +30,6 @@ export function useChapterLoader(blobToAssetRef: React.MutableRefObject<Map<stri
     setActiveChapter,
     setChapterContent,
     setSaveStatus,
-    setHeadRevisionId,
     setCachedChapter,
   } = useManuscriptStore()
 
@@ -43,7 +40,6 @@ export function useChapterLoader(blobToAssetRef: React.MutableRefObject<Map<stri
     const cached = chapterCache.get(ch.id)
     if (cached) {
       blobToAssetRef.current = new Map(cached.blobToAssetMap)
-      setHeadRevisionId(cached.headRevisionId)
       setChapterContent(cached.expandedText)
       return
     }
@@ -52,18 +48,16 @@ export function useChapterLoader(blobToAssetRef: React.MutableRefObject<Map<stri
       const result = await fetchAndProcessChapter(ch, token)
       setCachedChapter(ch.id, result)
       blobToAssetRef.current = new Map(result.blobToAssetMap)
-      setHeadRevisionId(result.headRevisionId)
       setChapterContent(result.expandedText)
     } catch (e) {
       console.error('Failed to load chapter', e)
     }
-  }, [chapterCache, setActiveChapter, setSaveStatus, setHeadRevisionId, setChapterContent, setCachedChapter, blobToAssetRef])
+  }, [chapterCache, setActiveChapter, setSaveStatus, setChapterContent, setCachedChapter, blobToAssetRef])
 
   // Auto-select first chapter when project loads, then background-prefetch the rest
   useEffect(() => {
-    if (!project || activeChapterId) return
-    const token = getAccessToken()
-    if (!token) return
+    if (!project || activeChapterId || !accessToken) return
+    const token = accessToken
     const sorted = [...project.chapters].sort((a, b) => a.order - b.order)
     const [first, ...rest] = sorted
     if (!first) return
@@ -77,7 +71,7 @@ export function useChapterLoader(blobToAssetRef: React.MutableRefObject<Map<stri
           .catch(() => { /* silently skip, will retry on user click */ })
       })
     })
-  }, [project, activeChapterId, loadChapter, chapterCache, setCachedChapter])
+  }, [project, activeChapterId, accessToken, loadChapter, chapterCache, setCachedChapter])
 
   return { loadChapter }
 }

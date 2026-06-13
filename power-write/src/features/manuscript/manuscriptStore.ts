@@ -6,7 +6,6 @@ export type SaveStatus = 'idle' | 'typing' | 'saving' | 'saved' | 'error'
 export interface CachedChapter {
   expandedText: string
   blobToAssetMap: Map<string, string>
-  headRevisionId: string
 }
 
 interface ManuscriptState {
@@ -18,7 +17,6 @@ interface ManuscriptState {
   saveStatus: SaveStatus
   lastSavedAt: Date | null
   focusMode: boolean
-  headRevisionId: string | null
   chapterCache: Map<string, CachedChapter>
 
   setProject: (p: Project) => void
@@ -29,7 +27,6 @@ interface ManuscriptState {
   setSaveStatus: (s: SaveStatus) => void
   setLastSavedAt: (d: Date) => void
   toggleFocusMode: () => void
-  setHeadRevisionId: (rev: string | null) => void
   setCachedChapter: (id: string, data: CachedChapter) => void
   updateChapterWordCount: (chapterId: string, count: number) => void
 }
@@ -43,7 +40,6 @@ export const useManuscriptStore = create<ManuscriptState>()((set) => ({
   saveStatus: 'idle',
   lastSavedAt: null,
   focusMode: false,
-  headRevisionId: null,
   chapterCache: new Map(),
 
   setProject: (p) => set({ project: p }),
@@ -54,7 +50,6 @@ export const useManuscriptStore = create<ManuscriptState>()((set) => ({
   setSaveStatus: (s) => set({ saveStatus: s }),
   setLastSavedAt: (d) => set({ lastSavedAt: d }),
   toggleFocusMode: () => set((state) => ({ focusMode: !state.focusMode })),
-  setHeadRevisionId: (rev) => set({ headRevisionId: rev }),
   setCachedChapter: (id, data) =>
     set((state) => {
       const next = new Map(state.chapterCache)

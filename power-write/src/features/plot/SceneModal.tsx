@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { PlotChapter, PlotScene } from '../../shared/types/project'
+import type { PlotScene } from '../../shared/types/project'
 import { getAccessToken } from '../../shared/stores/authStore'
 import { uploadImage } from '../../shared/services/assets'
 import { getImageUrl } from '../../shared/services/assets'
@@ -7,7 +7,7 @@ import { Button, Input, Textarea, TagInput } from '../../shared/components/ui'
 
 interface Props {
   scene?: PlotScene | null
-  chapters: PlotChapter[]
+  chapters: { id: string; title: string }[]
   bookFolderId: string
   onSave: (scene: PlotScene, chapterId: string) => void
   onClose: () => void

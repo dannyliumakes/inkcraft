@@ -11,7 +11,7 @@ export async function loadProject(token: string, projectFileId: string): Promise
     milestones: parsed.milestones ?? [],
     research: parsed.research ?? [],
     characters: parsed.characters ?? [],
-    plotBoard: parsed.plotBoard ?? { acts: [] },
+    plotBoard: parsed.plotBoard?.scenes ? parsed.plotBoard : { scenes: {} },
   }
 }
 
