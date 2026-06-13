@@ -156,7 +156,7 @@ export default function ManuscriptPage() {
                   <li key={ch.id} className="text-sm text-gray-600 truncate">{ch.name}</li>
                 ))}
               </ul>
-              <button className="text-xs text-[#7c6ee0] mt-2 hover:underline focus-visible:ring-2 focus-visible:ring-blue-400">
+              <button className="text-xs text-accent mt-2 hover:underline focus-visible:ring-2 focus-visible:ring-blue-400">
                 {t('manuscript.view_all_characters')}
               </button>
             </div>
@@ -165,7 +165,7 @@ export default function ManuscriptPage() {
       )}
 
       {/* Center column */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-[#f8f8f8]">
+      <div className="flex-1 flex flex-col overflow-hidden bg-surface">
         <EditorToolbar
           titleProps={{
             value: chapterTitle,

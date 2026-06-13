@@ -42,7 +42,7 @@ export function RequireAuth({ children }: RequireAuthProps) {
   if (!isAuthenticated) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <h1 className="text-2xl font-bold">Power Write</h1>
+        <h1 className="page-title">Power Write</h1>
         <p className="text-gray-500">Sign in to access your novels</p>
         <LoginButton />
       </div>

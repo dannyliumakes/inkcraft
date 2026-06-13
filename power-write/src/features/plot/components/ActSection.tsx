@@ -49,7 +49,7 @@ export default function ActSection({
         ) : (
           <button
             onClick={() => setEditingTitle(true)}
-            className="text-sm font-bold text-[#4c5354] hover:text-[#181c1e] px-2 py-1 rounded"
+            className="text-sm font-bold text-muted hover:text-primary px-2 py-1 rounded"
             title="點擊重新命名"
           >
             第 {actIndex + 1} 幕 — {act.title}
@@ -70,7 +70,7 @@ export default function ActSection({
         ))}
         <button
           onClick={onAddChapter}
-          className="flex-shrink-0 w-[200px] h-[80px] self-start rounded-2xl border-2 border-dashed border-gray-200 text-sm text-[#6d6d6d] hover:border-[#c7cbff] hover:text-[#4c5354] transition-colors"
+          className="flex-shrink-0 w-[200px] h-[80px] self-start rounded-2xl border-2 border-dashed border-gray-200 text-sm text-secondary hover:border-accent-border hover:text-muted transition-colors"
         >
           ＋ 新增章節
         </button>

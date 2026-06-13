@@ -53,14 +53,14 @@ export default function PlotBoard() {
     <div className="flex flex-col h-full" style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
       {/* Toolbar */}
       <div className="bg-white border-b border-gray-100 px-8 py-3 flex items-center gap-4 flex-wrap">
-        <h1 className="text-lg font-bold text-[#181c1e]">情節規劃看板</h1>
+        <h1 className="section-title">情節規劃看板</h1>
         <div className="flex-1" />
         {dirty && <span className="text-xs text-amber-500 font-medium">有未儲存變更</span>}
         {allTags.length > 0 && (
           <select
             value={tagFilter}
             onChange={(e) => setTagFilter(e.target.value)}
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-[#4c5354] focus:outline-none focus:ring-2 focus:ring-[#4c5354]/30"
+            className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-muted focus:outline-none focus:ring-2 focus:ring-muted/30"
           >
             <option value="">全部標籤</option>
             {allTags.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -77,7 +77,7 @@ export default function PlotBoard() {
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
         <div className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-8">
           {filteredActs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-[#a0aec0]">
+            <div className="flex flex-col items-center justify-center h-64 text-placeholder">
               <p className="text-lg mb-4">尚無情節結構</p>
               <Button onClick={addAct}>＋ 新增第一幕</Button>
             </div>

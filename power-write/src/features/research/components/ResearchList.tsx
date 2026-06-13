@@ -24,11 +24,11 @@ function ResearchImage({ assetId }: { assetId: string | null }) {
     return <img src={url} alt="research" className="w-full h-full object-cover" />
   }
   return (
-    <div className="w-full h-full flex items-center justify-center bg-[#f2f4ff]">
+    <div className="w-full h-full flex items-center justify-center bg-accent-light">
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <rect x="3" y="7" width="26" height="18" rx="2" stroke="#a0aec0" strokeWidth="1.5" />
-        <circle cx="11" cy="13" r="2.5" stroke="#a0aec0" strokeWidth="1.5" />
-        <path d="M3 22l7-5 5 4 4-3 10 7" stroke="#a0aec0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="3" y="7" width="26" height="18" rx="2" stroke="var(--color-placeholder)" strokeWidth="1.5" />
+        <circle cx="11" cy="13" r="2.5" stroke="var(--color-placeholder)" strokeWidth="1.5" />
+        <path d="M3 22l7-5 5 4 4-3 10 7" stroke="var(--color-placeholder)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>
   )
@@ -51,13 +51,13 @@ function ResearchCard({
       onClick={onClick}
     >
       {/* Image — 16:9 */}
-      <div className="w-full aspect-video overflow-hidden bg-[#f2f4ff]">
+      <div className="w-full aspect-video overflow-hidden bg-accent-light">
         <ResearchImage assetId={item.imageAssetId} />
       </div>
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="font-semibold text-[#181c1e] text-base mb-1 truncate">{item.title}</h3>
+        <h3 className="card-title mb-1 truncate">{item.title}</h3>
 
         {item.description && (
           <p className="text-sm text-gray-500 line-clamp-3 mb-2">{item.description}</p>
@@ -185,13 +185,13 @@ export default function ResearchList() {
     <div className="p-8">
       {/* Top bar */}
       <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-        <h1 className="text-2xl font-bold text-[#181c1e]">研究素材與資料庫</h1>
+        <h1 className="page-title">研究素材與資料庫</h1>
 
         <div className="flex items-center gap-3 flex-wrap">
           {/* Tag filter */}
           {filterTag && (
-            <div className="flex items-center gap-1.5 bg-[#f2f4ff] rounded-full px-3 py-1">
-              <span className="text-sm text-[#7c6ee0]">#{filterTag}</span>
+            <div className="flex items-center gap-1.5 bg-accent-light rounded-full px-3 py-1">
+              <span className="text-sm text-accent">#{filterTag}</span>
               <button
                 onClick={() => setFilterTag(null)}
                 className="text-gray-400 hover:text-red-400 text-xs ml-0.5"
@@ -213,9 +213,9 @@ export default function ResearchList() {
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 text-gray-400 gap-2">
           <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-            <rect x="4" y="9" width="32" height="22" rx="3" stroke="#cbd5e0" strokeWidth="1.5" />
-            <circle cx="13" cy="17" r="3" stroke="#cbd5e0" strokeWidth="1.5" />
-            <path d="M4 27l9-6 6 5 5-4 12 9" stroke="#cbd5e0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <rect x="4" y="9" width="32" height="22" rx="3" stroke="var(--color-stroke-empty)" strokeWidth="1.5" />
+            <circle cx="13" cy="17" r="3" stroke="var(--color-stroke-empty)" strokeWidth="1.5" />
+            <path d="M4 27l9-6 6 5 5-4 12 9" stroke="var(--color-stroke-empty)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <span className="text-sm">
             {filterTag ? `標籤「${filterTag}」下無素材` : '尚無素材，點擊「＋ 新增素材」開始'}

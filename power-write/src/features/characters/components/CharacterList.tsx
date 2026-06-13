@@ -24,10 +24,10 @@ function PortraitImage({ assetId }: { assetId: string | null }) {
     return <img src={url} alt="portrait" className="w-full h-full object-cover" />
   }
   return (
-    <div className="w-full h-full flex items-center justify-center bg-[#f2f4ff]">
+    <div className="w-full h-full flex items-center justify-center bg-accent-light">
       <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-        <circle cx="20" cy="15" r="7" stroke="#a0aec0" strokeWidth="1.5" />
-        <path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke="#a0aec0" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="20" cy="15" r="7" stroke="var(--color-placeholder)" strokeWidth="1.5" />
+        <path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke="var(--color-placeholder)" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     </div>
   )
@@ -48,14 +48,14 @@ function CharacterCard({
       className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-150"
     >
       {/* Portrait */}
-      <div className="h-48 overflow-hidden bg-[#f2f4ff]">
+      <div className="h-48 overflow-hidden bg-accent-light">
         <PortraitImage assetId={character.portraitAssetId} />
       </div>
 
       {/* Info */}
       <div className="p-4">
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-semibold text-[#181c1e] text-base truncate">{character.name}</h3>
+          <h3 className="card-title truncate">{character.name}</h3>
           {character.label && (
             <Badge>{character.label}</Badge>
           )}
@@ -169,19 +169,19 @@ export default function CharacterList() {
     <div className="p-8">
       {/* Top bar */}
       <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-        <h1 className="text-2xl font-bold text-[#181c1e]">角色資料</h1>
+        <h1 className="page-title">角色資料</h1>
 
         <div className="flex items-center gap-3 flex-wrap">
           {/* Filter tabs */}
-          <div className="flex items-center bg-[#f2f4ff] rounded-full p-1 gap-1">
+          <div className="flex items-center bg-accent-light rounded-full p-1 gap-1">
             {labelTabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setFilterLabel(tab)}
                 className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                   filterLabel === tab
-                    ? 'bg-[#4c5354] text-white'
-                    : 'text-[#4c5354] hover:bg-[#e0e4ff]'
+                    ? 'bg-muted text-white'
+                    : 'text-muted hover:bg-accent-softer'
                 }`}
               >
                 {tab}
@@ -201,8 +201,8 @@ export default function CharacterList() {
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-48 text-gray-400 gap-2">
           <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-            <circle cx="20" cy="14" r="8" stroke="#cbd5e0" strokeWidth="1.5" />
-            <path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke="#cbd5e0" strokeWidth="1.5" strokeLinecap="round" />
+            <circle cx="20" cy="14" r="8" stroke="var(--color-stroke-empty)" strokeWidth="1.5" />
+            <path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke="var(--color-stroke-empty)" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
           <span className="text-sm">
             {filterLabel === '全部' ? '尚無角色，點擊「＋ 新增角色」開始' : `「${filterLabel}」分類下無角色`}

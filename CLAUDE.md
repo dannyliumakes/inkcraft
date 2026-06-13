@@ -65,6 +65,44 @@ src/
   router.tsx        # routes: / → ShelfPage, /book/:bookId → BookLayout (nested)
 ```
 
+### Design Token 規則（設計師 / 工程師分工）
+
+**設計師編輯區：** `src/index.css` 最上方的 `@theme {}` 區塊
+- 所有顏色、圓角定義在這裡，改這裡會自動套用到全站
+- 變數命名規則：`--color-primary`、`--color-accent`、`--radius-btn` 等
+
+**工程師規則（強制執行）：**
+- 元件裡**禁止**硬寫任何顏色數值，包括 `#181c1e`、`bg-[#xxx]`、`stroke="#xxx"`、`fill="#xxx"`
+- Tailwind class 使用 token 名稱：`bg-primary`、`text-muted`、`bg-accent-light`、`text-secondary` 等
+- SVG inline 屬性使用 CSS 變數：`stroke="var(--color-placeholder)"`、`fill="var(--color-muted)"`
+- 新增顏色時，**一定先**加到 `@theme {}` 並命名，再於元件中使用
+- Claude 寫新元件或修改現有元件時，必須遵守此規則，不得產生任何硬寫顏色
+
+**Typography semantic class（強制使用）：**
+| 用途 | Class | 對應位置 |
+|------|-------|---------|
+| 頁面主標題 | `page-title` | 各功能頁 h1（角色資料、情節規劃…） |
+| Modal / 區塊標題 | `section-title` | Modal header、panel 小節標題 |
+| 卡片標題 | `card-title` | 卡片內名稱、item title |
+| 欄位標籤 | `field-label` | form label、說明小標 |
+
+字體大小請到 `src/index.css` 的 `@theme {}` 修改 `--font-size-h1` 等變數；字重、顏色請到 Typography Token 區的 `.page-title` 等 class 修改。
+禁止直接使用 `text-2xl font-bold`、`text-lg font-semibold` 等組合替代上述 class。
+
+**Token 對照表（常用）：**
+| 用途 | Token class | CSS 變數 |
+|------|------------|---------|
+| 主要文字、按鈕 | `text-primary` / `bg-primary` | `--color-primary` |
+| 次要文字、icon | `text-muted` | `--color-muted` |
+| 說明文字 | `text-secondary` | `--color-secondary` |
+| Placeholder | `text-placeholder` | `--color-placeholder` |
+| 強調色（紫） | `text-accent` / `bg-accent` | `--color-accent` |
+| 強調淺背景 | `bg-accent-light` | `--color-accent-light` |
+| 強調邊框 | `border-accent-border` | `--color-accent-border` |
+| 頁面底色 | `bg-surface` | `--color-surface` |
+| 危險色 | `bg-danger` / `text-danger` | `--color-danger` |
+| SVG 空狀態描邊 | — | `var(--color-stroke-empty)` |
+
 ### Key conventions
 
 - `drive.ts` is the only file that calls `fetch` against Google APIs — all other code goes through it

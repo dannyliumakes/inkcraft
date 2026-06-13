@@ -68,7 +68,7 @@ export default function CharacterModal({
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-[#181c1e]">{isNew ? '新增角色' : '編輯角色'}</h2>
+          <h2 className="section-title">{isNew ? '新增角色' : '編輯角色'}</h2>
           <Button variant="ghost" onClick={onClose} aria-label="關閉">✕</Button>
         </div>
 
@@ -76,15 +76,15 @@ export default function CharacterModal({
           {/* Portrait */}
           <div className="flex items-center gap-4">
             <div
-              className="w-20 h-20 rounded-full bg-[#f2f4ff] flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-[#c0c8ff] hover:border-[#7c6ee0] transition-colors"
+              className="w-20 h-20 rounded-full bg-accent-light flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-accent-border hover:border-accent transition-colors"
               onClick={() => fileRef.current?.click()}
             >
               {portraitUrl ? (
                 <img src={portraitUrl} alt="portrait" className="w-full h-full object-cover" />
               ) : (
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                  <circle cx="16" cy="12" r="5" stroke="#a0aec0" strokeWidth="1.5" />
-                  <path d="M4 28c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="#a0aec0" strokeWidth="1.5" strokeLinecap="round" />
+                  <circle cx="16" cy="12" r="5" stroke="var(--color-placeholder)" strokeWidth="1.5" />
+                  <path d="M4 28c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="var(--color-placeholder)" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
               )}
             </div>
@@ -112,10 +112,10 @@ export default function CharacterModal({
           />
 
           <div>
-            <label className="block text-sm font-medium text-[#181c1e] mb-1">別名</label>
+            <label className="block text-sm font-medium text-primary mb-1">別名</label>
             <div className="flex flex-wrap gap-1.5 mb-2">
               {aliases.map((a, i) => (
-                <span key={i} className="flex items-center gap-1 bg-[#f2f4ff] text-[#4c5354] rounded-full px-2.5 py-0.5 text-xs">
+                <span key={i} className="flex items-center gap-1 bg-accent-light text-muted rounded-full px-2.5 py-0.5 text-xs">
                   {a}
                   <button onClick={() => setAliases(aliases.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-400">×</button>
                 </span>

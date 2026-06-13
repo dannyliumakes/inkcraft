@@ -51,7 +51,7 @@ export default function SearchPage() {
   return (
     <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-lg font-bold text-[#181c1e]">
+        <h1 className="page-title">
           搜尋「{query}」
         </h1>
         <p className="text-sm text-gray-500 mt-1">
@@ -72,9 +72,9 @@ export default function SearchPage() {
             <li key={r.id}>
               <button
                 onClick={() => handleSelectChapter(r.id)}
-                className="w-full text-left px-4 py-3 rounded-xl hover:bg-[#f2f4ff] transition-colors border border-gray-100 hover:border-[#c0c8ff]"
+                className="w-full text-left px-4 py-3 rounded-xl hover:bg-accent-light transition-colors border border-gray-100 hover:border-accent-border"
               >
-                <p className="text-sm font-semibold text-[#181c1e] mb-0.5">
+                <p className="text-sm font-semibold text-primary mb-0.5">
                   {r.title}
                 </p>
                 <p

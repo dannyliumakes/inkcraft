@@ -29,7 +29,7 @@ export default function ChapterColumn({ chapter, onAddScene, onEditScene, onRena
   }
 
   return (
-    <div className="flex-shrink-0 w-[340px] bg-[#f8f8f8] rounded-2xl border border-gray-100 flex flex-col" style={{ minHeight: 120 }}>
+    <div className="flex-shrink-0 w-[340px] bg-surface rounded-2xl border border-gray-100 flex flex-col" style={{ minHeight: 120 }}>
       <div className="px-4 pt-4 pb-2">
         {editing ? (
           <Input
@@ -45,14 +45,14 @@ export default function ChapterColumn({ chapter, onAddScene, onEditScene, onRena
           />
         ) : (
           <button
-            className="text-sm font-semibold text-[#181c1e] hover:text-[#4c5354] text-left w-full"
+            className="text-sm font-semibold text-primary hover:text-muted text-left w-full"
             onClick={() => setEditing(true)}
             title="點擊重新命名"
           >
             {chapter.title}
           </button>
         )}
-        <p className="text-xs text-[#a0aec0] mt-0.5">{chapter.scenes.length} 個場景</p>
+        <p className="text-xs text-placeholder mt-0.5">{chapter.scenes.length} 個場景</p>
       </div>
 
       <div className="flex-1 px-3 pb-2 flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: 480 }}>
@@ -66,7 +66,7 @@ export default function ChapterColumn({ chapter, onAddScene, onEditScene, onRena
       <div className="px-3 pb-3">
         <button
           onClick={() => onAddScene(chapter.id)}
-          className="w-full py-2 rounded-xl text-xs text-[#6d6d6d] hover:bg-white hover:text-[#4c5354] border-2 border-dashed border-gray-200 hover:border-[#c7cbff] transition-colors"
+          className="w-full py-2 rounded-xl text-xs text-secondary hover:bg-white hover:text-muted border-2 border-dashed border-gray-200 hover:border-accent-border transition-colors"
         >
           ＋ 新增場景
         </button>

@@ -1,16 +1,119 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════
+   🎨 DESIGN TOKENS — 設計師編輯區
+   所有顏色、字體、圓角、間距都在這裡定義。
+   改這裡會自動套用到全站所有元件。
+
+   Tailwind class 對應規則：
+     --color-primary   → bg-primary / text-primary / border-primary
+     --color-accent    → bg-accent  / text-accent  / border-accent
+     （其餘依此類推）
+
+   工程師：請勿在元件裡硬寫顏色數值，使用下方變數或對應 class。
+   ═══════════════════════════════════════════════════════ */
+
+@theme {
+  /* --- 主色系 (Ink / Dark) --- */
+  --color-primary:        #181c1e;   /* 主要按鈕、標題、強調背景 */
+  --color-primary-hover:  #2e3538;   /* 主要按鈕 hover */
+  --color-muted:          #4c5354;   /* 次要文字、ghost 按鈕、icon */
+
+  /* --- 內文色 (Text) --- */
+  --color-body:           #1a1a1a;   /* 編輯器主要內文 */
+  --color-secondary:      #6d6d6d;   /* 說明文字、時間戳 */
+  --color-placeholder:    #a0aec0;   /* placeholder、SVG 空狀態 */
+
+  /* --- 強調色系 (Accent / Purple) --- */
+  --color-accent:         #7c6ee0;   /* tag、badge、強調元素、進度條 */
+  --color-accent-hover:   #6a5ec8;   /* accent hover */
+  --color-accent-light:   #f2f4ff;   /* accent 淺背景（卡片、nav 底） */
+  --color-accent-border:  #c0c8ff;   /* accent 邊框 */
+  --color-accent-soft:    #e8eaff;   /* accent 更淡（avatar、chip） */
+  --color-accent-softer:  #e0e4ff;   /* accent 最淡（tab hover） */
+
+  /* --- 危險 / 警告 (Danger) --- */
+  --color-danger:         #ef4444;
+  --color-danger-hover:   #dc2626;
+
+  /* --- 背景 (Surface) --- */
+  --color-surface:        #f8f8f8;   /* 頁面底色、column 背景 */
+  --color-canvas:         #f9f9f8;   /* 最外層頁面 */
+
+  /* --- 書架裝飾 (Shelf / Cover) --- */
+  --color-cover:          #b0b8f0;   /* 書籍封面色 */
+  --color-cover-light:    #d4d8f5;   /* 封面漸層尾色 */
+
+  /* --- SVG 空狀態描邊 --- */
+  --color-stroke-empty:   #cbd5e0;   /* 空狀態插圖描邊 */
+
+  /* --- 字體大小 (Font Size) --- */
+  --font-size-display: 2rem;      /* 32px — Logo、品牌標題 */
+  --font-size-h1:      1.75rem;   /* 28px — 頁面主標題 */
+  --font-size-h2:      1.25rem;   /* 20px — Modal、區塊標題 */
+  --font-size-h3:      1rem;      /* 16px — 卡片標題 */
+  --font-size-h4:      0.875rem;  /* 14px — 欄位標籤 */
+
+  /* --- 圓角 (Border Radius) --- */
+  --radius-btn:   9999px;   /* 按鈕（pill） */
+  --radius-card:  0.75rem;  /* 卡片、modal */
+  --radius-input: 0.75rem;  /* 輸入框 */
+  --radius-badge: 9999px;   /* badge、tag */
+}
+
+/* ═══════════════════════════════════════════════════════
+   ⚙️ 工程師區 — 以下為功能性 CSS，請勿在此修改視覺數值
+   ═══════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════
+   🎨 TYPOGRAPHY TOKENS — 設計師編輯區
+   語意化標題 class，改這裡會套用到全站對應標題。
+   font-size 請到上方 @theme 的 --font-size-* 修改。
+   ═══════════════════════════════════════════════════════ */
+
+/* 頁面主標題 — 各功能頁的大標題（角色資料、情節規劃看板…） */
+.page-title {
+  font-size: var(--font-size-h1);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* 區塊/Modal 標題 — modal header、panel section title */
+.section-title {
+  font-size: var(--font-size-h2);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* 卡片標題 — 卡片內的名稱、item title */
+.card-title {
+  font-size: var(--font-size-h3);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* 欄位標籤 — label、小標題 */
+.field-label {
+  font-size: var(--font-size-h4);
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+/* ═══════════════════════════════════════════════════════
+   ⚙️ 工程師區 — 以下為功能性 CSS，請勿在此修改視覺數值
+   ═══════════════════════════════════════════════════════ */
+
 body {
   overflow-x: hidden;
 }
 
-/* Tiptap editor styles */
+/* --- Tiptap 編輯器文字樣式 --- */
 .tiptap-editor .ProseMirror {
   outline: none;
   min-height: 400px;
   font-size: 1rem;
   line-height: 1.8;
-  color: #1a1a1a;
+  color: var(--color-body);
 }
 
 .tiptap-editor .ProseMirror h1 {
@@ -45,7 +148,7 @@ body {
 
 .tiptap-editor .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
-  color: #adb5bd;
+  color: var(--color-placeholder);
   float: left;
   height: 0;
   pointer-events: none;

@@ -89,7 +89,7 @@ export default function SceneModal({
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 p-8 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold text-[#181c1e] mb-6">
+        <h2 className="section-title mb-6">
           {scene ? '編輯場景' : '新增場景'}
         </h2>
 
@@ -115,11 +115,11 @@ export default function SceneModal({
           {/* Chapter */}
           {chapters.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-[#4c5354] mb-1">章節</label>
+              <label className="block text-sm font-medium text-muted mb-1">章節</label>
               <select
                 value={chapterId}
                 onChange={(e) => setChapterId(e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-[#181c1e] focus:outline-none focus:ring-2 focus:ring-[#4c5354]/30"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-primary focus:outline-none focus:ring-2 focus:ring-muted/30"
               >
                 {chapters.map((ch) => (
                   <option key={ch.id} value={ch.id}>{ch.title}</option>
@@ -133,7 +133,7 @@ export default function SceneModal({
 
           {/* Image */}
           <div>
-            <label className="block text-sm font-medium text-[#4c5354] mb-1">場景圖片</label>
+            <label className="block text-sm font-medium text-muted mb-1">場景圖片</label>
             {imageUrl && (
               <img
                 src={imageUrl}

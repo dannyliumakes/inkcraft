@@ -139,7 +139,7 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
             key={ch.id}
             className={`group flex items-center gap-1 px-3 py-2 cursor-pointer select-none text-sm ${
               activeChapterId === ch.id
-                ? 'bg-[#eef0ff] text-[#4c5354] font-medium'
+                ? 'bg-accent-softer text-muted font-medium'
                 : 'hover:bg-gray-50 text-gray-700'
             }`}
             onClick={() => onSelectChapter(ch)}

@@ -22,7 +22,7 @@ export default function SceneCard({ scene, onEdit, overlay = false }: Props) {
       ref={setNodeRef}
       style={style}
       className={`bg-white rounded-xl border border-gray-100 p-3 shadow-sm select-none ${
-        overlay ? 'rotate-2 shadow-lg' : 'hover:border-[#c7cbff] transition-colors'
+        overlay ? 'rotate-2 shadow-lg' : 'hover:border-accent-border transition-colors'
       }`}
     >
       <div className="flex items-start gap-2">
@@ -44,14 +44,14 @@ export default function SceneCard({ scene, onEdit, overlay = false }: Props) {
         </button>
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-[#181c1e] truncate">{scene.title}</p>
+          <p className="text-sm font-medium text-primary truncate">{scene.title}</p>
           {scene.summary && (
-            <p className="text-xs text-[#6d6d6d] mt-0.5 line-clamp-2">{scene.summary}</p>
+            <p className="text-xs text-secondary mt-0.5 line-clamp-2">{scene.summary}</p>
           )}
           {scene.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
               {scene.tags.map((t) => (
-                <span key={t} className="text-[10px] bg-[#f2f4ff] text-[#4c5354] px-1.5 py-0.5 rounded-full">
+                <span key={t} className="text-[10px] bg-accent-light text-muted px-1.5 py-0.5 rounded-full">
                   {t}
                 </span>
               ))}
@@ -62,7 +62,7 @@ export default function SceneCard({ scene, onEdit, overlay = false }: Props) {
         {onEdit && (
           <button
             onClick={onEdit}
-            className="flex-shrink-0 text-gray-300 hover:text-[#4c5354] transition-colors"
+            className="flex-shrink-0 text-gray-300 hover:text-muted transition-colors"
             aria-label="編輯"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">

@@ -14,7 +14,7 @@ const sizeStyles: Record<SpinnerSize, string> = {
 export function Spinner({ size = 'md', className = '' }: SpinnerProps) {
   return (
     <span
-      className={`inline-block border-[#4c5354]/30 border-t-[#4c5354] rounded-full animate-spin ${sizeStyles[size]} ${className}`}
+      className={`inline-block border-muted/30 border-t-muted rounded-full animate-spin ${sizeStyles[size]} ${className}`}
       role="status"
       aria-label="載入中"
     />

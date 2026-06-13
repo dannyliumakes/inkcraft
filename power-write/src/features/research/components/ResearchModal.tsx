@@ -51,16 +51,16 @@ export default function ResearchModal({ item, bookFolderId, totalItems, onSave, 
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-[#181c1e]">{isNew ? '新增素材' : '編輯素材'}</h2>
+          <h2 className="section-title">{isNew ? '新增素材' : '編輯素材'}</h2>
           <Button variant="ghost" onClick={onClose} aria-label="關閉">✕</Button>
         </div>
 
         <div className="px-6 py-5 flex flex-col gap-5">
           {/* Image upload */}
           <div>
-            <label className="block text-sm font-medium text-[#181c1e] mb-2">圖片</label>
+            <label className="block text-sm font-medium text-primary mb-2">圖片</label>
             <div
-              className="w-full aspect-video rounded-xl bg-[#f2f4ff] flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-[#c0c8ff] hover:border-[#7c6ee0] transition-colors"
+              className="w-full aspect-video rounded-xl bg-accent-light flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-accent-border hover:border-accent transition-colors"
               onClick={() => fileRef.current?.click()}
             >
               {imageUrl ? (
@@ -68,9 +68,9 @@ export default function ResearchModal({ item, bookFolderId, totalItems, onSave, 
               ) : (
                 <div className="flex flex-col items-center gap-2 text-gray-400">
                   <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                    <rect x="3" y="7" width="26" height="18" rx="2" stroke="#a0aec0" strokeWidth="1.5" />
-                    <circle cx="11" cy="13" r="2.5" stroke="#a0aec0" strokeWidth="1.5" />
-                    <path d="M3 22l7-5 5 4 4-3 10 7" stroke="#a0aec0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <rect x="3" y="7" width="26" height="18" rx="2" stroke="var(--color-placeholder)" strokeWidth="1.5" />
+                    <circle cx="11" cy="13" r="2.5" stroke="var(--color-placeholder)" strokeWidth="1.5" />
+                    <path d="M3 22l7-5 5 4 4-3 10 7" stroke="var(--color-placeholder)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span className="text-xs">{uploading ? '上傳中…' : '點擊上傳圖片'}</span>
                 </div>
@@ -82,7 +82,7 @@ export default function ResearchModal({ item, bookFolderId, totalItems, onSave, 
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
-                className="mt-1.5 text-xs text-[#7c6ee0] hover:underline disabled:opacity-50"
+                className="mt-1.5 text-xs text-accent hover:underline disabled:opacity-50"
               >
                 {uploading ? '上傳中…' : '更換圖片'}
               </button>

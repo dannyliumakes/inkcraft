@@ -19,7 +19,7 @@ interface ModalProps {
 function ModalHeader({ children, onClose }: { children: ReactNode; onClose?: () => void }) {
   return (
     <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-      <h2 className="text-lg font-bold text-[#181c1e]">{children}</h2>
+      <h2 className="section-title">{children}</h2>
       {onClose && (
         <button
           type="button"
@@ -95,7 +95,6 @@ export function Modal({
   return portalRoot ? createPortal(content, portalRoot) : content
 }
 
-// Attach sub-components as static properties for Composition Pattern
 Modal.Header = ModalHeader
 Modal.Body = ModalBody
 Modal.Footer = ModalFooter

@@ -1,26 +1,35 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react'
 
+// ══════════════════════════════════════════════════
+// 🎨 視覺設定 — 設計師編輯區
+// 顏色請到 src/index.css @theme 修改，class 名稱對應如下：
+//   bg-primary      → --color-primary
+//   bg-primary-hover → --color-primary-hover
+//   text-muted      → --color-muted
+// ══════════════════════════════════════════════════
+
 type ButtonVariant = 'primary' | 'ghost' | 'danger'
 type ButtonSize = 'sm' | 'md'
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant
-  size?: ButtonSize
-  loading?: boolean
-}
-
 const variantStyles: Record<ButtonVariant, string> = {
-  primary:
-    'bg-[#181c1e] text-white hover:bg-[#2e3538] focus-visible:ring-2 focus-visible:ring-[#4c5354]/50',
-  ghost:
-    'text-[#4c5354] hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-[#4c5354]/30',
-  danger:
-    'bg-red-500 text-white hover:bg-red-600 focus-visible:ring-2 focus-visible:ring-red-400',
+  primary: 'bg-primary text-white hover:bg-primary-hover focus-visible:ring-2 focus-visible:ring-muted/50',
+  ghost:   'text-muted hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-muted/30',
+  danger:  'bg-danger text-white hover:bg-danger-hover focus-visible:ring-2 focus-visible:ring-danger/40',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
   sm: 'px-3 py-1.5 text-xs',
   md: 'px-5 py-2.5 text-sm',
+}
+
+// ══════════════════════════════════════════════════
+// ⚙️ 工程師區
+// ══════════════════════════════════════════════════
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariant
+  size?: ButtonSize
+  loading?: boolean
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

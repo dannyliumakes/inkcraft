@@ -115,12 +115,12 @@ function SearchBar() {
           className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <circle cx="8" cy="8" r="5.5" stroke="#4c5354" strokeWidth="1.5"/>
-            <path d="M12.5 12.5L16 16" stroke="#4c5354" strokeWidth="1.5" strokeLinecap="round"/>
+            <circle cx="8" cy="8" r="5.5" stroke="var(--color-muted)" strokeWidth="1.5"/>
+            <path d="M12.5 12.5L16 16" stroke="var(--color-muted)" strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
         </button>
       ) : (
-        <div className="flex items-center gap-2 bg-white border border-[#7c6ee0] rounded-full px-3 py-1.5 shadow-sm min-w-[240px]">
+        <div className="flex items-center gap-2 bg-white border border-accent rounded-full px-3 py-1.5 shadow-sm min-w-[240px]">
           <svg width="16" height="16" viewBox="0 0 18 18" fill="none" className="shrink-0 text-gray-400">
             <circle cx="8" cy="8" r="5.5" stroke="currentColor" strokeWidth="1.5"/>
             <path d="M12.5 12.5L16 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -131,7 +131,7 @@ function SearchBar() {
             placeholder="搜尋原稿..."
             value={query}
             onChange={handleChange}
-            className="flex-1 text-sm outline-none bg-transparent text-[#181c1e] placeholder-gray-400"
+            className="flex-1 text-sm outline-none bg-transparent text-primary placeholder-gray-400"
           />
           {query && (
             <button onClick={() => { setQuery(''); setDebouncedQuery(''); }} className="text-gray-400 hover:text-gray-600">
@@ -151,9 +151,9 @@ function SearchBar() {
               <button
                 key={r.id}
                 onClick={() => handleSelectChapter(r.id)}
-                className="w-full text-left px-4 py-3 hover:bg-[#f2f4ff] transition-colors border-b border-gray-50 last:border-0"
+                className="w-full text-left px-4 py-3 hover:bg-accent-light transition-colors border-b border-gray-50 last:border-0"
               >
-                <p className="text-sm font-semibold text-[#181c1e] mb-0.5">{r.title}</p>
+                <p className="text-sm font-semibold text-primary mb-0.5">{r.title}</p>
                 <p
                   className="text-xs text-gray-500 leading-relaxed line-clamp-2"
                   // eslint-disable-next-line react/no-danger
@@ -167,7 +167,7 @@ function SearchBar() {
             {results.length > 0 && (
               <button
                 onClick={() => { closeSearch(); navigate(`/book/${bookId}/search/${encodeURIComponent(debouncedQuery)}`); }}
-                className="mt-1 text-xs text-[#7c6ee0] hover:underline"
+                className="mt-1 text-xs text-accent hover:underline"
               >
                 在搜尋頁面中檢視全部
               </button>
@@ -182,7 +182,7 @@ function SearchBar() {
           <p className="text-sm text-gray-400">找不到「{debouncedQuery}」的相關內容</p>
           <button
             onClick={() => { closeSearch(); navigate(`/book/${bookId}/search/${encodeURIComponent(debouncedQuery)}`); }}
-            className="mt-2 text-xs text-[#7c6ee0] hover:underline"
+            className="mt-2 text-xs text-accent hover:underline"
           >
             在搜尋頁面中開啟
           </button>
@@ -200,7 +200,7 @@ export default function BookLayout() {
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f8f8f8]" style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
+    <div className="min-h-screen flex flex-col bg-surface" style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
       {/* Mobile banner */}
       <div className="sm:hidden bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-700 text-center">
         {t('mobile_banner')}
@@ -209,14 +209,14 @@ export default function BookLayout() {
       <nav className="bg-white border-b border-gray-100 px-4 md:px-8 py-3 flex items-center gap-2 md:gap-4 sticky top-0 z-30 overflow-hidden">
         {/* Logo */}
         <span
-          className="font-black text-xl md:text-[32px] text-[#181c1e] tracking-tight mr-2 md:mr-6 shrink-0"
+          className="font-black text-xl md:text-[32px] text-primary tracking-tight mr-2 md:mr-6 shrink-0"
           style={{ fontFamily: "'Noto Sans TC', sans-serif" }}
         >
           Power write
         </span>
 
         {/* Tab pill bar */}
-        <div className="flex items-center bg-[#f2f4ff] rounded-full p-1 gap-0.5 md:gap-1 overflow-x-auto shrink min-w-0">
+        <div className="flex items-center bg-accent-light rounded-full p-1 gap-0.5 md:gap-1 overflow-x-auto shrink min-w-0">
           {tabs.map((tab) => (
             <NavLink
               key={tab.key}
@@ -225,8 +225,8 @@ export default function BookLayout() {
               className={({ isActive }) =>
                 `px-2 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors whitespace-nowrap focus-visible:ring-2 focus-visible:ring-blue-400 ${
                   isActive
-                    ? 'bg-[#4c5354] text-white'
-                    : 'text-[#4c5354] hover:bg-[#e0e4ff]'
+                    ? 'bg-muted text-white'
+                    : 'text-muted hover:bg-accent-softer'
                 }`
               }
             >
@@ -243,7 +243,7 @@ export default function BookLayout() {
         {/* Milestone button */}
         <button
           onClick={() => setMilestoneOpen(o => !o)}
-          className="px-2 md:px-3 py-1.5 text-xs md:text-sm rounded-full border border-gray-200 text-[#4c5354] hover:bg-[#f2f4ff] transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-blue-400"
+          className="px-2 md:px-3 py-1.5 text-xs md:text-sm rounded-full border border-gray-200 text-muted hover:bg-accent-light transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-blue-400"
           aria-label={t('milestone.title')}
         >
           🏁 <span className="hidden md:inline">{t('nav.milestone')}</span>
@@ -254,8 +254,8 @@ export default function BookLayout() {
 
         {/* User */}
         <div className="flex items-center gap-1 md:gap-2 shrink-0">
-          <span className="hidden md:inline text-sm text-[#4c5354]">{t('nav.user')}</span>
-          <div className="w-8 h-8 rounded-full bg-[#e8eaff] flex items-center justify-center text-[#7c6ee0] font-bold text-sm">U</div>
+          <span className="hidden md:inline text-sm text-muted">{t('nav.user')}</span>
+          <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-accent font-bold text-sm">U</div>
         </div>
       </nav>
 

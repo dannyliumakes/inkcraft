@@ -60,7 +60,7 @@ export default function EditorToolbar({
 
       {titleProps.editing ? (
         <Input
-          className="text-lg font-semibold border-b border-[#7c6ee0] w-auto"
+          className="text-lg font-semibold border-b border-accent w-auto"
           value={titleProps.value}
           autoFocus
           onChange={(e) => titleProps.onChange(e.target.value)}
@@ -69,7 +69,7 @@ export default function EditorToolbar({
         />
       ) : (
         <h2
-          className="text-lg font-semibold text-[#181c1e] cursor-pointer hover:text-[#7c6ee0] transition-colors"
+          className="text-lg font-semibold text-primary cursor-pointer hover:text-accent transition-colors"
           onClick={titleProps.onStartEdit}
         >
           {titleProps.value || (activeChapterId ? t('manuscript.untitled') : t('manuscript.select_chapter'))}
@@ -108,7 +108,7 @@ export default function EditorToolbar({
       <button
         title={t('manuscript.focus_mode')}
         className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
-          focusMode ? 'bg-[#7c6ee0] text-white' : 'hover:bg-gray-100 text-gray-400'
+          focusMode ? 'bg-accent text-white' : 'hover:bg-gray-100 text-gray-400'
         }`}
         onClick={onToggleFocus}
       >

@@ -1,17 +1,26 @@
 import type { ReactNode } from 'react'
 
+// ══════════════════════════════════════════════════
+// 🎨 視覺設定 — 設計師編輯區
+//   bg-accent-soft / text-accent → --color-accent-soft / --color-accent
+// ══════════════════════════════════════════════════
+
 type BadgeVariant = 'default' | 'success' | 'warning'
+
+const variantStyles: Record<BadgeVariant, string> = {
+  default: 'bg-accent-soft text-accent',
+  success: 'bg-green-100 text-green-700',
+  warning: 'bg-amber-100 text-amber-700',
+}
+
+// ══════════════════════════════════════════════════
+// ⚙️ 工程師區
+// ══════════════════════════════════════════════════
 
 interface BadgeProps {
   variant?: BadgeVariant
   children: ReactNode
   className?: string
-}
-
-const variantStyles: Record<BadgeVariant, string> = {
-  default: 'bg-[#e8eaff] text-[#7c6ee0]',
-  success: 'bg-green-100 text-green-700',
-  warning: 'bg-amber-100 text-amber-700',
 }
 
 export function Badge({

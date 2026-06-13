@@ -25,7 +25,6 @@ export default function ImageUploader({
   const [error, setError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // Load existing image
   useEffect(() => {
     if (!assetId) return
     const token = getAccessToken()
@@ -56,15 +55,15 @@ export default function ImageUploader({
     return (
       <div className="flex items-center gap-4">
         <div
-          className="w-20 h-20 rounded-full bg-[#f2f4ff] flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-[#c0c8ff] hover:border-[#7c6ee0] transition-colors shrink-0"
+          className="w-20 h-20 rounded-full bg-accent-light flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-accent-border hover:border-accent transition-colors shrink-0"
           onClick={() => fileRef.current?.click()}
         >
           {imageUrl ? (
             <img src={imageUrl} alt="portrait" className="w-full h-full object-cover" />
           ) : (
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <circle cx="16" cy="12" r="5" stroke="#a0aec0" strokeWidth="1.5" />
-              <path d="M4 28c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="#a0aec0" strokeWidth="1.5" strokeLinecap="round" />
+              <circle cx="16" cy="12" r="5" stroke="var(--color-placeholder)" strokeWidth="1.5" />
+              <path d="M4 28c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="var(--color-placeholder)" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           )}
         </div>
@@ -90,12 +89,11 @@ export default function ImageUploader({
     )
   }
 
-  // landscape (default)
   return (
     <div>
-      {label && <label className="block text-sm font-medium text-[#181c1e] mb-2">{label}</label>}
+      {label && <label className="block text-sm font-medium text-primary mb-2">{label}</label>}
       <div
-        className="w-full aspect-video rounded-xl bg-[#f2f4ff] flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-[#c0c8ff] hover:border-[#7c6ee0] transition-colors"
+        className="w-full aspect-video rounded-xl bg-accent-light flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-accent-border hover:border-accent transition-colors"
         onClick={() => fileRef.current?.click()}
       >
         {imageUrl ? (
@@ -103,9 +101,9 @@ export default function ImageUploader({
         ) : (
           <div className="flex flex-col items-center gap-2 text-gray-400">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <rect x="3" y="7" width="26" height="18" rx="2" stroke="#a0aec0" strokeWidth="1.5" />
-              <circle cx="11" cy="13" r="2.5" stroke="#a0aec0" strokeWidth="1.5" />
-              <path d="M3 22l7-5 5 4 4-3 10 7" stroke="#a0aec0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <rect x="3" y="7" width="26" height="18" rx="2" stroke="var(--color-placeholder)" strokeWidth="1.5" />
+              <circle cx="11" cy="13" r="2.5" stroke="var(--color-placeholder)" strokeWidth="1.5" />
+              <path d="M3 22l7-5 5 4 4-3 10 7" stroke="var(--color-placeholder)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             <span className="text-xs">{uploading ? '上傳中…' : '點擊上傳圖片'}</span>
           </div>
@@ -123,7 +121,7 @@ export default function ImageUploader({
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="mt-1.5 text-xs text-[#7c6ee0] hover:underline disabled:opacity-50"
+          className="mt-1.5 text-xs text-accent hover:underline disabled:opacity-50"
         >
           {uploading ? '上傳中…' : '更換圖片'}
         </button>

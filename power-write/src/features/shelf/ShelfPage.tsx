@@ -46,9 +46,9 @@ function BookCard({ book, onOpen, onRename, onDelete }: {
       onClick={onOpen}
     >
       {/* Cover area */}
-      <div className="flex-1 bg-gradient-to-br from-[#e8eaff] to-[#d4d8f5] flex items-center justify-center">
+      <div className="flex-1 bg-gradient-to-br from-accent-soft to-cover-light flex items-center justify-center">
         <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-          <rect x="12" y="8" width="40" height="48" rx="4" fill="#b0b8f0"/>
+          <rect x="12" y="8" width="40" height="48" rx="4" fill="var(--color-cover)"/>
           <rect x="16" y="12" width="32" height="3" rx="1.5" fill="white" opacity="0.6"/>
           <rect x="16" y="18" width="24" height="2" rx="1" fill="white" opacity="0.4"/>
           <rect x="16" y="23" width="28" height="2" rx="1" fill="white" opacity="0.4"/>
@@ -57,11 +57,11 @@ function BookCard({ book, onOpen, onRename, onDelete }: {
 
       {/* Bottom info */}
       <div className="px-5 py-4 flex flex-col gap-1">
-        <h3 className="text-lg font-medium text-[#181c1e] truncate">{book.title}</h3>
+        <h3 className="card-title truncate">{book.title}</h3>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-[#6d6d6d]">{t('shelf.last_edited')}{relativeTime(book.updatedAt)}</span>
+          <span className="text-xs text-secondary">{t('shelf.last_edited')}{relativeTime(book.updatedAt)}</span>
           <button
-            className="text-xs text-[#4c5354] hover:text-[#181c1e] font-medium focus-visible:ring-2 focus-visible:ring-blue-400"
+            className="text-xs text-muted hover:text-primary font-medium focus-visible:ring-2 focus-visible:ring-blue-400"
             onClick={(e) => { e.stopPropagation(); onOpen() }}
           >
             {t('shelf.open_edit')}
@@ -76,9 +76,9 @@ function BookCard({ book, onOpen, onRename, onDelete }: {
         aria-label={t('shelf.more_options')}
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <circle cx="8" cy="3" r="1.5" fill="#4c5354"/>
-          <circle cx="8" cy="8" r="1.5" fill="#4c5354"/>
-          <circle cx="8" cy="13" r="1.5" fill="#4c5354"/>
+          <circle cx="8" cy="3" r="1.5" fill="var(--color-muted)"/>
+          <circle cx="8" cy="8" r="1.5" fill="var(--color-muted)"/>
+          <circle cx="8" cy="13" r="1.5" fill="var(--color-muted)"/>
         </svg>
       </button>
 
@@ -90,7 +90,7 @@ function BookCard({ book, onOpen, onRename, onDelete }: {
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              className="w-full text-left px-4 py-2 text-sm text-[#181c1e] hover:bg-gray-50"
+              className="w-full text-left px-4 py-2 text-sm text-primary hover:bg-gray-50"
               onClick={() => { setMenuOpen(false); onRename() }}
             >
               {t('shelf.rename')}
@@ -114,19 +114,19 @@ function NewBookCard({ onClick }: { onClick: () => void }) {
   const { t } = useTranslation()
   return (
     <button
-      className="bg-[#f2f4ff] rounded-3xl border-2 border-dashed border-[#b0b8f0] flex flex-col items-center justify-center gap-4 hover:bg-[#e8eaff] transition-colors"
+      className="bg-accent-light rounded-3xl border-2 border-dashed border-cover flex flex-col items-center justify-center gap-4 hover:bg-accent-soft transition-colors"
       style={{ height: 500 }}
       onClick={onClick}
     >
-      <div className="w-16 h-16 rounded-full bg-[#7c6ee0] flex items-center justify-center">
+      <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center">
         <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
           <path d="M8 6h12l4 4v16H8V6z" stroke="white" strokeWidth="2" strokeLinejoin="round"/>
           <path d="M16 12v8M12 16h8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
         </svg>
       </div>
       <div className="text-center">
-        <p className="text-base font-medium text-[#4c5354]">{t('shelf.new_story')}</p>
-        <p className="text-sm text-[#6d6d6d] mt-1">{t('shelf.click_to_start')}</p>
+        <p className="text-base font-medium text-muted">{t('shelf.new_story')}</p>
+        <p className="text-sm text-secondary mt-1">{t('shelf.click_to_start')}</p>
       </div>
     </button>
   )
@@ -163,7 +163,7 @@ function TopNav() {
   return (
     <nav className="bg-white border-b border-gray-100 px-4 md:px-8 py-3 flex items-center gap-4 sticky top-0 z-30">
       <span
-        className="font-black text-xl md:text-[32px] text-[#181c1e] tracking-tight mr-2 md:mr-6"
+        className="font-black text-xl md:text-[32px] text-primary tracking-tight mr-2 md:mr-6"
         style={{ fontFamily: "'Noto Sans TC', sans-serif" }}
       >
         Power write
@@ -172,13 +172,13 @@ function TopNav() {
       {/* Notification bell */}
       <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M10 2a6 6 0 0 0-6 6v3l-1.5 2.5h15L16 11V8a6 6 0 0 0-6-6z" stroke="#181c1e" strokeWidth="1.5" strokeLinejoin="round"/>
-          <path d="M8 16.5a2 2 0 0 0 4 0" stroke="#181c1e" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M10 2a6 6 0 0 0-6 6v3l-1.5 2.5h15L16 11V8a6 6 0 0 0-6-6z" stroke="var(--color-primary)" strokeWidth="1.5" strokeLinejoin="round"/>
+          <path d="M8 16.5a2 2 0 0 0 4 0" stroke="var(--color-primary)" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
       </button>
       <div className="flex items-center gap-2">
-        <span className="text-sm text-[#4c5354]">{t('shelf.user')}</span>
-        <div className="w-8 h-8 rounded-full bg-[#e8eaff] flex items-center justify-center text-[#7c6ee0] font-bold text-sm">U</div>
+        <span className="text-sm text-muted">{t('shelf.user')}</span>
+        <div className="w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-accent font-bold text-sm">U</div>
       </div>
     </nav>
   )
@@ -268,15 +268,15 @@ function ShelfContent() {
   const today = new Date()
 
   return (
-    <div className="min-h-screen bg-[#f8f8f8]" style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
+    <div className="min-h-screen bg-surface" style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
       <TopNav />
 
       <main className="max-w-[1280px] mx-auto px-4 md:px-8 py-10">
         {/* Header row */}
         <div className="flex items-end justify-between mb-8">
           <div>
-            <p className="text-sm text-[#6d6d6d] mb-1">{formatDate(today)}</p>
-            <h1 className="text-[28px] font-bold text-[#181c1e]">{t('shelf.title')}</h1>
+            <p className="text-sm text-secondary mb-1">{formatDate(today)}</p>
+            <h1 className="page-title">{t('shelf.title')}</h1>
           </div>
           <Button onClick={() => setShowCreate(true)}>
             {t('shelf.new_book')}

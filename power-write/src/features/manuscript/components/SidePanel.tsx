@@ -84,7 +84,7 @@ export default function SidePanel({ project, onProjectUpdate }: Props) {
                 type="checkbox"
                 checked={todo.done}
                 onChange={() => toggleTodo(todo.id)}
-                className="accent-[#7c6ee0] w-3.5 h-3.5 shrink-0"
+                className="accent-accent w-3.5 h-3.5 shrink-0"
               />
               <span className={`text-sm ${todo.done ? 'line-through text-gray-400' : 'text-gray-700'}`}>
                 {todo.text}
@@ -94,14 +94,14 @@ export default function SidePanel({ project, onProjectUpdate }: Props) {
         </ul>
         <div className="flex gap-1">
           <input
-            className="flex-1 text-sm border border-gray-200 rounded px-2 py-1 outline-none focus:border-[#7c6ee0]"
+            className="flex-1 text-sm border border-gray-200 rounded px-2 py-1 outline-none focus:border-accent"
             placeholder={t('manuscript.todo_placeholder')}
             value={newTodo}
             onChange={(e) => setNewTodo(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') addTodo() }}
           />
           <button
-            className="px-2 py-1 bg-[#7c6ee0] text-white text-xs rounded hover:bg-[#6a5ec8] focus-visible:ring-2 focus-visible:ring-blue-400"
+            className="px-2 py-1 bg-accent text-white text-xs rounded hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-blue-400"
             onClick={addTodo}
           >
             {t('manuscript.todo_add')}
@@ -114,13 +114,13 @@ export default function SidePanel({ project, onProjectUpdate }: Props) {
         <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('manuscript.daily_goal')}</h3>
         <div className="flex items-center justify-between mb-1">
           <span className="text-sm text-gray-700">{totalWords} / {goal} 字</span>
-          <button className="text-xs text-[#7c6ee0] hover:underline focus-visible:ring-2 focus-visible:ring-blue-400" onClick={adjustGoal}>
+          <button className="text-xs text-accent hover:underline focus-visible:ring-2 focus-visible:ring-blue-400" onClick={adjustGoal}>
             {t('manuscript.adjust_goal')}
           </button>
         </div>
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
           <div
-            className="h-full bg-[#7c6ee0] rounded-full transition-all"
+            className="h-full bg-accent rounded-full transition-all"
             style={{ width: `${progress}%` }}
           />
         </div>
