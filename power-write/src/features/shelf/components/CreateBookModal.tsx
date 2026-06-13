@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { findOrCreateRootFolder, createFolder, createTextFile, updateFileContent } from '../../shared/services/drive'
-import { getAccessToken } from '../../shared/stores/authStore'
-import type { Project } from '../../shared/types/project'
-import { Button, Input, Modal } from '../../shared/components/ui'
+import { findOrCreateRootFolder, createFolder, createTextFile, updateFileContent } from '../../../shared/services/drive'
+import { getAccessToken } from '../../../shared/stores/authStore'
+import type { Project } from '../../../shared/types/project'
+import { Button, Input, Modal } from '../../../shared/components/ui'
 
 interface Props {
   onClose: () => void

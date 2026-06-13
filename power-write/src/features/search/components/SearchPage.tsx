@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
-import { useManuscriptStore } from '../manuscript/manuscriptStore'
-import { useManuscriptSearch } from '../manuscript/useManuscriptSearch'
-import { getAccessToken } from '../../shared/stores/authStore'
-import { downloadText, getHeadRevisionId } from '../../shared/services/drive'
-import type { SearchLoaderData } from './services/searchLoader'
+import { useManuscriptStore } from '../../manuscript/manuscriptStore'
+import { useManuscriptSearch } from '../../manuscript/useManuscriptSearch'
+import { getAccessToken } from '../../../shared/stores/authStore'
+import { downloadText, getHeadRevisionId } from '../../../shared/services/drive'
+import type { SearchLoaderData } from '../services/searchLoader'
 
 export default function SearchPage() {
   const data = useLoaderData() as SearchLoaderData

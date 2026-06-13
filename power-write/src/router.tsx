@@ -4,10 +4,10 @@ import BookLayout from './features/layout/BookLayout';
 import ManuscriptPage from './features/manuscript/ManuscriptPage';
 import Overview from './features/overview/Overview';
 import ErrorBoundary from './shared/components/ErrorBoundary';
-import CharacterList from './features/characters/CharacterList';
-import ResearchList from './features/research/ResearchList';
+import CharacterList from './features/characters/components/CharacterList';
+import ResearchList from './features/research/components/ResearchList';
 import PlotBoard from './features/plot/PlotBoard';
-import SearchPage from './features/search/SearchPage';
+import SearchPage from './features/search/components/SearchPage';
 import { searchLoader } from './features/search/services/searchLoader';
 
 const router = createBrowserRouter([

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useManuscriptStore } from '../manuscript/manuscriptStore';
-import { checkReminders, type Reminder } from '../overview/reminderService';
+import { useManuscriptStore } from '../../manuscript/manuscriptStore';
+import { checkReminders, type Reminder } from '../../overview/reminderService';
 
 export default function NotificationBell() {
   const { t } = useTranslation();

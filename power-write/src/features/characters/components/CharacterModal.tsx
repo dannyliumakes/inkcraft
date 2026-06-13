@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Character } from '../../shared/types/project'
-import { getAccessToken } from '../../shared/stores/authStore'
-import { uploadImage, getImageUrl } from '../../shared/services/assets'
-import { Button, Input, Textarea, TagInput } from '../../shared/components/ui'
+import type { Character } from '../../../shared/types/project'
+import { Button, Input, Textarea, TagInput } from '../../../shared/components/ui'
+import { useImageUpload } from '../../../shared/hooks/useImageUpload'
 
 interface Props {
   character?: Character | null
@@ -27,49 +26,17 @@ export default function CharacterModal({
   const [aliases, setAliases] = useState<string[]>(character?.aliases ?? [])
   const [aliasInput, setAliasInput] = useState('')
   const [tags, setTags] = useState<string[]>(character?.tags ?? [])
-  const [portraitAssetId, setPortraitAssetId] = useState<string | null>(
-    character?.portraitAssetId ?? null,
-  )
-  const [portraitUrl, setPortraitUrl] = useState<string | null>(null)
-  const [uploading, setUploading] = useState(false)
   const [nameError, setNameError] = useState(false)
 
   const fileRef = useRef<HTMLInputElement>(null)
+  const { assetId: portraitAssetId, imageUrl: portraitUrl, uploading, handleFileChange } =
+    useImageUpload(bookFolderId, character?.portraitAssetId)
 
-  // Load existing portrait
   useEffect(() => {
-    if (!portraitAssetId) return
-    const token = getAccessToken()
-    if (!token) return
-    getImageUrl(token, portraitAssetId).then(setPortraitUrl).catch(console.error)
-  }, [portraitAssetId])
-
-  // Escape to close
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
-
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const token = getAccessToken()
-    if (!token) return
-    setUploading(true)
-    try {
-      const assetId = await uploadImage(token, file, bookFolderId)
-      setPortraitAssetId(assetId)
-      const url = await getImageUrl(token, assetId)
-      setPortraitUrl(url)
-    } catch (err) {
-      console.error('Portrait upload failed', err)
-    } finally {
-      setUploading(false)
-    }
-  }
 
   function handleAliasKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter' && aliasInput.trim()) {
@@ -80,10 +47,7 @@ export default function CharacterModal({
   }
 
   function handleSubmit() {
-    if (!name.trim()) {
-      setNameError(true)
-      return
-    }
+    if (!name.trim()) { setNameError(true); return }
     const saved: Character = {
       id: character?.id ?? `char_${Date.now()}`,
       name: name.trim(),
@@ -103,14 +67,9 @@ export default function CharacterModal({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-[#181c1e]">
-            {isNew ? '新增角色' : '編輯角色'}
-          </h2>
-          <Button variant="ghost" onClick={onClose} aria-label="關閉">
-            ✕
-          </Button>
+          <h2 className="text-lg font-bold text-[#181c1e]">{isNew ? '新增角色' : '編輯角色'}</h2>
+          <Button variant="ghost" onClick={onClose} aria-label="關閉">✕</Button>
         </div>
 
         <div className="px-6 py-5 flex flex-col gap-5">
@@ -130,26 +89,14 @@ export default function CharacterModal({
               )}
             </div>
             <div>
-              <Button
-                variant="ghost"
-                onClick={() => fileRef.current?.click()}
-                disabled={uploading}
-                size="sm"
-              >
+              <Button variant="ghost" onClick={() => fileRef.current?.click()} disabled={uploading} size="sm">
                 {uploading ? '上傳中…' : '上傳肖像'}
               </Button>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
-              />
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
               <p className="text-xs text-gray-400 mt-0.5">建議正方形圖片</p>
             </div>
           </div>
 
-          {/* Name */}
           <Input
             label="角色名稱"
             value={name}
@@ -157,8 +104,6 @@ export default function CharacterModal({
             placeholder="輸入角色名稱"
             error={nameError ? '請輸入角色名稱' : undefined}
           />
-
-          {/* Label */}
           <Input
             label="標籤分類"
             value={label}
@@ -166,7 +111,6 @@ export default function CharacterModal({
             placeholder="例如：主角、配角、反派"
           />
 
-          {/* Aliases */}
           <div>
             <label className="block text-sm font-medium text-[#181c1e] mb-1">別名</label>
             <div className="flex flex-wrap gap-1.5 mb-2">
@@ -177,28 +121,13 @@ export default function CharacterModal({
                 </span>
               ))}
             </div>
-            <Input
-              value={aliasInput}
-              onChange={(e) => setAliasInput(e.target.value)}
-              onKeyDown={handleAliasKeyDown}
-              placeholder="輸入後按 Enter 新增"
-            />
+            <Input value={aliasInput} onChange={(e) => setAliasInput(e.target.value)} onKeyDown={handleAliasKeyDown} placeholder="輸入後按 Enter 新增" />
           </div>
 
-          {/* Description */}
-          <Textarea
-            label="描述"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={4}
-            placeholder="描述這個角色的背景、個性、外貌等…"
-          />
-
-          {/* Tags */}
+          <Textarea label="描述" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder="描述這個角色的背景、個性、外貌等…" />
           <TagInput tags={tags} onChange={setTags} />
         </div>
 
-        {/* Footer */}
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
           <Button variant="ghost" onClick={onClose}>取消</Button>
           <Button onClick={handleSubmit}>{isNew ? '新增' : '儲存'}</Button>

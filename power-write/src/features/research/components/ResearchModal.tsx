@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import type { ResearchItem } from '../../shared/types/project'
-import { getAccessToken } from '../../shared/stores/authStore'
-import { uploadImage, getImageUrl } from '../../shared/services/assets'
-import { Button, Input, Textarea, TagInput } from '../../shared/components/ui'
+import type { ResearchItem } from '../../../shared/types/project'
+import { Button, Input, Textarea, TagInput } from '../../../shared/components/ui'
+import { useImageUpload } from '../../../shared/hooks/useImageUpload'
 
 interface Props {
   item?: ResearchItem | null
@@ -12,66 +11,27 @@ interface Props {
   onClose: () => void
 }
 
-export default function ResearchModal({
-  item,
-  bookFolderId,
-  totalItems,
-  onSave,
-  onClose,
-}: Props) {
+export default function ResearchModal({ item, bookFolderId, totalItems, onSave, onClose }: Props) {
   const isNew = !item
 
   const [title, setTitle] = useState(item?.title ?? '')
   const [description, setDescription] = useState(item?.description ?? '')
-  const [imageAssetId, setImageAssetId] = useState<string | null>(item?.imageAssetId ?? null)
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [tags, setTags] = useState<string[]>(item?.tags ?? [])
   const [sourceUrl, setSourceUrl] = useState(item?.sourceUrl ?? '')
-  const [uploading, setUploading] = useState(false)
   const [titleError, setTitleError] = useState(false)
 
   const fileRef = useRef<HTMLInputElement>(null)
+  const { assetId: imageAssetId, imageUrl, uploading, handleFileChange } =
+    useImageUpload(bookFolderId, item?.imageAssetId)
 
-  // Load existing image
   useEffect(() => {
-    if (!imageAssetId) return
-    const token = getAccessToken()
-    if (!token) return
-    getImageUrl(token, imageAssetId).then(setImageUrl).catch(console.error)
-  }, [imageAssetId])
-
-  // Escape to close
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const token = getAccessToken()
-    if (!token) return
-    setUploading(true)
-    try {
-      const assetId = await uploadImage(token, file, bookFolderId)
-      setImageAssetId(assetId)
-      const url = await getImageUrl(token, assetId)
-      setImageUrl(url)
-    } catch (err) {
-      console.error('Image upload failed', err)
-    } finally {
-      setUploading(false)
-    }
-  }
-
   function handleSubmit() {
-    if (!title.trim()) {
-      setTitleError(true)
-      return
-    }
+    if (!title.trim()) { setTitleError(true); return }
     const saved: ResearchItem = {
       id: item?.id ?? `res_${Date.now()}`,
       title: title.trim(),
@@ -90,14 +50,9 @@ export default function ResearchModal({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-[#181c1e]">
-            {isNew ? '新增素材' : '編輯素材'}
-          </h2>
-          <Button variant="ghost" onClick={onClose} aria-label="關閉">
-            ✕
-          </Button>
+          <h2 className="text-lg font-bold text-[#181c1e]">{isNew ? '新增素材' : '編輯素材'}</h2>
+          <Button variant="ghost" onClick={onClose} aria-label="關閉">✕</Button>
         </div>
 
         <div className="px-6 py-5 flex flex-col gap-5">
@@ -121,13 +76,7 @@ export default function ResearchModal({
                 </div>
               )}
             </div>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileChange}
-            />
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
             {imageUrl && (
               <button
                 type="button"
@@ -140,7 +89,6 @@ export default function ResearchModal({
             )}
           </div>
 
-          {/* Title */}
           <Input
             label="標題"
             value={title}
@@ -148,30 +96,11 @@ export default function ResearchModal({
             placeholder="輸入素材標題"
             error={titleError ? '請輸入標題' : undefined}
           />
-
-          {/* Description */}
-          <Textarea
-            label="描述"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={4}
-            placeholder="輸入素材描述、筆記或摘要…"
-          />
-
-          {/* Tags */}
+          <Textarea label="描述" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder="輸入素材描述、筆記或摘要…" />
           <TagInput tags={tags} onChange={setTags} />
-
-          {/* Source URL */}
-          <Input
-            label="來源連結（選填）"
-            type="url"
-            value={sourceUrl}
-            onChange={(e) => setSourceUrl(e.target.value)}
-            placeholder="https://..."
-          />
+          <Input label="來源連結（選填）" type="url" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} placeholder="https://..." />
         </div>
 
-        {/* Footer */}
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
           <Button variant="ghost" onClick={onClose}>取消</Button>
           <Button onClick={handleSubmit}>{isNew ? '新增' : '儲存'}</Button>

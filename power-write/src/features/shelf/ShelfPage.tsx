@@ -8,7 +8,7 @@ import { getAccessToken } from '../../shared/stores/authStore'
 import { useShelfStore } from './shelfStore'
 import type { ShelfBook } from './shelfStore'
 import { Button, Input, Modal, Spinner } from '../../shared/components/ui'
-import CreateBookModal from './CreateBookModal'
+import CreateBookModal from './components/CreateBookModal'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 

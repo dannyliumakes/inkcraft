@@ -1,0 +1,76 @@
+import { useEffect, useRef, useState } from 'react'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import type { PlotChapter, PlotScene } from '../../../shared/types/project'
+import { Input } from '../../../shared/components/ui'
+import SceneCard from './SceneCard'
+
+interface Props {
+  chapter: PlotChapter
+  onAddScene: (chapterId: string) => void
+  onEditScene: (scene: PlotScene, chapterId: string) => void
+  onRenameChapter: (chapterId: string, title: string) => void
+}
+
+export default function ChapterColumn({ chapter, onAddScene, onEditScene, onRenameChapter }: Props) {
+  const [editing, setEditing] = useState(false)
+  const [draftTitle, setDraftTitle] = useState(chapter.title)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const sceneIds = chapter.scenes.map((s) => s.id)
+
+  useEffect(() => {
+    if (editing) inputRef.current?.focus()
+  }, [editing])
+
+  function commitRename() {
+    const t = draftTitle.trim()
+    if (t && t !== chapter.title) onRenameChapter(chapter.id, t)
+    else setDraftTitle(chapter.title)
+    setEditing(false)
+  }
+
+  return (
+    <div className="flex-shrink-0 w-[340px] bg-[#f8f8f8] rounded-2xl border border-gray-100 flex flex-col" style={{ minHeight: 120 }}>
+      <div className="px-4 pt-4 pb-2">
+        {editing ? (
+          <Input
+            ref={inputRef}
+            value={draftTitle}
+            onChange={(e) => setDraftTitle(e.target.value)}
+            onBlur={commitRename}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') commitRename()
+              if (e.key === 'Escape') { setDraftTitle(chapter.title); setEditing(false) }
+            }}
+            className="w-full text-sm font-semibold"
+          />
+        ) : (
+          <button
+            className="text-sm font-semibold text-[#181c1e] hover:text-[#4c5354] text-left w-full"
+            onClick={() => setEditing(true)}
+            title="點擊重新命名"
+          >
+            {chapter.title}
+          </button>
+        )}
+        <p className="text-xs text-[#a0aec0] mt-0.5">{chapter.scenes.length} 個場景</p>
+      </div>
+
+      <div className="flex-1 px-3 pb-2 flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: 480 }}>
+        <SortableContext items={sceneIds} strategy={verticalListSortingStrategy}>
+          {chapter.scenes.map((scene) => (
+            <SceneCard key={scene.id} scene={scene} onEdit={() => onEditScene(scene, chapter.id)} />
+          ))}
+        </SortableContext>
+      </div>
+
+      <div className="px-3 pb-3">
+        <button
+          onClick={() => onAddScene(chapter.id)}
+          className="w-full py-2 rounded-xl text-xs text-[#6d6d6d] hover:bg-white hover:text-[#4c5354] border-2 border-dashed border-gray-200 hover:border-[#c7cbff] transition-colors"
+        >
+          ＋ 新增場景
+        </button>
+      </div>
+    </div>
+  )
+}

@@ -5,8 +5,8 @@ import { useManuscriptSearch } from '../manuscript/useManuscriptSearch';
 import { useManuscriptStore } from '../manuscript/manuscriptStore';
 import { getAccessToken } from '../../shared/stores/authStore';
 import { downloadText, getHeadRevisionId } from '../../shared/services/drive';
-import NotificationBell from './NotificationBell';
-import MilestonePanel from './MilestonePanel';
+import NotificationBell from './components/NotificationBell';
+import MilestonePanel from './components/MilestonePanel';
 
 const tabs = [
   { key: 'manuscript', path: '' },

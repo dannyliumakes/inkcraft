@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useManuscriptStore } from '../manuscript/manuscriptStore'
-import { getAccessToken } from '../../shared/stores/authStore'
-import { createMilestone } from '../overview/milestoneService'
-import { saveProject } from '../../shared/services/projectRepo'
-import { Button, Input } from '../../shared/components/ui'
+import { useManuscriptStore } from '../../manuscript/manuscriptStore'
+import { getAccessToken } from '../../../shared/stores/authStore'
+import { createMilestone } from '../../overview/milestoneService'
+import { saveProject } from '../../../shared/services/projectRepo'
+import { Button, Input } from '../../../shared/components/ui'
 
 interface Props { onClose: () => void }
 

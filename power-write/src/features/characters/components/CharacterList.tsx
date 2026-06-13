@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import type { Character, Project } from '../../shared/types/project'
-import { getAccessToken } from '../../shared/stores/authStore'
-import { useShelfStore } from '../shelf/shelfStore'
-import { loadProject, saveProject } from '../../shared/services/projectRepo'
-import { getImageUrl } from '../../shared/services/assets'
-import { Button, Modal, Badge } from '../../shared/components/ui'
+import type { Character, Project } from '../../../shared/types/project'
+import { getAccessToken } from '../../../shared/stores/authStore'
+import { useShelfStore } from '../../shelf/shelfStore'
+import { loadProject, saveProject } from '../../../shared/services/projectRepo'
+import { getImageUrl } from '../../../shared/services/assets'
+import { Button, Modal, Badge } from '../../../shared/components/ui'
 import CharacterModal from './CharacterModal'
 
 // ─── Portrait card component ─────────────────────────────────────────────────
