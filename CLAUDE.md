@@ -103,6 +103,40 @@ src/
 | 危險色 | `bg-danger` / `text-danger` | `--color-danger` |
 | SVG 空狀態描邊 | — | `var(--color-stroke-empty)` |
 
+### Styles 物件規則（強制執行）
+
+所有元件的 Tailwind class 字串必須抽離到元件函式**上方**的 `styles` 物件，JSX 裡只能用 `className={styles.xxx}`。
+
+**基本格式：**
+```tsx
+const styles = {
+  root: 'flex flex-col gap-4 p-6',
+  title: 'card-title truncate',
+  btn: 'w-8 h-8 rounded-lg hover:bg-gray-100 text-placeholder',
+}
+```
+
+**動態/條件 class 用函式值：**
+```tsx
+const styles = {
+  item: (isActive: boolean) =>
+    `px-3 py-2 text-sm ${isActive ? 'bg-accent-softer text-muted font-medium' : 'hover:bg-gray-50 text-secondary'}`,
+}
+// JSX: className={styles.item(isActive)}
+```
+
+**多個子元件在同一檔案時，各自命名 styles 物件：**
+```tsx
+const cardStyles = { ... }
+const pageStyles = { ... }
+```
+
+**例外：`cva` 保留用於 `Button`、`Badge` 等變體驅動的共用 UI primitive，不改為 styles 物件。**
+
+**違禁寫法（不得出現在 JSX 裡）：**
+- `className="text-sm font-semibold text-primary ..."` ← 直接硬寫長字串
+- `className={isActive ? 'bg-accent ...' : 'bg-gray ...'}` ← 條件邏輯混在 JSX
+
 ### Key conventions
 
 - `drive.ts` is the only file that calls `fetch` against Google APIs — all other code goes through it

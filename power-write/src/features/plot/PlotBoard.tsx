@@ -10,6 +10,15 @@ import { usePlotProject } from './hooks/usePlotProject'
 import { usePlotDnd } from './hooks/usePlotDnd'
 import { usePlotCrud } from './hooks/usePlotCrud'
 
+const styles = {
+  root: 'flex flex-col h-full',
+  toolbar: 'bg-white border-b border-gray-100 px-8 py-3 flex items-center gap-4 flex-wrap',
+  tagSelect: 'border border-gray-200 rounded-xl px-3 py-2 text-sm text-muted focus:outline-none focus:ring-2 focus:ring-muted/30',
+  errorBanner: 'bg-red-50 border-b border-red-100 px-8 py-2 text-sm text-red-500',
+  scroll: 'flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-8',
+  empty: 'flex flex-col items-center justify-center h-64 text-placeholder',
+}
+
 export default function PlotBoard() {
   const { book, localActs, dirty, saving, saveError, updateActs, handleSave } = usePlotProject()
 
@@ -47,12 +56,11 @@ export default function PlotBoard() {
     }))
   }, [localActs, tagFilter])
 
-  if (!book) return <div className="p-8 text-gray-400">找不到作品</div>
+  if (!book) return <div className="p-8 text-placeholder">找不到作品</div>
 
   return (
-    <div className="flex flex-col h-full" style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
-      {/* Toolbar */}
-      <div className="bg-white border-b border-gray-100 px-8 py-3 flex items-center gap-4 flex-wrap">
+    <div className={styles.root} style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
+      <div className={styles.toolbar}>
         <h1 className="section-title">情節規劃看板</h1>
         <div className="flex-1" />
         {dirty && <span className="text-xs text-amber-500 font-medium">有未儲存變更</span>}
@@ -60,7 +68,7 @@ export default function PlotBoard() {
           <select
             value={tagFilter}
             onChange={(e) => setTagFilter(e.target.value)}
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-muted focus:outline-none focus:ring-2 focus:ring-muted/30"
+            className={styles.tagSelect}
           >
             <option value="">全部標籤</option>
             {allTags.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -71,13 +79,13 @@ export default function PlotBoard() {
       </div>
 
       {saveError && (
-        <div className="bg-red-50 border-b border-red-100 px-8 py-2 text-sm text-red-500">{saveError}</div>
+        <div className={styles.errorBanner}>{saveError}</div>
       )}
 
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-        <div className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-8">
+        <div className={styles.scroll}>
           {filteredActs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-placeholder">
+            <div className={styles.empty}>
               <p className="text-lg mb-4">尚無情節結構</p>
               <Button onClick={addAct}>＋ 新增第一幕</Button>
             </div>

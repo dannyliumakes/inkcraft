@@ -10,6 +10,26 @@ interface Props {
   onProjectUpdate: (p: Project) => void
 }
 
+const styles = {
+  root: 'flex flex-col gap-0 h-full overflow-y-auto',
+  section: 'p-4 border-b border-gray-100',
+  sectionTitle: 'text-xs font-semibold text-placeholder uppercase tracking-wide mb-2',
+  notesTextarea: 'w-full text-sm text-secondary bg-transparent resize-none outline-none min-h-[120px]',
+  todoList: 'space-y-1.5 mb-2',
+  todoItem: 'flex items-center gap-2',
+  todoCheckbox: 'accent-accent w-3.5 h-3.5 shrink-0',
+  todoText: (done: boolean) => `text-sm ${done ? 'line-through text-placeholder' : 'text-secondary'}`,
+  todoInputRow: 'flex gap-1',
+  todoInput: 'flex-1 text-sm border border-gray-200 rounded px-2 py-1 outline-none focus:border-accent',
+  todoAddBtn: 'px-2 py-1 bg-accent text-white text-xs rounded hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-blue-400',
+  goalRow: 'flex items-center justify-between mb-1',
+  goalText: 'text-sm text-secondary',
+  goalAdjustBtn: 'text-xs text-accent hover:underline focus-visible:ring-2 focus-visible:ring-blue-400',
+  progressTrack: 'h-2 bg-gray-100 rounded-full overflow-hidden',
+  progressBar: 'h-full bg-accent rounded-full transition-all',
+  progressLabel: 'text-xs text-placeholder mt-1',
+}
+
 export default function SidePanel({ project, onProjectUpdate }: Props) {
   const { t } = useTranslation()
   const [notes, setNotes] = useState(project.notes)
@@ -61,12 +81,11 @@ export default function SidePanel({ project, onProjectUpdate }: Props) {
   const progress = Math.min(100, Math.round((totalWords / goal) * 100))
 
   return (
-    <div className="flex flex-col gap-0 h-full overflow-y-auto">
-      {/* Notes */}
-      <section className="p-4 border-b border-gray-100">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('manuscript.notes')}</h3>
+    <div className={styles.root}>
+      <section className={styles.section}>
+        <h3 className={styles.sectionTitle}>{t('manuscript.notes')}</h3>
         <textarea
-          className="w-full text-sm text-gray-700 bg-transparent resize-none outline-none min-h-[120px]"
+          className={styles.notesTextarea}
           placeholder={t('manuscript.notes_placeholder')}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
@@ -74,57 +93,47 @@ export default function SidePanel({ project, onProjectUpdate }: Props) {
         />
       </section>
 
-      {/* Todos */}
-      <section className="p-4 border-b border-gray-100">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('manuscript.todos')}</h3>
-        <ul className="space-y-1.5 mb-2">
+      <section className={styles.section}>
+        <h3 className={styles.sectionTitle}>{t('manuscript.todos')}</h3>
+        <ul className={styles.todoList}>
           {project.todos.map((todo) => (
-            <li key={todo.id} className="flex items-center gap-2">
+            <li key={todo.id} className={styles.todoItem}>
               <input
                 type="checkbox"
                 checked={todo.done}
                 onChange={() => toggleTodo(todo.id)}
-                className="accent-accent w-3.5 h-3.5 shrink-0"
+                className={styles.todoCheckbox}
               />
-              <span className={`text-sm ${todo.done ? 'line-through text-gray-400' : 'text-gray-700'}`}>
-                {todo.text}
-              </span>
+              <span className={styles.todoText(todo.done)}>{todo.text}</span>
             </li>
           ))}
         </ul>
-        <div className="flex gap-1">
+        <div className={styles.todoInputRow}>
           <input
-            className="flex-1 text-sm border border-gray-200 rounded px-2 py-1 outline-none focus:border-accent"
+            className={styles.todoInput}
             placeholder={t('manuscript.todo_placeholder')}
             value={newTodo}
             onChange={(e) => setNewTodo(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') addTodo() }}
           />
-          <button
-            className="px-2 py-1 bg-accent text-white text-xs rounded hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-blue-400"
-            onClick={addTodo}
-          >
+          <button className={styles.todoAddBtn} onClick={addTodo}>
             {t('manuscript.todo_add')}
           </button>
         </div>
       </section>
 
-      {/* Daily goal */}
-      <section className="p-4">
-        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('manuscript.daily_goal')}</h3>
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-sm text-gray-700">{totalWords} / {goal} 字</span>
-          <button className="text-xs text-accent hover:underline focus-visible:ring-2 focus-visible:ring-blue-400" onClick={adjustGoal}>
+      <section className={styles.section}>
+        <h3 className={styles.sectionTitle}>{t('manuscript.daily_goal')}</h3>
+        <div className={styles.goalRow}>
+          <span className={styles.goalText}>{totalWords} / {goal} 字</span>
+          <button className={styles.goalAdjustBtn} onClick={adjustGoal}>
             {t('manuscript.adjust_goal')}
           </button>
         </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-accent rounded-full transition-all"
-            style={{ width: `${progress}%` }}
-          />
+        <div className={styles.progressTrack}>
+          <div className={styles.progressBar} style={{ width: `${progress}%` }} />
         </div>
-        <p className="text-xs text-gray-400 mt-1">{t('manuscript.complete_pct', { pct: progress })}</p>
+        <p className={styles.progressLabel}>{t('manuscript.complete_pct', { pct: progress })}</p>
       </section>
     </div>
   )

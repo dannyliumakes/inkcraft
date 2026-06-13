@@ -13,6 +13,25 @@ interface Props {
   onProjectUpdate: (p: Project) => void
 }
 
+const styles = {
+  root: 'flex flex-col h-full',
+  header: 'flex items-center gap-1 px-3 py-2 border-b border-gray-100',
+  headerLabel: 'text-xs font-semibold text-placeholder flex-1 uppercase tracking-wide',
+  headerBtn: 'w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-placeholder',
+  list: 'flex-1 overflow-y-auto',
+  emptyMsg: 'text-xs text-placeholder text-center mt-6 px-3',
+  item: (isActive: boolean) =>
+    `group flex items-center gap-1 px-3 py-2 cursor-pointer select-none text-sm ${
+      isActive ? 'bg-accent-softer text-muted font-medium' : 'hover:bg-gray-50 text-secondary'
+    }`,
+  itemTitle: 'flex-1 truncate',
+  itemWordCount: 'text-xs text-placeholder shrink-0',
+  itemActions: 'hidden group-hover:flex items-center gap-0.5 shrink-0',
+  actionBtn: 'w-5 h-5 flex items-center justify-center rounded hover:bg-gray-200 text-placeholder',
+  actionBtnDisabled: 'w-5 h-5 flex items-center justify-center rounded hover:bg-gray-200 text-placeholder disabled:opacity-30',
+  deleteBtn: 'w-5 h-5 flex items-center justify-center rounded hover:bg-red-50 text-placeholder hover:text-danger',
+}
+
 export default function ChapterTree({ project, activeChapterId, onSelectChapter, onProjectUpdate }: Props) {
   const { t } = useTranslation()
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -102,26 +121,16 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center gap-1 px-3 py-2 border-b border-gray-100">
-        <span className="text-xs font-semibold text-gray-500 flex-1 uppercase tracking-wide">{t('chapter_tree.header')}</span>
-        <button
-          title={t('chapter_tree.add_folder')}
-          className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400"
-          disabled={loading}
-        >
+    <div className={styles.root}>
+      <div className={styles.header}>
+        <span className={styles.headerLabel}>{t('chapter_tree.header')}</span>
+        <button title={t('chapter_tree.add_folder')} className={styles.headerBtn} disabled={loading}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M2 4a1 1 0 0 1 1-1h3l1.5 1.5H13a1 1 0 0 1 1 1V12a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4z" stroke="currentColor" strokeWidth="1.3"/>
             <path d="M8 7.5v3M6.5 9h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
           </svg>
         </button>
-        <button
-          title={t('chapter_tree.add_chapter')}
-          className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-gray-400"
-          onClick={handleAddChapter}
-          disabled={loading}
-        >
+        <button title={t('chapter_tree.add_chapter')} className={styles.headerBtn} onClick={handleAddChapter} disabled={loading}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M4 2h5l3 3v9H4V2z" stroke="currentColor" strokeWidth="1.3"/>
             <path d="M8 7v4M6 9h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
@@ -129,22 +138,13 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
         </button>
       </div>
 
-      {/* Chapter list */}
-      <div className="flex-1 overflow-y-auto">
+      <div className={styles.list}>
         {sorted.length === 0 && (
-          <p className="text-xs text-gray-400 text-center mt-6 px-3">{t('chapter_tree.empty')}</p>
+          <p className={styles.emptyMsg}>{t('chapter_tree.empty')}</p>
         )}
         {sorted.map((ch, idx) => (
-          <div
-            key={ch.id}
-            className={`group flex items-center gap-1 px-3 py-2 cursor-pointer select-none text-sm ${
-              activeChapterId === ch.id
-                ? 'bg-accent-softer text-muted font-medium'
-                : 'hover:bg-gray-50 text-gray-700'
-            }`}
-            onClick={() => onSelectChapter(ch)}
-          >
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" className="shrink-0 text-gray-300">
+          <div key={ch.id} className={styles.item(activeChapterId === ch.id)} onClick={() => onSelectChapter(ch)}>
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" className="shrink-0 text-placeholder">
               <rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="1.2"/>
               <path d="M3 4h7M3 6.5h5M3 9h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
             </svg>
@@ -163,47 +163,32 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
                 }}
               />
             ) : (
-              <span className="flex-1 truncate">{ch.title}</span>
+              <span className={styles.itemTitle}>{ch.title}</span>
             )}
 
-            <span className="text-xs text-gray-400 shrink-0">{ch.wordCount > 0 ? `${ch.wordCount}${t('chapter_tree.word_count_unit')}` : ''}</span>
+            <span className={styles.itemWordCount}>{ch.wordCount > 0 ? `${ch.wordCount}${t('chapter_tree.word_count_unit')}` : ''}</span>
 
-            {/* Hover actions */}
-            <div className="hidden group-hover:flex items-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+            <div className={styles.itemActions} onClick={(e) => e.stopPropagation()}>
               <button
                 title={t('chapter_tree.rename')}
-                className="w-5 h-5 flex items-center justify-center rounded hover:bg-gray-200 text-gray-400"
+                className={styles.actionBtn}
                 onClick={() => { setEditingId(ch.id); setEditingTitle(ch.title) }}
               >
                 <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
                   <path d="M1 9.5h9M7.5 1.5l2 2L3 10H1V8L7.5 1.5z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round"/>
                 </svg>
               </button>
-              <button
-                title={t('chapter_tree.move_up')}
-                disabled={idx === 0}
-                className="w-5 h-5 flex items-center justify-center rounded hover:bg-gray-200 text-gray-400 disabled:opacity-30"
-                onClick={() => handleMove(ch, 'up')}
-              >
+              <button title={t('chapter_tree.move_up')} disabled={idx === 0} className={styles.actionBtnDisabled} onClick={() => handleMove(ch, 'up')}>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                   <path d="M5 8V2M2 5l3-3 3 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
-              <button
-                title={t('chapter_tree.move_down')}
-                disabled={idx === sorted.length - 1}
-                className="w-5 h-5 flex items-center justify-center rounded hover:bg-gray-200 text-gray-400 disabled:opacity-30"
-                onClick={() => handleMove(ch, 'down')}
-              >
+              <button title={t('chapter_tree.move_down')} disabled={idx === sorted.length - 1} className={styles.actionBtnDisabled} onClick={() => handleMove(ch, 'down')}>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                   <path d="M5 2v6M8 5l-3 3-3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
-              <button
-                title={t('chapter_tree.delete')}
-                className="w-5 h-5 flex items-center justify-center rounded hover:bg-red-50 text-gray-400 hover:text-red-400"
-                onClick={() => handleDeleteChapter(ch)}
-              >
+              <button title={t('chapter_tree.delete')} className={styles.deleteBtn} onClick={() => handleDeleteChapter(ch)}>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                   <path d="M2 2.5h6M4 2.5V1.5h2v1M4.5 4.5v3M5.5 4.5v3M2.5 2.5l.5 6h4l.5-6" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>

@@ -3,6 +3,24 @@ import { useTranslation } from 'react-i18next';
 import { useManuscriptStore } from '../../manuscript/manuscriptStore';
 import { checkReminders, type Reminder } from '../../overview/reminderService';
 
+const styles = {
+  root: 'relative',
+  bell: 'relative p-2 rounded-lg hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-400',
+  badge: 'absolute top-1 right-1 w-4 h-4 bg-danger text-white text-[10px] rounded-full flex items-center justify-center leading-none',
+  dropdown: 'absolute right-0 mt-1 w-72 bg-white rounded-xl shadow-lg border border-gray-100 z-50',
+  empty: 'p-4 text-sm text-placeholder text-center',
+  list: 'divide-y divide-gray-50',
+  itemBase: 'flex items-start gap-2 px-4 py-3 text-sm rounded-xl',
+  dismissBtn: 'shrink-0 opacity-60 hover:opacity-100 focus-visible:ring-1 focus-visible:ring-blue-400',
+}
+
+// TODO: replace with design tokens once reminder color tokens are added to index.css
+const typeStyle: Record<Reminder['type'], string> = {
+  success: 'text-green-700 bg-green-50',
+  warning: 'text-orange-700 bg-orange-50',
+  info: 'text-blue-700 bg-blue-50',
+}
+
 export default function NotificationBell() {
   const { t } = useTranslation();
   const project = useManuscriptStore(s => s.project);
@@ -40,41 +58,34 @@ export default function NotificationBell() {
     sessionStorage.setItem('dismissed-reminders', JSON.stringify([...next]));
   };
 
-  const typeColor = (type: Reminder['type']) =>
-    type === 'success' ? 'text-green-700 bg-green-50' :
-    type === 'warning' ? 'text-orange-700 bg-orange-50' :
-    'text-blue-700 bg-blue-50';
-
   return (
-    <div className="relative" ref={ref}>
+    <div className={styles.root} ref={ref}>
       <button
         aria-label={t('reminder.no_notifications') + ` (${visible.length})`}
         onClick={() => setOpen(o => !o)}
-        className="relative p-2 rounded-lg hover:bg-gray-100 focus-visible:ring-2 focus-visible:ring-blue-400"
+        className={styles.bell}
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-5-5.917V4a1 1 0 10-2 0v1.083A6 6 0 006 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 11-6 0h6z" />
         </svg>
         {visible.length > 0 && (
-          <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center leading-none">
-            {visible.length}
-          </span>
+          <span className={styles.badge}>{visible.length}</span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1 w-72 bg-white rounded-xl shadow-lg border border-gray-100 z-50">
+        <div className={styles.dropdown}>
           {visible.length === 0 ? (
-            <p className="p-4 text-sm text-gray-400 text-center">{t('reminder.no_notifications')}</p>
+            <p className={styles.empty}>{t('reminder.no_notifications')}</p>
           ) : (
-            <ul className="divide-y divide-gray-50">
+            <ul className={styles.list}>
               {visible.map(r => (
-                <li key={r.id} className={`flex items-start gap-2 px-4 py-3 text-sm ${typeColor(r.type)} rounded-xl`}>
+                <li key={r.id} className={`${styles.itemBase} ${typeStyle[r.type]}`}>
                   <span className="flex-1">{r.message}</span>
                   <button
                     onClick={() => dismiss(r.id)}
                     aria-label={t('milestone.close')}
-                    className="shrink-0 opacity-60 hover:opacity-100 focus-visible:ring-1 focus-visible:ring-blue-400"
+                    className={styles.dismissBtn}
                   >✕</button>
                 </li>
               ))}

@@ -83,7 +83,7 @@ export default function ImageUploader({
             className="hidden"
             onChange={handleFileChange}
           />
-          <p className="text-xs text-gray-400 mt-0.5">建議正方形圖片</p>
+          <p className="text-xs text-placeholder mt-0.5">建議正方形圖片</p>
         </div>
       </div>
     )
@@ -91,7 +91,7 @@ export default function ImageUploader({
 
   return (
     <div>
-      {label && <label className="block text-sm font-medium text-primary mb-2">{label}</label>}
+      {label && <label className="field-label block mb-2">{label}</label>}
       <div
         className="w-full aspect-video rounded-xl bg-accent-light flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-accent-border hover:border-accent transition-colors"
         onClick={() => fileRef.current?.click()}
@@ -99,7 +99,7 @@ export default function ImageUploader({
         {imageUrl ? (
           <img src={imageUrl} alt="upload" className="w-full h-full object-cover" />
         ) : (
-          <div className="flex flex-col items-center gap-2 text-gray-400">
+          <div className="flex flex-col items-center gap-2 text-placeholder">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
               <rect x="3" y="7" width="26" height="18" rx="2" stroke="var(--color-placeholder)" strokeWidth="1.5" />
               <circle cx="11" cy="13" r="2.5" stroke="var(--color-placeholder)" strokeWidth="1.5" />
@@ -126,7 +126,7 @@ export default function ImageUploader({
           {uploading ? '上傳中…' : '更換圖片'}
         </button>
       )}
-      {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+      {error && <p className="text-sm text-danger mt-1">{error}</p>}
     </div>
   )
 }

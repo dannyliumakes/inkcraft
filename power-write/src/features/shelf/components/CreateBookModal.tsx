@@ -89,7 +89,7 @@ export default function CreateBookModal({ onClose }: Props) {
           autoFocus
           disabled={submitting}
         />
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
         <div className="flex gap-3 justify-end mt-2">
           <Button variant="ghost" type="button" onClick={onClose} disabled={submitting}>
             {t('shelf.cancel')}

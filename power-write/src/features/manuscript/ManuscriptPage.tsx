@@ -19,6 +19,22 @@ import { useAutosave } from './hooks/useAutosave'
 import { useEditorImageUpload } from './hooks/useEditorImageUpload'
 import type { Project } from '../../shared/types/project'
 
+const styles = {
+  root: 'flex h-[calc(100vh-57px)]',
+  sidebar: (open: boolean) => `${open ? 'w-64' : 'hidden'} shrink-0 bg-white border-r border-gray-100 flex flex-col overflow-hidden`,
+  sidebarInner: 'flex-1 overflow-hidden flex flex-col',
+  sidebarLoading: 'p-4 text-xs text-placeholder',
+  characterPanel: 'border-t border-gray-100 p-3',
+  characterLabel: 'text-xs font-semibold text-placeholder uppercase tracking-wide mb-2',
+  characterName: 'text-sm text-secondary truncate',
+  characterLink: 'text-xs text-accent mt-2 hover:underline focus-visible:ring-2 focus-visible:ring-blue-400',
+  center: 'flex-1 flex flex-col overflow-hidden bg-surface',
+  editorScroll: 'flex-1 overflow-y-auto flex justify-center py-10 px-4',
+  editorCard: 'w-full max-w-[720px] bg-white rounded-3xl shadow-sm px-12 py-10 min-h-full',
+  editorLoading: 'text-placeholder text-sm',
+  rightPanel: 'w-80 shrink-0 bg-white border-l border-gray-100 overflow-y-auto',
+}
+
 export default function ManuscriptPage() {
   const { t } = useTranslation()
   const { bookId } = useParams<{ bookId: string }>()
@@ -127,11 +143,10 @@ export default function ManuscriptPage() {
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
-    <div className="flex h-[calc(100vh-57px)]" style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
-      {/* Left sidebar */}
+    <div className={styles.root} style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
       {!focusMode && (
-        <aside className={`${sidebarOpen ? 'w-64' : 'hidden'} shrink-0 bg-white border-r border-gray-100 flex flex-col overflow-hidden`}>
-          <div className="flex-1 overflow-hidden flex flex-col">
+        <aside className={styles.sidebar(sidebarOpen)}>
+          <div className={styles.sidebarInner}>
             {project ? (
               <ChapterTree
                 project={project}
@@ -144,19 +159,19 @@ export default function ManuscriptPage() {
                 onProjectUpdate={setProject}
               />
             ) : (
-              <div className="p-4 text-xs text-gray-400">{t('manuscript.loading_chapter')}</div>
+              <div className={styles.sidebarLoading}>{t('manuscript.loading_chapter')}</div>
             )}
           </div>
 
           {project && project.characters.length > 0 && (
-            <div className="border-t border-gray-100 p-3">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">角色</p>
+            <div className={styles.characterPanel}>
+              <p className={styles.characterLabel}>角色</p>
               <ul className="space-y-1">
                 {project.characters.slice(0, 3).map((ch) => (
-                  <li key={ch.id} className="text-sm text-gray-600 truncate">{ch.name}</li>
+                  <li key={ch.id} className={styles.characterName}>{ch.name}</li>
                 ))}
               </ul>
-              <button className="text-xs text-accent mt-2 hover:underline focus-visible:ring-2 focus-visible:ring-blue-400">
+              <button className={styles.characterLink}>
                 {t('manuscript.view_all_characters')}
               </button>
             </div>
@@ -164,8 +179,7 @@ export default function ManuscriptPage() {
         </aside>
       )}
 
-      {/* Center column */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-surface">
+      <div className={styles.center}>
         <EditorToolbar
           titleProps={{
             value: chapterTitle,
@@ -192,23 +206,22 @@ export default function ManuscriptPage() {
           onImageChange={handleImageFileSelected}
         />
 
-        <div className="flex-1 overflow-y-auto flex justify-center py-10 px-4">
-          <div className="w-full max-w-[720px] bg-white rounded-3xl shadow-sm px-12 py-10 min-h-full">
+        <div className={styles.editorScroll}>
+          <div className={styles.editorCard}>
             {editor ? (
               <EditorContent
                 editor={editor}
                 className="prose prose-lg max-w-none focus:outline-none tiptap-editor"
               />
             ) : (
-              <p className="text-gray-400 text-sm">{t('manuscript.loading_editor')}</p>
+              <p className={styles.editorLoading}>{t('manuscript.loading_editor')}</p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Right panel */}
       {!focusMode && project && (
-        <aside className="w-80 shrink-0 bg-white border-l border-gray-100 overflow-y-auto">
+        <aside className={styles.rightPanel}>
           <SidePanel project={project} onProjectUpdate={setProject} />
         </aside>
       )}

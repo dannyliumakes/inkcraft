@@ -11,6 +11,19 @@ interface Props {
   onClose: () => void
 }
 
+const styles = {
+  overlay: 'fixed inset-0 z-50 flex items-center justify-center bg-black/40',
+  panel: 'bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto',
+  panelHeader: 'flex items-center justify-between px-6 py-4 border-b border-gray-100',
+  body: 'px-6 py-5 flex flex-col gap-5',
+  imageLabel: 'block text-sm font-medium text-primary mb-2',
+  imageDropzone: 'w-full aspect-video rounded-xl bg-accent-light flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-accent-border hover:border-accent transition-colors',
+  imagePlaceholder: 'flex flex-col items-center gap-2 text-placeholder',
+  imagePlaceholderText: 'text-xs',
+  changeImageBtn: 'mt-1.5 text-xs text-accent hover:underline disabled:opacity-50',
+  footer: 'flex justify-end gap-3 px-6 py-4 border-t border-gray-100',
+}
+
 export default function ResearchModal({ item, bookFolderId, totalItems, onSave, onClose }: Props) {
   const isNew = !item
 
@@ -45,45 +58,33 @@ export default function ResearchModal({ item, bookFolderId, totalItems, onSave, 
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className={styles.panel}>
+        <div className={styles.panelHeader}>
           <h2 className="section-title">{isNew ? '新增素材' : '編輯素材'}</h2>
           <Button variant="ghost" onClick={onClose} aria-label="關閉">✕</Button>
         </div>
 
-        <div className="px-6 py-5 flex flex-col gap-5">
-          {/* Image upload */}
+        <div className={styles.body}>
           <div>
-            <label className="block text-sm font-medium text-primary mb-2">圖片</label>
-            <div
-              className="w-full aspect-video rounded-xl bg-accent-light flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-accent-border hover:border-accent transition-colors"
-              onClick={() => fileRef.current?.click()}
-            >
+            <label className={styles.imageLabel}>圖片</label>
+            <div className={styles.imageDropzone} onClick={() => fileRef.current?.click()}>
               {imageUrl ? (
                 <img src={imageUrl} alt="research" className="w-full h-full object-cover" />
               ) : (
-                <div className="flex flex-col items-center gap-2 text-gray-400">
+                <div className={styles.imagePlaceholder}>
                   <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                     <rect x="3" y="7" width="26" height="18" rx="2" stroke="var(--color-placeholder)" strokeWidth="1.5" />
                     <circle cx="11" cy="13" r="2.5" stroke="var(--color-placeholder)" strokeWidth="1.5" />
                     <path d="M3 22l7-5 5 4 4-3 10 7" stroke="var(--color-placeholder)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <span className="text-xs">{uploading ? '上傳中…' : '點擊上傳圖片'}</span>
+                  <span className={styles.imagePlaceholderText}>{uploading ? '上傳中…' : '點擊上傳圖片'}</span>
                 </div>
               )}
             </div>
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
             {imageUrl && (
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                disabled={uploading}
-                className="mt-1.5 text-xs text-accent hover:underline disabled:opacity-50"
-              >
+              <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading} className={styles.changeImageBtn}>
                 {uploading ? '上傳中…' : '更換圖片'}
               </button>
             )}
@@ -101,7 +102,7 @@ export default function ResearchModal({ item, bookFolderId, totalItems, onSave, 
           <Input label="來源連結（選填）" type="url" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} placeholder="https://..." />
         </div>
 
-        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
+        <div className={styles.footer}>
           <Button variant="ghost" onClick={onClose}>取消</Button>
           <Button onClick={handleSubmit}>{isNew ? '新增' : '儲存'}</Button>
         </div>

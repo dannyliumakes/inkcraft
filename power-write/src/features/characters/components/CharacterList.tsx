@@ -8,6 +8,38 @@ import { getImageUrl } from '../../../shared/services/assets'
 import { Button, Modal, Badge } from '../../../shared/components/ui'
 import CharacterModal from './CharacterModal'
 
+const portraitStyles = {
+  placeholder: 'w-full h-full flex items-center justify-center bg-accent-light',
+}
+
+const cardStyles = {
+  root: 'bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-150',
+  portrait: 'h-48 overflow-hidden bg-accent-light',
+  body: 'p-4',
+  nameRow: 'flex items-center gap-2 mb-1',
+  aliases: 'text-xs text-placeholder mb-2 truncate',
+  description: 'text-sm text-secondary line-clamp-2',
+}
+
+const pageStyles = {
+  root: 'p-8',
+  topBar: 'flex items-center justify-between mb-6 gap-4 flex-wrap',
+  filterBar: 'flex items-center bg-accent-light rounded-full p-1 gap-1',
+  filterBtn: (active: boolean) =>
+    `px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+      active ? 'bg-muted text-white' : 'text-muted hover:bg-accent-softer'
+    }`,
+  grid: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5',
+  cardWrap: 'group relative',
+  deleteBtn: 'absolute top-2 right-2 w-7 h-7 rounded-full bg-white/80 shadow text-placeholder hover:text-danger hidden group-hover:flex items-center justify-center text-sm transition-colors',
+  empty: 'flex flex-col items-center justify-center h-48 text-placeholder gap-2',
+  emptyText: 'text-sm',
+  loadingState: 'flex items-center justify-center h-64 text-placeholder text-sm',
+  errorState: 'flex items-center justify-center h-64 text-danger text-sm',
+  deleteMsg: 'text-sm text-secondary mb-6',
+  deleteActions: 'flex justify-end gap-3',
+}
+
 // ─── Portrait card component ─────────────────────────────────────────────────
 
 function PortraitImage({ assetId }: { assetId: string | null }) {
@@ -24,7 +56,7 @@ function PortraitImage({ assetId }: { assetId: string | null }) {
     return <img src={url} alt="portrait" className="w-full h-full object-cover" />
   }
   return (
-    <div className="w-full h-full flex items-center justify-center bg-accent-light">
+    <div className={portraitStyles.placeholder}>
       <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
         <circle cx="20" cy="15" r="7" stroke="var(--color-placeholder)" strokeWidth="1.5" />
         <path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke="var(--color-placeholder)" strokeWidth="1.5" strokeLinecap="round" />
@@ -43,33 +75,23 @@ function CharacterCard({
   onClick: () => void
 }) {
   return (
-    <div
-      onClick={onClick}
-      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-150"
-    >
-      {/* Portrait */}
-      <div className="h-48 overflow-hidden bg-accent-light">
+    <div onClick={onClick} className={cardStyles.root}>
+      <div className={cardStyles.portrait}>
         <PortraitImage assetId={character.portraitAssetId} />
       </div>
-
-      {/* Info */}
-      <div className="p-4">
-        <div className="flex items-center gap-2 mb-1">
+      <div className={cardStyles.body}>
+        <div className={cardStyles.nameRow}>
           <h3 className="card-title truncate">{character.name}</h3>
-          {character.label && (
-            <Badge>{character.label}</Badge>
-          )}
+          {character.label && <Badge>{character.label}</Badge>}
         </div>
-
         {character.aliases.length > 0 && (
-          <p className="text-xs text-gray-400 mb-2 truncate">
+          <p className={cardStyles.aliases}>
             {character.aliases.slice(0, 2).join('、')}
             {character.aliases.length > 2 && ` +${character.aliases.length - 2}`}
           </p>
         )}
-
         {character.description && (
-          <p className="text-sm text-gray-500 line-clamp-2">{character.description}</p>
+          <p className={cardStyles.description}>{character.description}</p>
         )}
       </div>
     </div>
@@ -152,44 +174,29 @@ export default function CharacterList() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64 text-gray-400 text-sm">載入中…</div>
-    )
+    return <div className={pageStyles.loadingState}>載入中…</div>
   }
 
   if (error || !project) {
-    return (
-      <div className="flex items-center justify-center h-64 text-red-400 text-sm">
-        {error ?? '找不到專案'}
-      </div>
-    )
+    return <div className={pageStyles.errorState}>{error ?? '找不到專案'}</div>
   }
 
   return (
-    <div className="p-8">
-      {/* Top bar */}
-      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
+    <div className={pageStyles.root}>
+      <div className={pageStyles.topBar}>
         <h1 className="page-title">角色資料</h1>
-
         <div className="flex items-center gap-3 flex-wrap">
-          {/* Filter tabs */}
-          <div className="flex items-center bg-accent-light rounded-full p-1 gap-1">
+          <div className={pageStyles.filterBar}>
             {labelTabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setFilterLabel(tab)}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  filterLabel === tab
-                    ? 'bg-muted text-white'
-                    : 'text-muted hover:bg-accent-softer'
-                }`}
+                className={pageStyles.filterBtn(filterLabel === tab)}
               >
                 {tab}
               </button>
             ))}
           </div>
-
-          {/* Add button */}
           <Button onClick={() => setModalChar(null)}>
             <span className="text-base leading-none">＋</span>
             新增角色
@@ -197,26 +204,24 @@ export default function CharacterList() {
         </div>
       </div>
 
-      {/* Grid */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-48 text-gray-400 gap-2">
+        <div className={pageStyles.empty}>
           <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
             <circle cx="20" cy="14" r="8" stroke="var(--color-stroke-empty)" strokeWidth="1.5" />
             <path d="M4 36c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke="var(--color-stroke-empty)" strokeWidth="1.5" strokeLinecap="round" />
           </svg>
-          <span className="text-sm">
+          <span className={pageStyles.emptyText}>
             {filterLabel === '全部' ? '尚無角色，點擊「＋ 新增角色」開始' : `「${filterLabel}」分類下無角色`}
           </span>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div className={pageStyles.grid}>
           {filtered.map((char) => (
-            <div key={char.id} className="group relative">
+            <div key={char.id} className={pageStyles.cardWrap}>
               <CharacterCard character={char} onClick={() => setModalChar(char)} />
-              {/* Delete button — appears on hover */}
               <button
                 onClick={(e) => { e.stopPropagation(); setDeleteTarget(char) }}
-                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/80 shadow text-gray-400 hover:text-red-500 hidden group-hover:flex items-center justify-center text-sm transition-colors"
+                className={pageStyles.deleteBtn}
               >
                 ✕
               </button>
@@ -225,7 +230,6 @@ export default function CharacterList() {
         </div>
       )}
 
-      {/* Character modal */}
       {modalChar !== undefined && (
         <CharacterModal
           character={modalChar}
@@ -236,12 +240,11 @@ export default function CharacterList() {
         />
       )}
 
-      {/* Delete confirm dialog */}
       <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="刪除角色">
-        <p className="text-sm text-gray-500 mb-6">
+        <p className={pageStyles.deleteMsg}>
           確定要刪除「{deleteTarget?.name}」嗎？此操作無法復原。
         </p>
-        <div className="flex justify-end gap-3">
+        <div className={pageStyles.deleteActions}>
           <Button variant="ghost" onClick={() => setDeleteTarget(null)}>取消</Button>
           <Button variant="danger" onClick={() => deleteTarget && handleDelete(deleteTarget)}>刪除</Button>
         </div>

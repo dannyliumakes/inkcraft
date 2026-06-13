@@ -11,6 +11,21 @@ interface Props {
   onClose: () => void
 }
 
+const styles = {
+  overlay: 'fixed inset-0 z-50 flex items-center justify-center bg-black/40',
+  panel: 'bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto',
+  panelHeader: 'flex items-center justify-between px-6 py-4 border-b border-gray-100',
+  body: 'px-6 py-5 flex flex-col gap-5',
+  portraitRow: 'flex items-center gap-4',
+  portraitBtn: 'w-20 h-20 rounded-full bg-accent-light flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-accent-border hover:border-accent transition-colors',
+  portraitHint: 'text-xs text-placeholder mt-0.5',
+  aliasLabel: 'block text-sm font-medium text-primary mb-1',
+  aliasList: 'flex flex-wrap gap-1.5 mb-2',
+  aliasTag: 'flex items-center gap-1 bg-accent-light text-muted rounded-full px-2.5 py-0.5 text-xs',
+  aliasRemove: 'text-placeholder hover:text-danger',
+  footer: 'flex justify-end gap-3 px-6 py-4 border-t border-gray-100',
+}
+
 export default function CharacterModal({
   character,
   bookFolderId,
@@ -62,23 +77,16 @@ export default function CharacterModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className={styles.panel}>
+        <div className={styles.panelHeader}>
           <h2 className="section-title">{isNew ? '新增角色' : '編輯角色'}</h2>
           <Button variant="ghost" onClick={onClose} aria-label="關閉">✕</Button>
         </div>
 
-        <div className="px-6 py-5 flex flex-col gap-5">
-          {/* Portrait */}
-          <div className="flex items-center gap-4">
-            <div
-              className="w-20 h-20 rounded-full bg-accent-light flex items-center justify-center overflow-hidden cursor-pointer border-2 border-dashed border-accent-border hover:border-accent transition-colors"
-              onClick={() => fileRef.current?.click()}
-            >
+        <div className={styles.body}>
+          <div className={styles.portraitRow}>
+            <div className={styles.portraitBtn} onClick={() => fileRef.current?.click()}>
               {portraitUrl ? (
                 <img src={portraitUrl} alt="portrait" className="w-full h-full object-cover" />
               ) : (
@@ -93,7 +101,7 @@ export default function CharacterModal({
                 {uploading ? '上傳中…' : '上傳肖像'}
               </Button>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-              <p className="text-xs text-gray-400 mt-0.5">建議正方形圖片</p>
+              <p className={styles.portraitHint}>建議正方形圖片</p>
             </div>
           </div>
 
@@ -112,12 +120,12 @@ export default function CharacterModal({
           />
 
           <div>
-            <label className="block text-sm font-medium text-primary mb-1">別名</label>
-            <div className="flex flex-wrap gap-1.5 mb-2">
+            <label className={styles.aliasLabel}>別名</label>
+            <div className={styles.aliasList}>
               {aliases.map((a, i) => (
-                <span key={i} className="flex items-center gap-1 bg-accent-light text-muted rounded-full px-2.5 py-0.5 text-xs">
+                <span key={i} className={styles.aliasTag}>
                   {a}
-                  <button onClick={() => setAliases(aliases.filter((_, j) => j !== i))} className="text-gray-400 hover:text-red-400">×</button>
+                  <button onClick={() => setAliases(aliases.filter((_, j) => j !== i))} className={styles.aliasRemove}>×</button>
                 </span>
               ))}
             </div>
@@ -128,7 +136,7 @@ export default function CharacterModal({
           <TagInput tags={tags} onChange={setTags} />
         </div>
 
-        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
+        <div className={styles.footer}>
           <Button variant="ghost" onClick={onClose}>取消</Button>
           <Button onClick={handleSubmit}>{isNew ? '新增' : '儲存'}</Button>
         </div>

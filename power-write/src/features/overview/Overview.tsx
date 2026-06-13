@@ -8,6 +8,22 @@ import { getDailyOutput, getWeekTotal, getRemainingGoal } from '../../lib/wordSt
 import { downloadManuscript } from '../../shared/services/exportService';
 import { Button, Input } from '../../shared/components/ui';
 
+// TODO: add --color-stat-today, --color-stat-week, --color-stat-remaining tokens to index.css @theme {}
+const styles = {
+  root: 'p-6 max-w-3xl mx-auto',
+  titleRow: 'flex items-center justify-between mb-6',
+  card: 'bg-white rounded-xl shadow p-6 mb-6',
+  chartSubtitle: 'text-sm text-secondary mb-4',
+  statsGrid: 'grid grid-cols-3 gap-4 mt-4',
+  statItem: 'text-center',
+  statToday: 'text-2xl font-bold text-blue-600',   // TODO: use token when added
+  statWeek: 'text-2xl font-bold text-green-600',   // TODO: use token when added
+  statRemaining: 'text-2xl font-bold text-orange-600', // TODO: use token when added
+  statLabel: 'text-sm text-secondary',
+  goalsCard: 'bg-white rounded-xl shadow p-6',
+  goalsBody: 'space-y-4',
+}
+
 export default function Overview() {
   const { t } = useTranslation();
   const project = useManuscriptStore(s => s.project);
@@ -16,7 +32,7 @@ export default function Overview() {
   const [dailyGoalInput, setDailyGoalInput] = useState<string>('');
   const [exporting, setExporting] = useState(false);
 
-  if (!project) return <div className="p-8 text-gray-400">{t('overview.loading')}</div>;
+  if (!project) return <div className="p-8 text-placeholder">{t('overview.loading')}</div>;
 
   const history = project.wordHistory ?? [];
   const weekData = getDailyOutput(history, 7);
@@ -46,44 +62,44 @@ export default function Overview() {
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">{t('overview.title')}</h1>
+    <div className={styles.root}>
+      <div className={styles.titleRow}>
+        <h1 className="page-title">{t('overview.title')}</h1>
         <Button onClick={handleExport} disabled={exporting} loading={exporting}>
           {t('overview.export')}
         </Button>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-1">{t('overview.chart_title')}</h2>
-        <p className="text-sm text-gray-500 mb-4">{t('overview.chart_subtitle')}</p>
+      <div className={styles.card}>
+        <h2 className="section-title mb-1">{t('overview.chart_title')}</h2>
+        <p className={styles.chartSubtitle}>{t('overview.chart_subtitle')}</p>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={weekData}>
             <XAxis dataKey="day" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v: number) => [fmt(v), '字數']} />
-            <Bar dataKey="output" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="output" fill="var(--color-accent)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
-        <div className="grid grid-cols-3 gap-4 mt-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{fmt(todayOutput)}</div>
-            <div className="text-sm text-gray-500">{t('overview.today')}</div>
+        <div className={styles.statsGrid}>
+          <div className={styles.statItem}>
+            <div className={styles.statToday}>{fmt(todayOutput)}</div>
+            <div className={styles.statLabel}>{t('overview.today')}</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">{fmt(weekTotal)}</div>
-            <div className="text-sm text-gray-500">{t('overview.week_total')}</div>
+          <div className={styles.statItem}>
+            <div className={styles.statWeek}>{fmt(weekTotal)}</div>
+            <div className={styles.statLabel}>{t('overview.week_total')}</div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600">{fmt(remaining)}</div>
-            <div className="text-sm text-gray-500">{t('overview.remaining_goal')}</div>
+          <div className={styles.statItem}>
+            <div className={styles.statRemaining}>{fmt(remaining)}</div>
+            <div className={styles.statLabel}>{t('overview.remaining_goal')}</div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">{t('overview.goal_settings')}</h2>
-        <div className="space-y-4">
+      <div className={styles.goalsCard}>
+        <h2 className="section-title mb-4">{t('overview.goal_settings')}</h2>
+        <div className={styles.goalsBody}>
           <Input
             label={t('overview.project_goal')}
             type="number"

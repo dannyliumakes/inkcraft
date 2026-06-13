@@ -11,6 +11,16 @@ interface Props {
   onRenameChapter: (chapterId: string, title: string) => void
 }
 
+const styles = {
+  root: 'flex-shrink-0 w-[340px] bg-surface rounded-2xl border border-gray-100 flex flex-col',
+  header: 'px-4 pt-4 pb-2',
+  titleBtn: 'text-sm font-semibold text-primary hover:text-muted text-left w-full',
+  sceneCount: 'text-xs text-placeholder mt-0.5',
+  body: 'flex-1 px-3 pb-2 flex flex-col gap-2 overflow-y-auto',
+  footer: 'px-3 pb-3',
+  addBtn: 'w-full py-2 rounded-xl text-xs text-secondary hover:bg-white hover:text-muted border-2 border-dashed border-gray-200 hover:border-accent-border transition-colors',
+}
+
 export default function ChapterColumn({ chapter, onAddScene, onEditScene, onRenameChapter }: Props) {
   const [editing, setEditing] = useState(false)
   const [draftTitle, setDraftTitle] = useState(chapter.title)
@@ -29,8 +39,8 @@ export default function ChapterColumn({ chapter, onAddScene, onEditScene, onRena
   }
 
   return (
-    <div className="flex-shrink-0 w-[340px] bg-surface rounded-2xl border border-gray-100 flex flex-col" style={{ minHeight: 120 }}>
-      <div className="px-4 pt-4 pb-2">
+    <div className={styles.root} style={{ minHeight: 120 }}>
+      <div className={styles.header}>
         {editing ? (
           <Input
             ref={inputRef}
@@ -45,17 +55,17 @@ export default function ChapterColumn({ chapter, onAddScene, onEditScene, onRena
           />
         ) : (
           <button
-            className="text-sm font-semibold text-primary hover:text-muted text-left w-full"
+            className={styles.titleBtn}
             onClick={() => setEditing(true)}
             title="點擊重新命名"
           >
             {chapter.title}
           </button>
         )}
-        <p className="text-xs text-placeholder mt-0.5">{chapter.scenes.length} 個場景</p>
+        <p className={styles.sceneCount}>{chapter.scenes.length} 個場景</p>
       </div>
 
-      <div className="flex-1 px-3 pb-2 flex flex-col gap-2 overflow-y-auto" style={{ maxHeight: 480 }}>
+      <div className={styles.body} style={{ maxHeight: 480 }}>
         <SortableContext items={sceneIds} strategy={verticalListSortingStrategy}>
           {chapter.scenes.map((scene) => (
             <SceneCard key={scene.id} scene={scene} onEdit={() => onEditScene(scene, chapter.id)} />
@@ -63,10 +73,10 @@ export default function ChapterColumn({ chapter, onAddScene, onEditScene, onRena
         </SortableContext>
       </div>
 
-      <div className="px-3 pb-3">
+      <div className={styles.footer}>
         <button
           onClick={() => onAddScene(chapter.id)}
-          className="w-full py-2 rounded-xl text-xs text-secondary hover:bg-white hover:text-muted border-2 border-dashed border-gray-200 hover:border-accent-border transition-colors"
+          className={styles.addBtn}
         >
           ＋ 新增場景
         </button>

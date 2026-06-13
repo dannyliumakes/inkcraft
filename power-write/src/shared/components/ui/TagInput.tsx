@@ -40,7 +40,7 @@ export function TagInput({ tags, onChange, placeholder = '輸入後按 Enter 新
             <button
               type="button"
               onClick={() => removeTag(t)}
-              className="text-gray-400 hover:text-red-400 text-xs leading-none"
+              className="text-placeholder hover:text-danger text-xs leading-none"
               aria-label={`移除標籤 ${t}`}
             >
               ×

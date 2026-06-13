@@ -40,10 +40,14 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       resize()
     }, [])
 
-    return (
+    const textareaClass = `w-full border rounded-xl px-4 py-3 text-primary placeholder-secondary focus:outline-none focus:ring-2 transition-colors resize-none ${
+      error ? 'border-danger focus:ring-danger/30' : 'border-gray-200 focus:ring-muted/30'
+    } ${className}`
+
+  return (
       <div className="flex flex-col gap-1.5">
         {label && (
-          <label htmlFor={textareaId} className="text-sm font-medium text-primary">
+          <label htmlFor={textareaId} className="field-label">
             {label}
           </label>
         )}
@@ -56,13 +60,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             resize()
             onChange?.(e)
           }}
-          className={`w-full border rounded-xl px-4 py-3 text-primary placeholder-secondary focus:outline-none focus:ring-2 focus:ring-muted/30 transition-colors resize-none ${
-            error ? 'border-red-400 focus:ring-red-400/30' : 'border-gray-200'
-          } ${className}`}
+          className={textareaClass}
           {...props}
         />
         {error && (
-          <p id={errorId} className="text-xs text-red-500" role="alert">
+          <p id={errorId} className="text-xs text-danger" role="alert">
             {error}
           </p>
         )}

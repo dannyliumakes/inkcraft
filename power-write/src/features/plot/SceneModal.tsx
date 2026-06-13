@@ -14,6 +14,18 @@ interface Props {
   defaultChapterId?: string
 }
 
+const styles = {
+  overlay: 'fixed inset-0 z-50 flex items-center justify-center bg-black/40',
+  panel: 'bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 p-8 max-h-[90vh] overflow-y-auto',
+  form: 'flex flex-col gap-4',
+  chapterLabel: 'block text-sm font-medium text-muted mb-1',
+  chapterSelect: 'w-full border border-gray-200 rounded-xl px-4 py-3 text-primary focus:outline-none focus:ring-2 focus:ring-muted/30',
+  imageLabel: 'block text-sm font-medium text-muted mb-1',
+  imagePreview: 'w-full h-32 object-cover rounded-xl mb-2',
+  errorMsg: 'text-sm text-danger',
+  actions: 'flex gap-3 justify-end mt-2',
+}
+
 export default function SceneModal({
   scene,
   chapters,
@@ -84,17 +96,13 @@ export default function SceneModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 p-8 max-h-[90vh] overflow-y-auto">
+    <div className={styles.overlay} onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <div className={styles.panel}>
         <h2 className="section-title mb-6">
           {scene ? '編輯場景' : '新增場景'}
         </h2>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Title */}
+        <form onSubmit={handleSubmit} className={styles.form}>
           <Input
             label="場景標題"
             value={title}
@@ -103,7 +111,6 @@ export default function SceneModal({
             autoFocus
           />
 
-          {/* Summary */}
           <Textarea
             label="摘要"
             value={summary}
@@ -112,14 +119,13 @@ export default function SceneModal({
             rows={3}
           />
 
-          {/* Chapter */}
           {chapters.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-muted mb-1">章節</label>
+              <label className={styles.chapterLabel}>章節</label>
               <select
                 value={chapterId}
                 onChange={(e) => setChapterId(e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-primary focus:outline-none focus:ring-2 focus:ring-muted/30"
+                className={styles.chapterSelect}
               >
                 {chapters.map((ch) => (
                   <option key={ch.id} value={ch.id}>{ch.title}</option>
@@ -128,39 +134,22 @@ export default function SceneModal({
             </div>
           )}
 
-          {/* Tags */}
           <TagInput tags={tags} onChange={setTags} placeholder="新增標籤…" />
 
-          {/* Image */}
           <div>
-            <label className="block text-sm font-medium text-muted mb-1">場景圖片</label>
+            <label className={styles.imageLabel}>場景圖片</label>
             {imageUrl && (
-              <img
-                src={imageUrl}
-                alt="scene"
-                className="w-full h-32 object-cover rounded-xl mb-2"
-              />
+              <img src={imageUrl} alt="scene" className={styles.imagePreview} />
             )}
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageUpload}
-            />
-            <Button
-              variant="ghost"
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              disabled={uploading}
-            >
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+            <Button variant="ghost" type="button" onClick={() => fileRef.current?.click()} disabled={uploading}>
               {uploading ? '上傳中…' : imageAssetId ? '更換圖片' : '上傳圖片'}
             </Button>
           </div>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p className={styles.errorMsg}>{error}</p>}
 
-          <div className="flex gap-3 justify-end mt-2">
+          <div className={styles.actions}>
             <Button variant="ghost" type="button" onClick={onClose}>取消</Button>
             <Button type="submit" disabled={!title.trim()}>儲存</Button>
           </div>

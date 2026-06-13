@@ -27,6 +27,18 @@ interface Props {
   onImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
+const styles = {
+  root: 'bg-white shadow-sm px-6 py-3 flex items-center gap-4 shrink-0 z-10',
+  iconBtn: 'w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-placeholder shrink-0',
+  iconBtnDisabled: 'w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-gray-100 text-placeholder disabled:opacity-40',
+  focusBtn: (active: boolean) =>
+    `w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+      active ? 'bg-accent text-white' : 'hover:bg-gray-100 text-placeholder'
+    }`,
+  titleBtn: 'text-lg font-semibold text-primary cursor-pointer hover:text-accent transition-colors',
+  wordCount: 'text-sm text-placeholder ml-2',
+}
+
 export default function EditorToolbar({
   titleProps,
   wordCount,
@@ -45,13 +57,9 @@ export default function EditorToolbar({
   const { t } = useTranslation()
 
   return (
-    <div className="bg-white shadow-sm px-6 py-3 flex items-center gap-4 shrink-0 z-10">
+    <div className={styles.root}>
       {!focusMode && (
-        <button
-          title={sidebarOpen ? '收起側欄' : '展開側欄'}
-          className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 shrink-0"
-          onClick={onToggleSidebar}
-        >
+        <button title={sidebarOpen ? '收起側欄' : '展開側欄'} className={styles.iconBtn} onClick={onToggleSidebar}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
           </svg>
@@ -68,15 +76,12 @@ export default function EditorToolbar({
           onKeyDown={titleProps.onKeyDown}
         />
       ) : (
-        <h2
-          className="text-lg font-semibold text-primary cursor-pointer hover:text-accent transition-colors"
-          onClick={titleProps.onStartEdit}
-        >
+        <h2 className={styles.titleBtn} onClick={titleProps.onStartEdit}>
           {titleProps.value || (activeChapterId ? t('manuscript.untitled') : t('manuscript.select_chapter'))}
         </h2>
       )}
 
-      <span className="text-sm text-gray-400 ml-2">
+      <span className={styles.wordCount}>
         {wordCount.toLocaleString()} {t('chapter_tree.word_count_unit')}
       </span>
 
@@ -84,20 +89,9 @@ export default function EditorToolbar({
 
       <SaveTag status={saveStatus} lastSavedAt={lastSavedAt} onRetry={onRetry} />
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={onImageChange}
-      />
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onImageChange} />
 
-      <button
-        title="插入圖片"
-        className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-gray-100 text-gray-400 disabled:opacity-40"
-        disabled={!activeChapterId}
-        onClick={onInsertImage}
-      >
+      <button title="插入圖片" className={styles.iconBtnDisabled} disabled={!activeChapterId} onClick={onInsertImage}>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <rect x="1" y="3" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
           <circle cx="5.5" cy="6.5" r="1" fill="currentColor"/>
@@ -105,13 +99,7 @@ export default function EditorToolbar({
         </svg>
       </button>
 
-      <button
-        title={t('manuscript.focus_mode')}
-        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
-          focusMode ? 'bg-accent text-white' : 'hover:bg-gray-100 text-gray-400'
-        }`}
-        onClick={onToggleFocus}
-      >
+      <button title={t('manuscript.focus_mode')} className={styles.focusBtn(focusMode)} onClick={onToggleFocus}>
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M1 5V2h3M12 2h3v3M1 11v3h3M12 14h3v-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
