@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⚠️ 必讀文件（每個 session 開始時）
+
+讀完本文件後，**立即閱讀 `ux-principles.md`**。實作任何功能、遇到模糊 UX 決策時，以該文件為判斷依據。
+
 ## Project Location
 
 All source code lives in `power-write/`. Always `cd power-write` before running commands.
