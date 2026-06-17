@@ -9,7 +9,6 @@ import { LoginButton } from '../../shared/services/auth';
 import { listChildren } from '../../shared/services/drive';
 import { loadProject } from '../../shared/services/projectRepo';
 import NotificationBell from './components/NotificationBell';
-import MilestonePanel from './components/MilestonePanel';
 
 const tabs = [
   { key: 'manuscript', path: '' },
@@ -49,7 +48,6 @@ const layoutStyles = {
     `px-2 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors whitespace-nowrap focus-visible:ring-2 focus-visible:ring-blue-400 ${
       isActive ? 'bg-muted text-white' : 'text-muted hover:bg-accent-softer'
     }`,
-  milestoneBtn: 'px-2 md:px-3 py-1.5 text-xs md:text-sm rounded-full border border-gray-200 text-muted hover:bg-accent-light transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-blue-400',
   userRow: 'flex items-center gap-1 md:gap-2 shrink-0',
   userLabel: 'hidden md:inline text-sm text-muted',
   userAvatar: 'w-8 h-8 rounded-full bg-accent-soft flex items-center justify-center text-accent font-bold text-sm',
@@ -211,7 +209,6 @@ function SearchBar() {
 
 export default function BookLayout() {
   const { bookId } = useParams<{ bookId: string }>();
-  const [milestoneOpen, setMilestoneOpen] = useState(false);
   const { t } = useTranslation();
 
   const books = useShelfStore((s) => s.books);
@@ -279,14 +276,6 @@ export default function BookLayout() {
 
         <SearchBar />
 
-        <button
-          onClick={() => setMilestoneOpen(o => !o)}
-          className={layoutStyles.milestoneBtn}
-          aria-label={t('milestone.title')}
-        >
-          🏁 <span className="hidden md:inline">{t('nav.milestone')}</span>
-        </button>
-
         <NotificationBell />
 
         <div className={layoutStyles.userRow}>
@@ -299,7 +288,6 @@ export default function BookLayout() {
         <Outlet />
       </main>
 
-      {milestoneOpen && <MilestonePanel onClose={() => setMilestoneOpen(false)} />}
     </div>
   );
 }

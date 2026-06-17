@@ -16,8 +16,7 @@ export interface Scene {
 export interface Chapter {
   id: string;          // e.g. "ch_001"
   title: string;
-  order: number;
-  actId: string;
+  order: number;       // shared order namespace with Acts in the flat list
   fileId: string;      // Drive file ID of the .md file
   wordCount: number;
   rev: number;         // local revision counter for conflict detection
@@ -74,7 +73,6 @@ export interface Project {
   dailyWordGoal: number;
   projectWordGoal: number;   // default 80000
   wordHistory: { date: string; total: number }[];  // YYYY-MM-DD entries
-  milestones: { id: string; label: string; createdAt: string; driveRevisionId?: string }[];
   updatedAt: string;    // ISO timestamp
   rev: number;
 }

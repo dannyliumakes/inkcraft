@@ -7,10 +7,43 @@ import { usePlotProject } from './hooks/usePlotProject'
 import { usePlotDnd } from './hooks/usePlotDnd'
 import { usePlotCrud } from './hooks/usePlotCrud'
 import { useManuscriptStore } from '../manuscript/manuscriptStore'
-import type { Scene } from '../../shared/types/project'
+import type { Project, Act, Chapter, Scene } from '../../shared/types/project'
+
+// Derive act groups from the flat ordered list.
+// Chapters "belong to" the nearest Act that precedes them.
+type ActGroup = { act: Act | null; chapters: Chapter[] }
+
+function deriveActGroups(project: Project): ActGroup[] {
+  const flat = [
+    ...(project.acts ?? []).map((a) => ({ kind: 'act' as const, item: a as Act | Chapter })),
+    ...project.chapters.map((c) => ({ kind: 'chapter' as const, item: c as Act | Chapter })),
+  ].sort((a, b) => a.item.order - b.item.order)
+
+  const groups: ActGroup[] = []
+  let currentAct: Act | null = null
+  let currentChapters: Chapter[] = []
+
+  for (const entry of flat) {
+    if (entry.kind === 'act') {
+      if (currentAct !== null || currentChapters.length > 0) {
+        groups.push({ act: currentAct, chapters: currentChapters })
+      }
+      currentAct = entry.item as Act
+      currentChapters = []
+    } else {
+      currentChapters.push(entry.item as Chapter)
+    }
+  }
+  groups.push({ act: currentAct, chapters: currentChapters })
+
+  return groups.filter((g) => g.act !== null || g.chapters.length > 0)
+}
 
 function toOrdinal(n: number) {
-  const map: Record<number, string> = { 1: '一', 2: '二', 3: '三', 4: '四', 5: '五', 6: '六', 7: '七', 8: '八', 9: '九', 10: '十' }
+  const map: Record<number, string> = {
+    1: '一', 2: '二', 3: '三', 4: '四', 5: '五',
+    6: '六', 7: '七', 8: '八', 9: '九', 10: '十',
+  }
   return map[n] ?? String(n)
 }
 
@@ -38,8 +71,6 @@ export default function PlotBoard() {
   const { sensors, activeScene, handleDragStart, handleDragOver, handleDragEnd } = usePlotDnd(project, localScenes, onProjectUpdate)
   const { addScene } = usePlotCrud(project, onProjectUpdate)
 
-  // Clicking a scene card jumps to its chapter in the manuscript editor, where
-  // the scene's prose is written. Scene/chapter/tree all share chapter.scenes.
   function openScene(chapterId: string, _scene: Scene) {
     setActiveChapter(chapterId)
     navigate(`/book/${bookId}`)
@@ -47,9 +78,7 @@ export default function PlotBoard() {
 
   if (!project) return <div className="p-8 text-placeholder">載入中…</div>
 
-  const acts = [...(project.acts ?? [])].sort((a, b) => a.order - b.order)
-  const actIds = new Set(acts.map((a) => a.id))
-  const ungroupedChapters = chapters.filter((ch) => !ch.actId || !actIds.has(ch.actId))
+  const groups = deriveActGroups(project)
 
   function renderChapterColumn(chId: string, chTitle: string) {
     return (
@@ -80,39 +109,29 @@ export default function PlotBoard() {
             </div>
           ) : (
             <div className={styles.board}>
-              {acts.map((act, i) => {
-                const actChapters = chapters.filter((ch) => ch.actId === act.id)
-                if (actChapters.length === 0) return null
-                return (
-                  <div key={act.id} className={styles.actSection}>
+              {groups.map((group, gi) => (
+                <div key={group.act?.id ?? `ungrouped-${gi}`} className={styles.actSection}>
+                  {group.act ? (
                     <div className={styles.actHeader}>
                       <div className={styles.actLabel}>
-                        <span className={styles.actOrdinal}>第{toOrdinal(i + 1)}幕</span>
-                        <span className={styles.actTitle}>{act.title}</span>
-                        <span className={styles.actChapterCount}>{actChapters.length} 章</span>
+                        <span className={styles.actOrdinal}>第{toOrdinal(gi + 1)}幕</span>
+                        <span className={styles.actTitle}>{group.act.title}</span>
+                        <span className={styles.actChapterCount}>{group.chapters.length} 章</span>
                       </div>
                     </div>
-                    <div className={styles.columns}>
-                      {actChapters.map((ch) => renderChapterColumn(ch.id, ch.title))}
-                    </div>
-                  </div>
-                )
-              })}
-              {ungroupedChapters.length > 0 && (
-                <div className={styles.actSection}>
-                  {acts.length > 0 && (
+                  ) : (
                     <div className={styles.actHeader}>
                       <div className={styles.actLabel}>
                         <span className={styles.actTitle}>未分幕</span>
-                        <span className={styles.actChapterCount}>{ungroupedChapters.length} 章</span>
+                        <span className={styles.actChapterCount}>{group.chapters.length} 章</span>
                       </div>
                     </div>
                   )}
                   <div className={styles.columns}>
-                    {ungroupedChapters.map((ch) => renderChapterColumn(ch.id, ch.title))}
+                    {group.chapters.map((ch) => renderChapterColumn(ch.id, ch.title))}
                   </div>
                 </div>
-              )}
+              ))}
             </div>
           )}
         </div>
