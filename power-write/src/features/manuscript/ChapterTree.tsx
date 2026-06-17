@@ -16,6 +16,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { Project, Chapter, Act, PlotScene } from '../../shared/types/project'
+import { makeDefaultScene } from '../../shared/types/project'
 import { createTextFile, trashFile } from '../../shared/services/drive'
 import { saveProject } from '../../shared/services/projectRepo'
 import { getAccessToken } from '../../shared/stores/authStore'
@@ -184,6 +185,7 @@ function SortableChapter({
           />
         ) : (
           <span
+            data-testid="chapter-title"
             className={chapterStyles.title(isActive)}
             onDoubleClick={(e) => { e.stopPropagation(); setEditing(true); setEditVal(chapter.title) }}
           >
@@ -298,7 +300,7 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
       fileId: '',
       wordCount: 0,
       rev: 0,
-      scenes: [],
+      scenes: [makeDefaultScene()],
     }
     const optimistic: Project = {
       ...targetProject,

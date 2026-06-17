@@ -2,8 +2,6 @@ import { useMemo } from 'react'
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { useManuscriptStore } from '../../manuscript/manuscriptStore'
 import { useManuscriptSearch } from '../../manuscript/useManuscriptSearch'
-import { getAccessToken } from '../../../shared/stores/authStore'
-import { downloadText } from '../../../shared/services/drive'
 import type { SearchLoaderData } from '../services/searchLoader'
 
 const styles = {
@@ -27,11 +25,15 @@ export default function SearchPage() {
 
   // Subscribe to manuscript store
   const project = useManuscriptStore((s) => s.project)
-  const chapterContent = useManuscriptStore((s) => s.chapterContent)
+  const sceneContents = useManuscriptStore((s) => s.sceneContents)
   const activeChapterId = useManuscriptStore((s) => s.activeChapterId)
   const setActiveChapter = useManuscriptStore((s) => s.setActiveChapter)
-  const setChapterContent = useManuscriptStore((s) => s.setChapterContent)
   const setSaveStatus = useManuscriptStore((s) => s.setSaveStatus)
+
+  const chapterContent = useMemo(
+    () => Array.from(sceneContents.values()).join('\n\n'),
+    [sceneContents],
+  )
 
   const { search } = useManuscriptSearch(project, chapterContent, activeChapterId)
 
@@ -41,19 +43,11 @@ export default function SearchPage() {
     if (!project) return
     const ch = project.chapters.find((c) => c.id === chapterId)
     if (!ch) return
-    const token = getAccessToken()
-    if (!token) return
 
-    // Navigate to manuscript tab
+    // Navigate to manuscript tab; useChapterLoader handles the actual content load
     navigate(`/book/${bookId}`)
-
     setActiveChapter(ch.id)
     setSaveStatus('idle')
-    downloadText(token, ch.fileId)
-      .then((text) => {
-        setChapterContent(text)
-      })
-      .catch((err) => console.error('Failed to load chapter from search', err))
   }
 
   return (

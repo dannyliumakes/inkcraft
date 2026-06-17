@@ -24,6 +24,13 @@ export interface Chapter {
   scenes: Scene[];
 }
 
+// Every chapter must have at least one scene. Legacy chapters (and freshly
+// created ones) get this default so the editor and autosave have a stable
+// scene id to read/write content against.
+export function makeDefaultScene(): Scene {
+  return { id: 'sc_default', title: '', order: 0, summary: '', imageAssetId: null, tags: [] };
+}
+
 export interface Character {
   id: string;
   name: string;

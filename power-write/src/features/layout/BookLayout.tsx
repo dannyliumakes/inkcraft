@@ -6,7 +6,7 @@ import { useManuscriptStore } from '../manuscript/manuscriptStore';
 import { useShelfStore } from '../shelf/shelfStore';
 import { useAuthStore, getAccessToken } from '../../shared/stores/authStore';
 import { LoginButton } from '../../shared/services/auth';
-import { downloadText, listChildren } from '../../shared/services/drive';
+import { listChildren } from '../../shared/services/drive';
 import { loadProject } from '../../shared/services/projectRepo';
 import NotificationBell from './components/NotificationBell';
 import MilestonePanel from './components/MilestonePanel';
@@ -69,11 +69,12 @@ function SearchBar() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const project = useManuscriptStore((s) => s.project);
-  const chapterContent = useManuscriptStore((s) => s.chapterContent);
+  const sceneContents = useManuscriptStore((s) => s.sceneContents);
   const activeChapterId = useManuscriptStore((s) => s.activeChapterId);
   const setActiveChapter = useManuscriptStore((s) => s.setActiveChapter);
-  const setChapterContent = useManuscriptStore((s) => s.setChapterContent);
   const setSaveStatus = useManuscriptStore((s) => s.setSaveStatus);
+
+  const chapterContent = Array.from(sceneContents.values()).join('\n\n');
 
   const { search } = useManuscriptSearch(project, chapterContent, activeChapterId);
 
@@ -120,26 +121,17 @@ function SearchBar() {
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, [open]);
 
-  const handleSelectChapter = useCallback(async (chapterId: string) => {
+  const handleSelectChapter = useCallback((chapterId: string) => {
     closeSearch();
     if (!project) return;
     const ch = project.chapters.find((c) => c.id === chapterId);
     if (!ch) return;
-    const token = getAccessToken();
-    if (!token) return;
 
-    // Navigate to manuscript tab first
+    // Navigate to manuscript tab; useChapterLoader in ManuscriptPage handles the actual load
     navigate(`/book/${bookId}`);
-
     setActiveChapter(ch.id);
     setSaveStatus('idle');
-    try {
-      const text = await downloadText(token, ch.fileId);
-      setChapterContent(text);
-    } catch (e) {
-      console.error('Failed to load chapter from search', e);
-    }
-  }, [project, bookId, navigate, setActiveChapter, setSaveStatus, setChapterContent]);
+  }, [project, bookId, navigate, setActiveChapter, setSaveStatus]);
 
   return (
     <div ref={containerRef} className={searchStyles.root}>

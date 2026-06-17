@@ -5,6 +5,7 @@ import BookLayout from './features/layout/BookLayout';
 import ManuscriptPage from './features/manuscript/ManuscriptPage';
 import Overview from './features/overview/Overview';
 import ErrorBoundary from './shared/components/ErrorBoundary';
+import RouteErrorPage from './shared/components/RouteErrorPage';
 import CharacterList from './features/characters/components/CharacterList';
 import ResearchList from './features/research/components/ResearchList';
 import PlotBoard from './features/plot/PlotBoard';
@@ -15,21 +16,24 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <ShelfPage />,
+    errorElement: <RouteErrorPage />,
   },
   {
     path: '/design-system',
     element: <DesignSystemPage />,
+    errorElement: <RouteErrorPage />,
   },
   {
     path: '/book/:bookId',
     element: <ErrorBoundary><BookLayout /></ErrorBoundary>,
+    errorElement: <RouteErrorPage />,
     children: [
       { index: true, element: <ManuscriptPage /> },
       { path: 'plot', element: <PlotBoard /> },
       { path: 'characters', element: <CharacterList /> },
       { path: 'research', element: <ResearchList /> },
       { path: 'overview', element: <Overview /> },
-      { path: 'search/:query', loader: searchLoader, element: <SearchPage /> },
+      { path: 'search/:query', loader: searchLoader, element: <SearchPage />, errorElement: <RouteErrorPage /> },
     ],
   },
 ]);

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { findOrCreateRootFolder, createFolder, createTextFile, updateFileContent } from '../../../shared/services/drive'
 import { getAccessToken } from '../../../shared/stores/authStore'
 import type { Project } from '../../../shared/types/project'
+import { makeDefaultScene } from '../../../shared/types/project'
 import { Button, Input, Modal } from '../../../shared/components/ui'
 
 interface Props {
@@ -51,7 +52,7 @@ export default function CreateBookModal({ onClose }: Props) {
         projectFileId: '',
         acts: [defaultAct],
         chapters: [
-          { id: 'ch_001', title: '我的章節', order: 1, actId: 'act_001', fileId: chapterFileId, wordCount: 0, rev: 0, scenes: [] },
+          { id: 'ch_001', title: '我的章節', order: 1, actId: 'act_001', fileId: chapterFileId, wordCount: 0, rev: 0, scenes: [makeDefaultScene()] },
         ],
         characters: [],
         research: [],

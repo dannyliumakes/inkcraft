@@ -23,7 +23,7 @@ test.describe('開書流程', () => {
     await page.goto('/book/folder-1')
 
     // 等 project 載入（chapter title 會顯示在 sidebar）
-    await expect(page.getByText('第一章')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByTestId('chapter-title').filter({ hasText: '第一章' })).toBeVisible({ timeout: 10_000 })
   })
 
   test('章節內容從 Drive 載入後顯示在編輯器', async ({ page }) => {
@@ -88,8 +88,8 @@ test.describe('章節切換', () => {
   test('sidebar 顯示所有章節', async ({ page }) => {
     await page.goto('/book/folder-1')
 
-    await expect(page.getByText('第一章')).toBeVisible({ timeout: 10_000 })
-    await expect(page.getByText('第二章')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByTestId('chapter-title').filter({ hasText: '第一章' })).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByTestId('chapter-title').filter({ hasText: '第二章' })).toBeVisible({ timeout: 10_000 })
   })
 
   test('點擊第二章後載入其內容', async ({ page }) => {
@@ -99,7 +99,7 @@ test.describe('章節切換', () => {
     await expect(page.locator('.ProseMirror')).toContainText('這是第一章的內容', { timeout: 10_000 })
 
     // 點擊第二章
-    await page.getByText('第二章').click()
+    await page.getByTestId('chapter-title').filter({ hasText: '第二章' }).click()
 
     // 編輯器內容應切換到第二章
     await expect(page.locator('.ProseMirror')).toContainText('這是第二章的內容', { timeout: 10_000 })
@@ -122,11 +122,11 @@ test.describe('章節切換', () => {
     const countAfterPrefetch = downloadCount
 
     // 切到第二章（應已在 cache，不會有新請求）
-    await page.getByText('第二章').click()
+    await page.getByTestId('chapter-title').filter({ hasText: '第二章' }).click()
     await expect(page.locator('.ProseMirror')).toContainText('這是第二章的內容', { timeout: 10_000 })
 
     // 切回第一章（也在 cache）
-    await page.getByText('第一章').click()
+    await page.getByTestId('chapter-title').filter({ hasText: '第一章' }).click()
     await expect(page.locator('.ProseMirror')).toContainText('這是第一章的內容', { timeout: 10_000 })
 
     // prefetch 之後不應有新的下載請求（兩個章節都已 cache）
