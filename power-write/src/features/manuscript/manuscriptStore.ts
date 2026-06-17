@@ -4,7 +4,7 @@ import type { Project } from '../../shared/types/project'
 export type SaveStatus = 'idle' | 'typing' | 'saving' | 'saved' | 'error'
 
 export interface CachedChapter {
-  expandedText: string
+  sceneContents: Map<string, string>   // sceneId → markdown
   blobToAssetMap: Map<string, string>
 }
 
@@ -13,7 +13,7 @@ interface ManuscriptState {
   loadedBookId: string | null
   projectLoading: boolean
   activeChapterId: string | null
-  chapterContent: string
+  sceneContents: Map<string, string>
   saveStatus: SaveStatus
   lastSavedAt: Date | null
   focusMode: boolean
@@ -23,7 +23,8 @@ interface ManuscriptState {
   setLoadedBookId: (id: string | null) => void
   setProjectLoading: (loading: boolean) => void
   setActiveChapter: (id: string) => void
-  setChapterContent: (md: string) => void
+  setSceneContent: (sceneId: string, content: string) => void
+  setSceneContents: (contents: Map<string, string>) => void
   setSaveStatus: (s: SaveStatus) => void
   setLastSavedAt: (d: Date) => void
   toggleFocusMode: () => void
@@ -36,7 +37,7 @@ export const useManuscriptStore = create<ManuscriptState>()((set) => ({
   loadedBookId: null,
   projectLoading: false,
   activeChapterId: null,
-  chapterContent: '',
+  sceneContents: new Map(),
   saveStatus: 'idle',
   lastSavedAt: null,
   focusMode: false,
@@ -46,7 +47,13 @@ export const useManuscriptStore = create<ManuscriptState>()((set) => ({
   setLoadedBookId: (id) => set({ loadedBookId: id }),
   setProjectLoading: (loading) => set({ projectLoading: loading }),
   setActiveChapter: (id) => set({ activeChapterId: id }),
-  setChapterContent: (md) => set({ chapterContent: md }),
+  setSceneContent: (sceneId, content) =>
+    set((state) => {
+      const next = new Map(state.sceneContents)
+      next.set(sceneId, content)
+      return { sceneContents: next }
+    }),
+  setSceneContents: (contents) => set({ sceneContents: contents }),
   setSaveStatus: (s) => set({ saveStatus: s }),
   setLastSavedAt: (d) => set({ lastSavedAt: d }),
   toggleFocusMode: () => set((state) => ({ focusMode: !state.focusMode })),

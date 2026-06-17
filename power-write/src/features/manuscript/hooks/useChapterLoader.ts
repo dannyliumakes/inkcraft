@@ -3,22 +3,53 @@ import { useManuscriptStore } from '../manuscriptStore'
 import { useAuthStore } from '../../../shared/stores/authStore'
 import { downloadText } from '../../../shared/services/drive'
 import { expandDriveUrls } from '../lib/driveImageHelpers'
-import type { Chapter, Project } from '../../../shared/types/project'
+import type { Chapter, Project, Scene } from '../../../shared/types/project'
+
+function parseScenesFromMd(raw: string, scenes: Scene[]): Map<string, string> {
+  const result = new Map<string, string>()
+  const hasSeparators = /<!--\s*scene:[^\s>]+\s*-->/.test(raw)
+
+  // migration: no scenes defined or no separator markers in file
+  if (scenes.length === 0 || !hasSeparators) {
+    const fallbackId = scenes[0]?.id ?? 'scene_migrated'
+    result.set(fallbackId, raw)
+    return result
+  }
+
+  // Split by scene markers: parts = [before_first, id1, content1, id2, content2, ...]
+  const parts = raw.split(/<!--\s*scene:([^\s>]+)\s*-->/)
+  for (let i = 1; i < parts.length; i += 2) {
+    const sceneId = parts[i].trim()
+    const content = (parts[i + 1] ?? '').trim()
+    result.set(sceneId, content)
+  }
+
+  return result
+}
 
 async function fetchAndProcessChapter(ch: Chapter, token: string) {
   const rawText = await downloadText(token, ch.fileId)
-  const expandedText = await expandDriveUrls(rawText, token)
+  const scenes: Scene[] = (ch as Chapter & { scenes?: Scene[] }).scenes ?? []
+  const parsedContents = parseScenesFromMd(rawText, scenes)
+
   const drivePattern = /!\[([^\]]*)\]\(drive:([^)]+)\)/g
   const blobPattern = /!\[([^\]]*)\]\((blob:[^)]+)\)/g
-  const rawMatches = [...rawText.matchAll(drivePattern)]
-  const expandedMatches = [...expandedText.matchAll(blobPattern)]
   const blobToAssetMap = new Map<string, string>()
-  rawMatches.forEach((rm, i) => {
-    const assetId = rm[2]
-    const blobUrl = expandedMatches[i]?.[1]
-    if (blobUrl) blobToAssetMap.set(blobUrl, assetId)
-  })
-  return { expandedText, blobToAssetMap }
+  const expandedMap = new Map<string, string>()
+
+  for (const [sceneId, content] of parsedContents) {
+    const rawMatches = [...content.matchAll(drivePattern)]
+    const expandedContent = await expandDriveUrls(content, token)
+    const expandedMatches = [...expandedContent.matchAll(blobPattern)]
+    rawMatches.forEach((rm, i) => {
+      const assetId = rm[2]
+      const blobUrl = expandedMatches[i]?.[1]
+      if (blobUrl) blobToAssetMap.set(blobUrl, assetId)
+    })
+    expandedMap.set(sceneId, expandedContent)
+  }
+
+  return { sceneContents: expandedMap, blobToAssetMap }
 }
 
 export function useChapterLoader(blobToAssetRef: React.MutableRefObject<Map<string, string>>) {
@@ -28,7 +59,7 @@ export function useChapterLoader(blobToAssetRef: React.MutableRefObject<Map<stri
     activeChapterId,
     chapterCache,
     setActiveChapter,
-    setChapterContent,
+    setSceneContents,
     setSaveStatus,
     setCachedChapter,
   } = useManuscriptStore()
@@ -40,7 +71,7 @@ export function useChapterLoader(blobToAssetRef: React.MutableRefObject<Map<stri
     const cached = chapterCache.get(ch.id)
     if (cached) {
       blobToAssetRef.current = new Map(cached.blobToAssetMap)
-      setChapterContent(cached.expandedText)
+      setSceneContents(cached.sceneContents)
       return
     }
 
@@ -48,11 +79,11 @@ export function useChapterLoader(blobToAssetRef: React.MutableRefObject<Map<stri
       const result = await fetchAndProcessChapter(ch, token)
       setCachedChapter(ch.id, result)
       blobToAssetRef.current = new Map(result.blobToAssetMap)
-      setChapterContent(result.expandedText)
+      setSceneContents(result.sceneContents)
     } catch (e) {
       console.error('Failed to load chapter', e)
     }
-  }, [chapterCache, setActiveChapter, setSaveStatus, setChapterContent, setCachedChapter, blobToAssetRef])
+  }, [chapterCache, setActiveChapter, setSaveStatus, setSceneContents, setCachedChapter, blobToAssetRef])
 
   // Auto-select first chapter when project loads, then background-prefetch the rest
   useEffect(() => {

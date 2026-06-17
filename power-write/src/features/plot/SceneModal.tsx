@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import type { PlotScene } from '../../shared/types/project'
+import type { Scene } from '../../shared/types/project'
 import { getAccessToken } from '../../shared/stores/authStore'
 import { uploadImage } from '../../shared/services/assets'
 import { getImageUrl } from '../../shared/services/assets'
 import { Button, Input, Textarea, TagInput } from '../../shared/components/ui'
 
 interface Props {
-  scene?: PlotScene | null
+  scene?: Scene | null
   chapters: { id: string; title: string }[]
   bookFolderId: string
-  onSave: (scene: PlotScene, chapterId: string) => void
+  onSave: (scene: Scene, chapterId: string) => void
   onClose: () => void
   defaultChapterId?: string
 }
@@ -38,7 +38,7 @@ export default function SceneModal({
   const [summary, setSummary] = useState(scene?.summary ?? '')
   const [tags, setTags] = useState<string[]>(scene?.tags ?? [])
   const [chapterId, setChapterId] = useState(
-    scene?.chapterRef ?? defaultChapterId ?? chapters[0]?.id ?? ''
+    defaultChapterId ?? chapters[0]?.id ?? ''
   )
   const [imageAssetId, setImageAssetId] = useState<string | null>(scene?.imageAssetId ?? null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
@@ -83,13 +83,12 @@ export default function SceneModal({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!title.trim()) return
-    const saved: PlotScene = {
+    const saved: Scene = {
       id: scene?.id ?? `scene_${Date.now()}`,
       title: title.trim(),
       summary,
       imageAssetId,
       tags,
-      chapterRef: chapterId || undefined,
       order: scene?.order ?? 0,
     }
     onSave(saved, chapterId)

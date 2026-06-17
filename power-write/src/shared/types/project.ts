@@ -4,10 +4,13 @@ export interface Act {
   order: number;
 }
 
-export interface ChapterScene {
+export interface Scene {
   id: string;
   title: string;
   order: number;
+  summary: string;
+  imageAssetId: string | null;
+  tags: string[];
 }
 
 export interface Chapter {
@@ -18,7 +21,7 @@ export interface Chapter {
   fileId: string;      // Drive file ID of the .md file
   wordCount: number;
   rev: number;         // local revision counter for conflict detection
-  scenes: ChapterScene[];
+  scenes: Scene[];
 }
 
 export interface Character {
@@ -42,21 +45,6 @@ export interface ResearchItem {
   order: number;
 }
 
-export interface PlotScene {
-  id: string;
-  title: string;
-  summary: string;
-  imageAssetId: string | null;
-  tags: string[];
-  chapterRef?: string;
-  order: number;
-}
-
-export interface PlotBoard {
-  // keyed by Chapter.id
-  scenes: Record<string, PlotScene[]>;
-}
-
 export interface Todo {
   id: string;
   text: string;
@@ -76,7 +64,6 @@ export interface Project {
   research: ResearchItem[];
   notes: string;
   todos: Todo[];
-  plotBoard: PlotBoard;
   dailyWordGoal: number;
   projectWordGoal: number;   // default 80000
   wordHistory: { date: string; total: number }[];  // YYYY-MM-DD entries

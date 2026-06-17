@@ -3,6 +3,7 @@ import { DndContext, DragOverlay } from '@dnd-kit/core'
 
 import SceneCard from './components/SceneCard'
 import ChapterColumn from './components/ChapterColumn'
+import SceneModal from './SceneModal'
 import { usePlotProject } from './hooks/usePlotProject'
 import { usePlotDnd } from './hooks/usePlotDnd'
 import { usePlotCrud } from './hooks/usePlotCrud'
@@ -29,9 +30,9 @@ const styles = {
 }
 
 export default function PlotBoard() {
-  const { project, chapters, localScenes, updateScenes } = usePlotProject()
-  const { sensors, activeScene, handleDragStart, handleDragOver, handleDragEnd } = usePlotDnd(localScenes, updateScenes)
-  const { addSceneDirect, updateSceneTitle, deleteScene } = usePlotCrud(localScenes, updateScenes)
+  const { project, chapters, localScenes, onProjectUpdate } = usePlotProject()
+  const { sensors, activeScene, handleDragStart, handleDragOver, handleDragEnd } = usePlotDnd(project, localScenes, onProjectUpdate)
+  const { modalChapterId, editingScene, openEditScene, addScene, handleSaveScene, closeModal } = usePlotCrud(project, onProjectUpdate)
 
   const allTags = useMemo(() => {
     const set = new Set<string>()
@@ -43,7 +44,8 @@ export default function PlotBoard() {
 
   if (!project) return <div className="p-8 text-placeholder">載入中…</div>
 
-  const acts = [...project.acts].sort((a, b) => a.order - b.order)
+  const allChapters = chapters.map((ch) => ({ id: ch.id, title: ch.title }))
+  const acts = [...(project.acts ?? [])].sort((a, b) => a.order - b.order)
   const actIds = new Set(acts.map((a) => a.id))
   const ungroupedChapters = chapters.filter((ch) => !ch.actId || !actIds.has(ch.actId))
 
@@ -57,9 +59,8 @@ export default function PlotBoard() {
         chapterId={chId}
         title={chTitle}
         scenes={scenes}
-        onAddScene={addSceneDirect}
-        onSaveScene={(sceneId, title) => updateSceneTitle(sceneId, chId, title)}
-        onDeleteScene={(sceneId) => deleteScene(sceneId, chId)}
+        onAddScene={addScene}
+        onEditScene={(scene) => openEditScene(scene, chId)}
       />
     )
   }
@@ -108,7 +109,6 @@ export default function PlotBoard() {
                   </div>
                 )
               })}
-
               {ungroupedChapters.length > 0 && (
                 <div className={styles.actSection}>
                   {acts.length > 0 && (
@@ -131,6 +131,17 @@ export default function PlotBoard() {
           {activeScene ? <SceneCard scene={activeScene} overlay /> : null}
         </DragOverlay>
       </DndContext>
+
+      {editingScene !== undefined && modalChapterId && (
+        <SceneModal
+          scene={editingScene}
+          chapters={allChapters}
+          bookFolderId={project.id}
+          onSave={handleSaveScene}
+          onClose={closeModal}
+          defaultChapterId={modalChapterId}
+        />
+      )}
     </div>
   )
 }

@@ -6,10 +6,16 @@ import { saveProject } from '../../../shared/services/projectRepo'
 import { takeSnapshot } from '../../overview/wordSnapshot'
 import { countWords } from '../../../lib/wordCount'
 import { collapseBlobUrls } from '../lib/driveImageHelpers'
-import type { Project } from '../../../shared/types/project'
+import type { Project, Scene } from '../../../shared/types/project'
+
+function serializeScenesToMd(scenes: Scene[], contents: Map<string, string>): string {
+  return scenes
+    .sort((a, b) => a.order - b.order)
+    .map((s) => `<!-- scene:${s.id} -->\n${contents.get(s.id) ?? ''}`)
+    .join('\n\n')
+}
 
 export function useAutosave(
-  editorRef: React.MutableRefObject<ReturnType<typeof import('@tiptap/react').useEditor> | null>,
   blobToAssetRef: React.MutableRefObject<Map<string, string>>,
 ) {
   const {
@@ -20,22 +26,28 @@ export function useAutosave(
 
   const projectDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const triggerSave = useCallback(async (editor: ReturnType<typeof import('@tiptap/react').useEditor>) => {
-    if (!editor) return
+  const triggerSave = useCallback(async () => {
     const token = getAccessToken()
     if (!token) return
     const state = useManuscriptStore.getState()
-    const { project: proj, activeChapterId: chId } = state
+    const { project: proj, activeChapterId: chId, sceneContents } = state
     if (!proj || !chId) return
 
     const ch = proj.chapters.find((c) => c.id === chId)
     if (!ch) return
 
+    const scenes: Scene[] = (ch as typeof ch & { scenes?: Scene[] }).scenes ?? []
+
     setSaveStatus('saving')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rawMd = (editor.storage as any).markdown.getMarkdown() as string
+
+    const rawMd = serializeScenesToMd(scenes, sceneContents)
     const md = collapseBlobUrls(rawMd, blobToAssetRef.current)
-    const wc = countWords(editor.getText())
+
+    // Word count: sum across all scenes
+    let wc = 0
+    for (const content of sceneContents.values()) {
+      wc += countWords(content)
+    }
 
     try {
       await updateFileContent(token, ch.fileId, md)
@@ -74,23 +86,23 @@ export function useAutosave(
     function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault()
-        triggerSave(editorRef.current)
+        triggerSave()
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [triggerSave, editorRef])
+  }, [triggerSave])
 
   // Save when tab loses visibility (switching apps, closing tab, switching device)
   useEffect(() => {
     function onVisibilityChange() {
       if (document.visibilityState === 'hidden') {
-        triggerSave(editorRef.current)
+        triggerSave()
       }
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
     return () => document.removeEventListener('visibilitychange', onVisibilityChange)
-  }, [triggerSave, editorRef])
+  }, [triggerSave])
 
   return { triggerSave }
 }
