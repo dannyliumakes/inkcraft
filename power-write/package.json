@@ -16,7 +16,6 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@react-oauth/google": "^0.12.1",
-    "@rolldown/binding-darwin-arm64": "^1.1.1",
     "@tailwindcss/vite": "^4.0.0",
     "@tiptap/extension-character-count": "^3.26.1",
     "@tiptap/extension-image": "^3.26.1",
@@ -42,7 +41,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "@vitest/ui": "^4.1.8",
+    "@vitest/ui": "^2.1.0",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
@@ -51,6 +50,6 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.8",
-    "vitest": "^4.1.8"
+    "vitest": "^2.1.0"
   }
 }
