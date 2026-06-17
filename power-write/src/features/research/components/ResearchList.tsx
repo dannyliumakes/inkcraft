@@ -24,7 +24,7 @@ const cardStyles = {
 }
 
 const pageStyles = {
-  root: 'p-8',
+  root: 'p-8 h-full overflow-y-auto',
   topBar: 'flex items-center justify-between mb-6 gap-4 flex-wrap',
   filterPill: 'flex items-center gap-1.5 bg-accent-light rounded-full px-3 py-1',
   filterTag: 'text-sm text-accent',

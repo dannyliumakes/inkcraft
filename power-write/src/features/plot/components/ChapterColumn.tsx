@@ -7,7 +7,8 @@ interface Props {
   title: string
   scenes: PlotScene[]
   onAddScene: (chapterId: string) => void
-  onEditScene: (scene: PlotScene, chapterId: string) => void
+  onSaveScene: (sceneId: string, title: string) => void
+  onDeleteScene: (sceneId: string) => void
 }
 
 const styles = {
@@ -20,7 +21,7 @@ const styles = {
   addBtn: 'w-full py-2 rounded-xl text-xs text-secondary hover:bg-white hover:text-muted border-2 border-dashed border-gray-200 hover:border-accent-border transition-colors',
 }
 
-export default function ChapterColumn({ chapterId, title, scenes, onAddScene, onEditScene }: Props) {
+export default function ChapterColumn({ chapterId, title, scenes, onAddScene, onSaveScene, onDeleteScene }: Props) {
   const sceneIds = scenes.map((s) => s.id)
 
   return (
@@ -30,10 +31,15 @@ export default function ChapterColumn({ chapterId, title, scenes, onAddScene, on
         <p className={styles.sceneCount}>{scenes.length} 個場景</p>
       </div>
 
-      <div className={styles.body} style={{ maxHeight: 480 }}>
+      <div className={styles.body} style={{ maxHeight: 560 }}>
         <SortableContext items={sceneIds} strategy={verticalListSortingStrategy}>
           {scenes.map((scene) => (
-            <SceneCard key={scene.id} scene={scene} onEdit={() => onEditScene(scene, chapterId)} />
+            <SceneCard
+              key={scene.id}
+              scene={scene}
+              onSave={(title) => onSaveScene(scene.id, title)}
+              onDelete={() => onDeleteScene(scene.id)}
+            />
           ))}
         </SortableContext>
       </div>

@@ -10,7 +10,7 @@ import { Button, Input } from '../../shared/components/ui';
 
 // TODO: add --color-stat-today, --color-stat-week, --color-stat-remaining tokens to index.css @theme {}
 const styles = {
-  root: 'p-6 max-w-3xl mx-auto',
+  root: 'p-6 max-w-3xl mx-auto h-full overflow-y-auto',
   titleRow: 'flex items-center justify-between mb-6',
   card: 'bg-white rounded-xl shadow p-6 mb-6',
   chartSubtitle: 'text-sm text-secondary mb-4',

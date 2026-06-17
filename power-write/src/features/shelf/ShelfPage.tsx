@@ -7,7 +7,7 @@ import { loadProject } from '../../shared/services/projectRepo'
 import { getAccessToken } from '../../shared/stores/authStore'
 import { useShelfStore } from './shelfStore'
 import type { ShelfBook } from './shelfStore'
-import { Button, Input, Modal, Spinner } from '../../shared/components/ui'
+import { Button, Input, Modal, Spinner, DropdownMenu } from '../../shared/components/ui'
 import CreateBookModal from './components/CreateBookModal'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -38,9 +38,6 @@ const bookCardStyles = {
   metaTime: 'text-xs text-secondary',
   openBtn: 'text-xs text-muted hover:text-primary font-medium focus-visible:ring-2 focus-visible:ring-blue-400',
   menuBtn: 'absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-sm',
-  menuDropdown: 'absolute top-12 right-3 z-20 bg-white rounded-xl shadow-lg border border-gray-100 min-w-[120px] py-1',
-  menuRename: 'w-full text-left px-4 py-2 text-sm text-primary hover:bg-gray-50',
-  menuDelete: 'w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10',
 }
 
 function BookCard({ book, onOpen, onRename, onDelete }: {
@@ -50,8 +47,6 @@ function BookCard({ book, onOpen, onRename, onDelete }: {
   onDelete: () => void
 }) {
   const { t } = useTranslation()
-  const [menuOpen, setMenuOpen] = useState(false)
-
   return (
     <div
       className={bookCardStyles.root}
@@ -83,40 +78,28 @@ function BookCard({ book, onOpen, onRename, onDelete }: {
       </div>
 
       {/* Three-dot menu */}
-      <button
-        className={bookCardStyles.menuBtn}
-        onClick={(e) => { e.stopPropagation(); setMenuOpen((v) => !v) }}
-        aria-label={t('shelf.more_options')}
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <circle cx="8" cy="3" r="1.5" fill="var(--color-muted)"/>
-          <circle cx="8" cy="8" r="1.5" fill="var(--color-muted)"/>
-          <circle cx="8" cy="13" r="1.5" fill="var(--color-muted)"/>
-        </svg>
-      </button>
-
-      {menuOpen && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setMenuOpen(false) }} />
-          <div
-            className={bookCardStyles.menuDropdown}
-            onClick={(e) => e.stopPropagation()}
-          >
+      <div className="absolute top-3 right-3">
+        <DropdownMenu
+          trigger={
             <button
-              className={bookCardStyles.menuRename}
-              onClick={() => { setMenuOpen(false); onRename() }}
+              className={bookCardStyles.menuBtn}
+              aria-label={t('shelf.more_options')}
+              style={{ position: 'static' }}
             >
-              {t('shelf.rename')}
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="3" r="1.5" fill="var(--color-muted)"/>
+                <circle cx="8" cy="8" r="1.5" fill="var(--color-muted)"/>
+                <circle cx="8" cy="13" r="1.5" fill="var(--color-muted)"/>
+              </svg>
             </button>
-            <button
-              className={bookCardStyles.menuDelete}
-              onClick={() => { setMenuOpen(false); onDelete() }}
-            >
-              {t('shelf.delete')}
-            </button>
-          </div>
-        </>
-      )}
+          }
+          items={[
+            { label: t('shelf.rename'), onClick: onRename },
+            { label: t('shelf.delete'), onClick: onDelete, variant: 'danger' },
+          ]}
+          minWidth="min-w-[120px]"
+        />
+      </div>
     </div>
   )
 }

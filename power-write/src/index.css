@@ -153,3 +153,23 @@ body {
   height: 0;
   pointer-events: none;
 }
+
+/* 場景分隔線 */
+.tiptap-editor .ProseMirror hr {
+  border: none;
+  border-top: 1.5px solid var(--color-accent-border);
+  margin: 2rem 0;
+  position: relative;
+}
+.tiptap-editor .ProseMirror hr::before {
+  content: '場景';
+  position: absolute;
+  top: -0.65em;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 0 0.75rem;
+  font-size: 0.7rem;
+  color: var(--color-placeholder);
+  letter-spacing: 0.05em;
+}

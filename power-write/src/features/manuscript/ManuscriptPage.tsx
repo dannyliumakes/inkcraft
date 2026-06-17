@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useEditor, EditorContent } from '@tiptap/react'
@@ -17,10 +17,10 @@ import EditorToolbar from './components/EditorToolbar'
 import { useChapterLoader } from './hooks/useChapterLoader'
 import { useAutosave } from './hooks/useAutosave'
 import { useEditorImageUpload } from './hooks/useEditorImageUpload'
-import type { Project } from '../../shared/types/project'
+import type { Project, ChapterScene } from '../../shared/types/project'
 
 const styles = {
-  root: 'flex h-[calc(100vh-57px)]',
+  root: 'flex h-full',
   sidebar: (open: boolean) => `${open ? 'w-64' : 'hidden'} shrink-0 bg-white border-r border-gray-100 flex flex-col overflow-hidden`,
   sidebarInner: 'flex-1 overflow-hidden flex flex-col',
   sidebarLoading: 'p-4 text-xs text-placeholder',
@@ -29,8 +29,12 @@ const styles = {
   characterName: 'text-sm text-secondary truncate',
   characterLink: 'text-xs text-accent mt-2 hover:underline focus-visible:ring-2 focus-visible:ring-blue-400',
   center: 'flex-1 flex flex-col overflow-hidden bg-surface',
-  editorScroll: 'flex-1 overflow-y-auto flex justify-center py-10 px-4',
-  editorCard: 'w-full max-w-[720px] bg-white rounded-3xl shadow-sm px-12 py-10 min-h-full',
+  editorScroll: 'flex-1 overflow-y-auto py-10 px-4',
+  editorCardWrap: 'flex justify-center',
+  editorCard: 'w-full max-w-[720px] bg-white rounded-3xl shadow-sm px-12 pt-10 pb-6',
+  addSceneDivider: 'mt-8 flex flex-col items-center gap-2',
+  addSceneLine: 'w-full border-t border-dashed border-gray-200',
+  addSceneBtn: 'flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-gray-200 text-xs text-placeholder hover:border-accent-border hover:text-accent transition-colors',
   editorLoading: 'text-placeholder text-sm',
   rightPanel: 'w-80 shrink-0 bg-white border-l border-gray-100 overflow-y-auto',
 }
@@ -141,6 +145,36 @@ export default function ManuscriptPage() {
   const activeChapter = project?.chapters.find((c) => c.id === activeChapterId)
   const wordCount = activeChapter?.wordCount ?? 0
 
+  const handleAddScene = useCallback(() => {
+    if (!editor || !project || !activeChapterId) return
+    // insert horizontal rule at end of document then focus
+    editor.chain().focus().setHorizontalRule().run()
+    // scroll to bottom after insertion
+    setTimeout(() => {
+      const el = editor.view.dom
+      el.scrollIntoView({ block: 'end', behavior: 'smooth' })
+    }, 50)
+    // add scene entry to chapter
+    const chapter = project.chapters.find((c) => c.id === activeChapterId)
+    if (!chapter) return
+    const newScene: ChapterScene = {
+      id: `sc_${Date.now()}`,
+      title: `場景 ${(chapter.scenes?.length ?? 0) + 2}`,
+      order: (chapter.scenes?.length ?? 0) + 1,
+    }
+    const updated: Project = {
+      ...project,
+      chapters: project.chapters.map((c) =>
+        c.id === activeChapterId ? { ...c, scenes: [...(c.scenes ?? []), newScene] } : c
+      ),
+      updatedAt: new Date().toISOString(),
+      rev: project.rev + 1,
+    }
+    setProject(updated)
+    const token = getAccessToken()
+    if (token) saveProject(token, updated)
+  }, [editor, project, activeChapterId, setProject])
+
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div className={styles.root} style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
@@ -207,15 +241,30 @@ export default function ManuscriptPage() {
         />
 
         <div className={styles.editorScroll}>
+          <div className={styles.editorCardWrap}>
           <div className={styles.editorCard}>
             {editor ? (
-              <EditorContent
-                editor={editor}
-                className="prose prose-lg max-w-none focus:outline-none tiptap-editor"
-              />
+              <>
+                <EditorContent
+                  editor={editor}
+                  className="prose prose-lg max-w-none focus:outline-none tiptap-editor"
+                />
+                {activeChapterId && (
+                  <div className={styles.addSceneDivider}>
+                    <div className={styles.addSceneLine} />
+                    <button className={styles.addSceneBtn} onClick={handleAddScene}>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                      新增場景
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <p className={styles.editorLoading}>{t('manuscript.loading_editor')}</p>
             )}
+          </div>
           </div>
         </div>
       </div>

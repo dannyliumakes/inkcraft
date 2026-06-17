@@ -40,7 +40,7 @@ const searchStyles = {
 }
 
 const layoutStyles = {
-  root: 'min-h-screen flex flex-col bg-surface',
+  root: 'h-screen flex flex-col bg-surface overflow-hidden',
   mobileBanner: 'sm:hidden bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-700 text-center',
   nav: 'bg-white border-b border-gray-100 px-4 md:px-8 py-3 flex items-center gap-2 md:gap-4 sticky top-0 z-30 overflow-hidden',
   logo: 'font-black text-xl md:text-[32px] text-primary tracking-tight mr-2 md:mr-6 shrink-0',

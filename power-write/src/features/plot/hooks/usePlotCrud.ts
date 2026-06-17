@@ -1,39 +1,39 @@
-import { useState } from 'react'
 import type { PlotScene } from '../../../shared/types/project'
 
 export function usePlotCrud(
   _localScenes: Record<string, PlotScene[]>,
   updateScenes: (fn: (prev: Record<string, PlotScene[]>) => Record<string, PlotScene[]>) => void,
 ) {
-  const [modalChapterId, setModalChapterId] = useState<string | null>(null)
-  const [editingScene, setEditingScene] = useState<PlotScene | null | undefined>(undefined)
-
-  function openAddScene(chapterId: string) {
-    setModalChapterId(chapterId)
-    setEditingScene(null)
-  }
-
-  function openEditScene(scene: PlotScene, chapterId: string) {
-    setModalChapterId(chapterId)
-    setEditingScene(scene)
-  }
-
-  function handleSaveScene(scene: PlotScene, chapterId: string) {
+  function addSceneDirect(chapterId: string) {
     updateScenes((prev) => {
       const scenes = [...(prev[chapterId] ?? [])]
-      const idx = scenes.findIndex((s) => s.id === scene.id)
-      if (idx !== -1) scenes[idx] = scene
-      else scenes.push({ ...scene, order: scenes.length })
+      const newScene: PlotScene = {
+        id: `scene_${Date.now()}`,
+        title: '未輸入文字',
+        summary: '',
+        imageAssetId: null,
+        tags: [],
+        order: scenes.length,
+      }
+      return { ...prev, [chapterId]: [...scenes, newScene] }
+    })
+  }
+
+  function updateSceneTitle(sceneId: string, chapterId: string, title: string) {
+    updateScenes((prev) => {
+      const scenes = (prev[chapterId] ?? []).map((s) =>
+        s.id === sceneId ? { ...s, title } : s
+      )
       return { ...prev, [chapterId]: scenes }
     })
-    setEditingScene(undefined)
-    setModalChapterId(null)
   }
 
-  function closeModal() {
-    setEditingScene(undefined)
-    setModalChapterId(null)
+  function deleteScene(sceneId: string, chapterId: string) {
+    updateScenes((prev) => {
+      const scenes = (prev[chapterId] ?? []).filter((s) => s.id !== sceneId)
+      return { ...prev, [chapterId]: scenes }
+    })
   }
 
-  return { modalChapterId, editingScene, openAddScene, openEditScene, handleSaveScene, closeModal }
+  return { addSceneDirect, updateSceneTitle, deleteScene }
 }

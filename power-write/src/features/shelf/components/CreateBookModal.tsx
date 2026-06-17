@@ -42,14 +42,16 @@ export default function CreateBookModal({ onClose }: Props) {
       )
 
       const now = new Date().toISOString()
+      const defaultAct = { id: 'act_001', title: '我的幕次', order: 1 }
       const project: Project = {
         id: bookFolderId,
         title: title.trim(),
         manuscriptFolderId,
         assetsFolderId,
         projectFileId: '',
+        acts: [defaultAct],
         chapters: [
-          { id: 'ch_001', title: '第一章', order: 0, fileId: chapterFileId, wordCount: 0, rev: 0 },
+          { id: 'ch_001', title: '我的章節', order: 1, actId: 'act_001', fileId: chapterFileId, wordCount: 0, rev: 0, scenes: [] },
         ],
         characters: [],
         research: [],

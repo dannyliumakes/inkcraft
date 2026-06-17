@@ -43,13 +43,15 @@
   },
   "chapter_tree": {
     "header": "目錄結構",
-    "add_folder": "新增資料夾",
+    "add": "新增",
+    "add_act": "新增幕次",
     "add_chapter": "新增章節",
+    "add_scene": "新增場景",
     "empty": "尚無章節，點擊上方按鈕新增",
-    "rename": "重命名",
-    "move_up": "上移",
-    "move_down": "下移",
     "delete": "刪除",
+    "delete_confirm_act": "確定要刪除這一幕嗎？幕內的章節將移至未分幕。",
+    "delete_confirm_chapter": "確定要刪除「{{title}}」嗎？",
+    "delete_confirm_scene": "確定要刪除這個場景嗎？",
     "word_count_unit": "字"
   },
   "manuscript": {

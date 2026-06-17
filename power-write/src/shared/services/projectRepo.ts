@@ -12,6 +12,12 @@ export async function loadProject(token: string, projectFileId: string): Promise
     research: parsed.research ?? [],
     characters: parsed.characters ?? [],
     plotBoard: parsed.plotBoard?.scenes ? parsed.plotBoard : { scenes: {} },
+    acts: parsed.acts ?? [],
+    chapters: (parsed.chapters ?? []).map((c) => ({
+      ...c,
+      actId: c.actId ?? (parsed.acts?.[0]?.id ?? 'act_default'),
+      scenes: c.scenes ?? [],
+    })),
   }
 }
 

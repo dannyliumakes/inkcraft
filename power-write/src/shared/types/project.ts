@@ -1,10 +1,24 @@
+export interface Act {
+  id: string;
+  title: string;
+  order: number;
+}
+
+export interface ChapterScene {
+  id: string;
+  title: string;
+  order: number;
+}
+
 export interface Chapter {
   id: string;          // e.g. "ch_001"
   title: string;
   order: number;
+  actId: string;
   fileId: string;      // Drive file ID of the .md file
   wordCount: number;
   rev: number;         // local revision counter for conflict detection
+  scenes: ChapterScene[];
 }
 
 export interface Character {
@@ -56,6 +70,7 @@ export interface Project {
   manuscriptFolderId: string;
   assetsFolderId: string;
   projectFileId: string; // Drive file ID of project.json
+  acts: Act[];
   chapters: Chapter[];
   characters: Character[];
   research: ResearchItem[];
