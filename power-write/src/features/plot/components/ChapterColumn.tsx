@@ -7,7 +7,7 @@ interface Props {
   title: string
   scenes: Scene[]
   onAddScene: (chapterId: string) => void
-  onEditScene: (scene: Scene) => void
+  onOpenScene: (scene: Scene) => void
 }
 
 const styles = {
@@ -20,7 +20,7 @@ const styles = {
   addBtn: 'w-full py-2 rounded-xl text-xs text-secondary hover:bg-white hover:text-muted border-2 border-dashed border-gray-200 hover:border-accent-border transition-colors',
 }
 
-export default function ChapterColumn({ chapterId, title, scenes, onAddScene, onEditScene }: Props) {
+export default function ChapterColumn({ chapterId, title, scenes, onAddScene, onOpenScene }: Props) {
   const sceneIds = scenes.map((s) => s.id)
 
   return (
@@ -32,8 +32,8 @@ export default function ChapterColumn({ chapterId, title, scenes, onAddScene, on
 
       <div className={styles.body} style={{ maxHeight: 480 }}>
         <SortableContext items={sceneIds} strategy={verticalListSortingStrategy}>
-          {scenes.map((scene) => (
-            <SceneCard key={scene.id} scene={scene} onEdit={() => onEditScene(scene)} />
+          {scenes.map((scene, i) => (
+            <SceneCard key={scene.id} scene={scene} idx={i} onOpen={() => onOpenScene(scene)} />
           ))}
         </SortableContext>
       </div>

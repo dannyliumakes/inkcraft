@@ -15,7 +15,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import type { Project, Chapter, Act, PlotScene } from '../../shared/types/project'
+import type { Project, Chapter, Act, Scene } from '../../shared/types/project'
 import { makeDefaultScene } from '../../shared/types/project'
 import { createTextFile, trashFile } from '../../shared/services/drive'
 import { saveProject } from '../../shared/services/projectRepo'
@@ -112,14 +112,11 @@ const sceneStyles = {
   label: 'text-[10px] text-placeholder shrink-0',
 }
 
-function PlotSceneRow({ scene, idx }: { scene: PlotScene; idx: number }) {
-  const isDefault = scene.title === '未輸入文字'
+// 場景沒有標題／摘要，僅以序號呈現，與情節看板、原稿編輯器同步。
+function PlotSceneRow({ idx }: { scene: Scene; idx: number }) {
   return (
     <div className={sceneStyles.row}>
       <span className={sceneStyles.label}>場景{idx + 1}</span>
-      <span className={`flex-1 text-xs truncate ${isDefault ? 'text-placeholder italic' : 'text-secondary'}`}>
-        {scene.title}
-      </span>
     </div>
   )
 }
@@ -143,7 +140,7 @@ interface SortableChapterProps {
   onSelect: () => void
   onDelete: () => void
   onRename: (title: string) => void
-  plotScenes: PlotScene[]
+  plotScenes: Scene[]
 }
 
 function SortableChapter({
@@ -206,6 +203,80 @@ function SortableChapter({
   )
 }
 
+// ── SortableActSection ────────────────────────────────────────────────────────
+
+interface SortableActSectionProps {
+  act: Act
+  editingActId: string | null
+  editingActTitle: string
+  onEditingActIdChange: (id: string | null) => void
+  onEditingActTitleChange: (title: string) => void
+  onCommitRename: (act: Act) => void
+  onDelete: () => void
+  children: React.ReactNode
+}
+
+function SortableActSection({
+  act,
+  editingActId,
+  editingActTitle,
+  onEditingActIdChange,
+  onEditingActTitleChange,
+  onCommitRename,
+  onDelete,
+  children,
+}: SortableActSectionProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: act.id, data: { type: 'act' } })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+  const isEditing = editingActId === act.id
+
+  return (
+    <div ref={setNodeRef} style={style} className={isDragging ? 'opacity-40' : ''}>
+      <div className={actSectionStyles.header}>
+        <DragHandle {...attributes} {...listeners} />
+        <span className={actSectionStyles.label}>{actLabel(act.order)}</span>
+        {isEditing ? (
+          <Input
+            className="flex-1 text-sm"
+            value={editingActTitle}
+            autoFocus
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => onEditingActTitleChange(e.target.value)}
+            onBlur={() => onCommitRename(act)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') onCommitRename(act)
+              if (e.key === 'Escape') onEditingActIdChange(null)
+            }}
+          />
+        ) : (
+          <span
+            className={actSectionStyles.title}
+            onDoubleClick={() => { onEditingActIdChange(act.id); onEditingActTitleChange(act.title) }}
+          >
+            {act.title}
+          </span>
+        )}
+        <div className={actSectionStyles.dots}>
+          <DropdownMenu
+            trigger={<DotsTrigger />}
+            items={[{ label: '刪除', onClick: onDelete, variant: 'danger' }]}
+          />
+        </div>
+      </div>
+      {children}
+    </div>
+  )
+}
+
+// ── Act section styles ────────────────────────────────────────────────────────
+
+const actSectionStyles = {
+  header: 'group flex items-center gap-1 px-2 py-2 select-none',
+  label: 'text-[10px] text-placeholder shrink-0',
+  title: 'flex-1 text-sm font-medium text-muted truncate',
+  dots: 'ml-auto',
+}
+
 // ── Main styles ───────────────────────────────────────────────────────────────
 
 const styles = {
@@ -215,10 +286,6 @@ const styles = {
   addBtn: 'relative flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 text-placeholder text-xs',
   list: 'flex-1 overflow-y-auto',
   emptyMsg: 'text-xs text-placeholder text-center mt-6 px-3',
-  actHeader: 'group flex items-center gap-1 px-2 py-2 select-none',
-  actLabel: 'text-[10px] text-placeholder shrink-0',
-  actTitle: 'flex-1 text-sm font-medium text-muted truncate',
-  actDots: 'ml-auto',
 }
 
 // ── ChapterTree ───────────────────────────────────────────────────────────────
@@ -236,26 +303,13 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
 
   const acts = [...(project.acts ?? [])].sort((a, b) => a.order - b.order)
 
-  // global chapter list sorted for auto-numbering
-  const allChaptersSorted = [...project.chapters].sort((a, b) => {
-    const aAct = acts.findIndex((act) => act.id === a.actId)
-    const bAct = acts.findIndex((act) => act.id === b.actId)
-    if (aAct !== bAct) return aAct - bAct
-    return a.order - b.order
-  })
-
   function chaptersForAct(actId: string) {
     return project.chapters.filter((c) => c.actId === actId).sort((a, b) => a.order - b.order)
-  }
-
-  function globalIdxOf(chapterId: string) {
-    return allChaptersSorted.findIndex((c) => c.id === chapterId)
   }
 
   // ── add handlers (optimistic) ─────────────────────────────────────────────
 
   function handleAddAct() {
-    setAddOpen(false)
     const token = getAccessToken()
     if (!token) return
     const newOrder = acts.length > 0 ? acts[acts.length - 1].order + 1 : 1
@@ -271,7 +325,6 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
   }
 
   function handleAddChapter() {
-    setAddOpen(false)
     const token = getAccessToken()
     if (!token) return
 
@@ -283,12 +336,11 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
       targetProject = { ...project, acts: [newAct] }
       targetActId = newAct.id
     } else {
-      targetActId = acts[0].id
+      targetActId = acts[acts.length - 1].id
     }
 
     const actChapters = chaptersForAct(targetActId)
     const newOrder = actChapters.length > 0 ? actChapters[actChapters.length - 1].order + 1 : 1
-    const globalIdx = allChaptersSorted.length
     const newId = `ch_${Date.now()}`
 
     // placeholder fileId shown immediately; real Drive file created in background
@@ -363,27 +415,6 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
     })
   }
 
-  function confirmDeleteScene(ch: Chapter, sceneId: string) {
-    setDeleteConfirm({
-      message: t('chapter_tree.delete_confirm_scene'),
-      onConfirm: () => {
-        setDeleteConfirm(null)
-        const token = getAccessToken()
-        if (!token) return
-        const updated: Project = {
-          ...project,
-          chapters: project.chapters.map((c) =>
-            c.id === ch.id ? { ...c, scenes: c.scenes.filter((s) => s.id !== sceneId) } : c
-          ),
-          updatedAt: new Date().toISOString(),
-          rev: project.rev + 1,
-        }
-        onProjectUpdate(updated)
-        saveProject(token, updated)
-      },
-    })
-  }
-
   // ── rename act ────────────────────────────────────────────────────────────
 
   async function commitActRename(act: Act) {
@@ -416,18 +447,32 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
     onProjectUpdate(updated)
   }
 
-  // ── chapter drag-end (cross-act support) ─────────────────────────────────
+  // ── drag-end (acts + chapters) ────────────────────────────────────────────
 
-  function handleChapterDragEnd(event: DragEndEvent) {
+  function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (!over || active.id === over.id) return
 
+    const token = getAccessToken()
+    if (!token) return
+
+    // act drag — only allow dropping onto another act
+    if (active.data.current?.type === 'act') {
+      if (over.data.current?.type !== 'act') return
+      const oldIdx = acts.findIndex((a) => a.id === active.id)
+      const newIdx = acts.findIndex((a) => a.id === over.id)
+      if (oldIdx === -1 || newIdx === -1) return
+      const reordered = arrayMove(acts, oldIdx, newIdx).map((a, i) => ({ ...a, order: i + 1 }))
+      const updated: Project = { ...project, acts: reordered, updatedAt: new Date().toISOString(), rev: project.rev + 1 }
+      onProjectUpdate(updated)
+      saveProject(token, updated)
+      return
+    }
+
+    // chapter drag
     const sourceActId = active.data.current?.actId as string | undefined
     const targetActId = over.data.current?.actId as string | undefined
     if (!sourceActId || !targetActId) return
-
-    const token = getAccessToken()
-    if (!token) return
 
     if (sourceActId === targetActId) {
       const actChapters = chaptersForAct(sourceActId)
@@ -440,7 +485,6 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
       onProjectUpdate(updated)
       saveProject(token, updated)
     } else {
-      // cross-act: move chapter to target act, insert before/after the over item
       const targetActChapters = chaptersForAct(targetActId)
       const overIdx = targetActChapters.findIndex((c) => c.id === over.id)
       const insertOrder = overIdx >= 0 ? targetActChapters[overIdx].order + 0.5 : (targetActChapters[targetActChapters.length - 1]?.order ?? 0) + 1
@@ -491,69 +535,47 @@ export default function ChapterTree({ project, activeChapterId, onSelectChapter,
         />
       </div>
 
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleChapterDragEnd}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className={styles.list}>
           {acts.length === 0 && (
             <p className={styles.emptyMsg}>{t('chapter_tree.empty')}</p>
           )}
 
-          {acts.map((act) => {
-            const actChapters = chaptersForAct(act.id)
-            return (
-              <div key={act.id}>
-                {/* Act header */}
-                <div className={styles.actHeader}>
-                  <span className={styles.actLabel}>{actLabel(act.order)}</span>
-                  {editingActId === act.id ? (
-                    <Input
-                      className="flex-1 text-sm"
-                      value={editingActTitle}
-                      autoFocus
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => setEditingActTitle(e.target.value)}
-                      onBlur={() => commitActRename(act)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') commitActRename(act)
-                        if (e.key === 'Escape') setEditingActId(null)
-                      }}
-                    />
-                  ) : (
-                    <span
-                      className={styles.actTitle}
-                      onDoubleClick={() => { setEditingActId(act.id); setEditingActTitle(act.title) }}
-                    >
-                      {act.title}
-                    </span>
-                  )}
-                  <div className={styles.actDots}>
-                    <DropdownMenu
-                      trigger={<DotsTrigger />}
-                      items={[{ label: '刪除', onClick: () => confirmDeleteAct(act), variant: 'danger' }]}
-                    />
-                  </div>
-                </div>
-
-                {/* Chapters in this act */}
-                <SortableContext
-                  items={actChapters.map((c) => c.id)}
-                  strategy={verticalListSortingStrategy}
+          <SortableContext items={acts.map((a) => a.id)} strategy={verticalListSortingStrategy}>
+            {acts.map((act) => {
+              const actChapters = chaptersForAct(act.id)
+              return (
+                <SortableActSection
+                  key={act.id}
+                  act={act}
+                  editingActId={editingActId}
+                  editingActTitle={editingActTitle}
+                  onEditingActIdChange={setEditingActId}
+                  onEditingActTitleChange={setEditingActTitle}
+                  onCommitRename={commitActRename}
+                  onDelete={() => confirmDeleteAct(act)}
                 >
-                  {actChapters.map((ch, actLocalIdx) => (
-                    <SortableChapter
-                      key={ch.id}
-                      chapter={ch}
-                      globalIdx={actLocalIdx}
-                      isActive={activeChapterId === ch.id}
-                      onSelect={() => onSelectChapter(ch)}
-                      onDelete={() => confirmDeleteChapter(ch)}
-                      onRename={(title) => handleRenameChapter(ch, title)}
-                      plotScenes={[...(project.plotBoard?.scenes?.[ch.id] ?? [])].sort((a, b) => a.order - b.order)}
-                    />
-                  ))}
-                </SortableContext>
-              </div>
-            )
-          })}
+                  <SortableContext
+                    items={actChapters.map((c) => c.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {actChapters.map((ch, actLocalIdx) => (
+                      <SortableChapter
+                        key={ch.id}
+                        chapter={ch}
+                        globalIdx={actLocalIdx}
+                        isActive={activeChapterId === ch.id}
+                        onSelect={() => onSelectChapter(ch)}
+                        onDelete={() => confirmDeleteChapter(ch)}
+                        onRename={(title) => handleRenameChapter(ch, title)}
+                        plotScenes={[...(ch.scenes ?? [])].sort((a, b) => a.order - b.order)}
+                      />
+                    ))}
+                  </SortableContext>
+                </SortableActSection>
+              )
+            })}
+          </SortableContext>
         </div>
       </DndContext>
     </div>

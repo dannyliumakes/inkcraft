@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useManuscriptSearch } from '../manuscript/useManuscriptSearch';
 import { useManuscriptStore } from '../manuscript/manuscriptStore';
 import { useShelfStore } from '../shelf/shelfStore';
-import { useAuthStore, getAccessToken } from '../../shared/stores/authStore';
+import { useAuthStore } from '../../shared/stores/authStore';
 import { LoginButton } from '../../shared/services/auth';
 import { listChildren } from '../../shared/services/drive';
 import { loadProject } from '../../shared/services/projectRepo';

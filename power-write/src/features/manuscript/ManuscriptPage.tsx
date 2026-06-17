@@ -16,17 +16,8 @@ import SidePanel from './components/SidePanel'
 import EditorToolbar from './components/EditorToolbar'
 import { useChapterLoader } from './hooks/useChapterLoader'
 import { useAutosave } from './hooks/useAutosave'
-import type { Project } from '../../shared/types/project'
+import type { Project, Scene } from '../../shared/types/project'
 
-// ── Scene type (extended from ChapterScene for multi-scene editing) ───────────
-interface Scene {
-  id: string
-  title: string
-  order: number
-  summary: string
-  imageAssetId: string | null
-  tags: string[]
-}
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const pageStyles = {
@@ -281,14 +272,10 @@ export default function ManuscriptPage() {
     const scenes: Scene[] = chapter.scenes ?? []
     const newScene: Scene = {
       id: `sc_${Date.now()}`,
-      title: '',
       order:
         scenes.length > 0
           ? Math.max(...scenes.map((s: Scene) => s.order)) + 1
           : 1,
-      summary: '',
-      imageAssetId: null,
-      tags: [],
     }
 
     const updated: Project = {
@@ -445,14 +432,7 @@ export default function ManuscriptPage() {
 
                   {scenes.length === 0 && (
                     <SceneEditor
-                      scene={{
-                        id: '_empty',
-                        title: '',
-                        order: 0,
-                        summary: '',
-                        imageAssetId: null,
-                        tags: [],
-                      }}
+                      scene={{ id: '_empty', order: 0 }}
                       initialContent=""
                       blobToAssetRef={blobToAssetRef}
                       bookId={bookId}

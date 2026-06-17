@@ -4,13 +4,13 @@ export interface Act {
   order: number;
 }
 
+// A scene is just a chunk of manuscript prose — no title, no summary. Its
+// content lives in the chapter's .md file (keyed by scene id). The plot board,
+// chapter tree, and manuscript editor all render scenes from chapter.scenes,
+// so they stay in sync.
 export interface Scene {
   id: string;
-  title: string;
   order: number;
-  summary: string;
-  imageAssetId: string | null;
-  tags: string[];
 }
 
 export interface Chapter {
@@ -28,7 +28,7 @@ export interface Chapter {
 // created ones) get this default so the editor and autosave have a stable
 // scene id to read/write content against.
 export function makeDefaultScene(): Scene {
-  return { id: 'sc_default', title: '', order: 0, summary: '', imageAssetId: null, tags: [] };
+  return { id: 'sc_default', order: 0 };
 }
 
 export interface Character {

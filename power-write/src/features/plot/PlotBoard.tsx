@@ -1,12 +1,13 @@
-import { useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { DndContext, DragOverlay } from '@dnd-kit/core'
 
 import SceneCard from './components/SceneCard'
 import ChapterColumn from './components/ChapterColumn'
-import SceneModal from './SceneModal'
 import { usePlotProject } from './hooks/usePlotProject'
 import { usePlotDnd } from './hooks/usePlotDnd'
 import { usePlotCrud } from './hooks/usePlotCrud'
+import { useManuscriptStore } from '../manuscript/manuscriptStore'
+import type { Scene } from '../../shared/types/project'
 
 function toOrdinal(n: number) {
   const map: Record<number, string> = { 1: '一', 2: '二', 3: '三', 4: '四', 5: '五', 6: '六', 7: '七', 8: '八', 9: '九', 10: '十' }
@@ -16,7 +17,6 @@ function toOrdinal(n: number) {
 const styles = {
   root: 'flex flex-col h-full',
   toolbar: 'bg-white border-b border-gray-100 px-8 py-3 flex items-center gap-4 flex-wrap',
-  tagSelect: 'border border-gray-200 rounded-xl px-3 py-2 text-sm text-muted focus:outline-none focus:ring-2 focus:ring-muted/30',
   scroll: 'flex-1 overflow-x-auto overflow-y-auto px-8 py-6',
   board: 'flex flex-col gap-8 min-w-max',
   actSection: 'flex flex-col gap-3',
@@ -30,37 +30,36 @@ const styles = {
 }
 
 export default function PlotBoard() {
+  const { bookId } = useParams<{ bookId: string }>()
+  const navigate = useNavigate()
+  const setActiveChapter = useManuscriptStore((s) => s.setActiveChapter)
+
   const { project, chapters, localScenes, onProjectUpdate } = usePlotProject()
   const { sensors, activeScene, handleDragStart, handleDragOver, handleDragEnd } = usePlotDnd(project, localScenes, onProjectUpdate)
-  const { modalChapterId, editingScene, openEditScene, addScene, handleSaveScene, closeModal } = usePlotCrud(project, onProjectUpdate)
+  const { addScene } = usePlotCrud(project, onProjectUpdate)
 
-  const allTags = useMemo(() => {
-    const set = new Set<string>()
-    Object.values(localScenes).forEach((scenes) => scenes.forEach((s) => s.tags.forEach((t) => set.add(t))))
-    return Array.from(set).sort()
-  }, [localScenes])
-
-  const [tagFilter, setTagFilter] = useState('')
+  // Clicking a scene card jumps to its chapter in the manuscript editor, where
+  // the scene's prose is written. Scene/chapter/tree all share chapter.scenes.
+  function openScene(chapterId: string, _scene: Scene) {
+    setActiveChapter(chapterId)
+    navigate(`/book/${bookId}`)
+  }
 
   if (!project) return <div className="p-8 text-placeholder">載入中…</div>
 
-  const allChapters = chapters.map((ch) => ({ id: ch.id, title: ch.title }))
   const acts = [...(project.acts ?? [])].sort((a, b) => a.order - b.order)
   const actIds = new Set(acts.map((a) => a.id))
   const ungroupedChapters = chapters.filter((ch) => !ch.actId || !actIds.has(ch.actId))
 
   function renderChapterColumn(chId: string, chTitle: string) {
-    const scenes = tagFilter
-      ? (localScenes[chId] ?? []).filter((s) => s.tags.includes(tagFilter))
-      : (localScenes[chId] ?? [])
     return (
       <ChapterColumn
         key={chId}
         chapterId={chId}
         title={chTitle}
-        scenes={scenes}
+        scenes={localScenes[chId] ?? []}
         onAddScene={addScene}
-        onEditScene={(scene) => openEditScene(scene, chId)}
+        onOpenScene={(scene) => openScene(chId, scene)}
       />
     )
   }
@@ -70,16 +69,6 @@ export default function PlotBoard() {
       <div className={styles.toolbar}>
         <h1 className="section-title">情節規劃看板</h1>
         <div className="flex-1" />
-        {allTags.length > 0 && (
-          <select
-            value={tagFilter}
-            onChange={(e) => setTagFilter(e.target.value)}
-            className={styles.tagSelect}
-          >
-            <option value="">全部標籤</option>
-            {allTags.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
-        )}
       </div>
 
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
@@ -131,17 +120,6 @@ export default function PlotBoard() {
           {activeScene ? <SceneCard scene={activeScene} overlay /> : null}
         </DragOverlay>
       </DndContext>
-
-      {editingScene !== undefined && modalChapterId && (
-        <SceneModal
-          scene={editingScene}
-          chapters={allChapters}
-          bookFolderId={project.id}
-          onSave={handleSaveScene}
-          onClose={closeModal}
-          defaultChapterId={modalChapterId}
-        />
-      )}
     </div>
   )
 }

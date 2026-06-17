@@ -58,7 +58,6 @@ export default function CreateBookModal({ onClose }: Props) {
         research: [],
         notes: '',
         todos: [],
-        plotBoard: { scenes: {} },
         dailyWordGoal: 3000,
         projectWordGoal: 80000,
         wordHistory: [],
