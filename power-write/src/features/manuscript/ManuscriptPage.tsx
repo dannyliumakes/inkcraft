@@ -14,8 +14,10 @@ import { CustomImage } from '../../lib/customImage'
 import ChapterTree from './ChapterTree'
 import SidePanel from './components/SidePanel'
 import EditorToolbar from './components/EditorToolbar'
+import SidebarCharacterPanel from './components/SidebarCharacterPanel'
 import { useChapterLoader } from './hooks/useChapterLoader'
 import { useAutosave } from './hooks/useAutosave'
+import { ConfirmDialog } from '../../shared/components/ui'
 import type { Project, Scene } from '../../shared/types/project'
 
 
@@ -23,23 +25,46 @@ import type { Project, Scene } from '../../shared/types/project'
 const pageStyles = {
   root: 'flex h-full',
   sidebar: (open: boolean) =>
-    `${open ? 'w-64' : 'hidden'} shrink-0 bg-white border-r border-gray-100 flex flex-col overflow-hidden`,
-  sidebarInner: 'flex-1 overflow-hidden flex flex-col',
+    `${open ? '' : 'hidden'} shrink-0 bg-white border-r border-gray-100 flex flex-col overflow-hidden relative`,
+  sidebarTree: 'flex-1 overflow-y-auto min-h-0',
   sidebarLoading: 'p-4 text-xs text-placeholder',
-  characterPanel: 'border-t border-gray-100 p-3',
-  characterLabel: 'text-xs font-semibold text-placeholder uppercase tracking-wide mb-2',
-  characterName: 'text-sm text-secondary truncate',
-  characterLink: 'text-xs text-accent mt-2 hover:underline focus-visible:ring-2 focus-visible:ring-blue-400',
+  dragHandle: 'h-1 shrink-0 cursor-row-resize hover:bg-accent-light active:bg-accent-light transition-colors group',
+  dragHandleBar: 'mx-auto w-8 h-0.5 rounded-full bg-gray-200 group-hover:bg-accent-border mt-0.5',
+  charPanel: 'shrink-0 border-t border-gray-100 overflow-hidden flex flex-col',
+  sidebarResizeHandle: 'absolute top-0 right-0 w-1 h-full cursor-col-resize z-10 hover:bg-accent-border transition-colors',
   center: 'flex-1 flex flex-col overflow-hidden bg-surface',
   editorScroll: 'flex-1 overflow-y-auto py-10 px-4',
   editorCardWrap: 'flex justify-center',
   editorCard: 'w-full max-w-[720px] bg-white rounded-3xl shadow-sm px-12 pt-10 pb-6',
   editorLoading: 'text-placeholder text-sm',
-  rightPanel: 'w-80 shrink-0 bg-white border-l border-gray-100 overflow-y-auto',
+  rightPanel: 'shrink-0 bg-white border-l border-gray-100 overflow-y-auto relative',
+  rightPanelResizeHandle: 'absolute top-0 left-0 w-1 h-full cursor-col-resize z-10 hover:bg-accent-border transition-colors',
   addSceneWrap: 'mt-8 flex flex-col items-center gap-2',
   addSceneLine: 'w-full border-t border-dashed border-gray-200',
   addSceneBtn:
     'flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-gray-200 text-xs text-placeholder hover:border-accent-border hover:text-accent transition-colors',
+}
+
+const SIDEBAR_MIN = 180
+const SIDEBAR_MAX_VW = 0.30
+const RIGHT_MIN = 180
+const RIGHT_MAX_VW = 0.30
+
+function clampWidth(value: number, minPx: number, maxVw: number) {
+  return Math.max(minPx, Math.min(Math.floor(window.innerWidth * maxVw), value))
+}
+
+function loadWidth(key: string, fallback: number): number {
+  try {
+    const v = localStorage.getItem(key)
+    return v ? Number(v) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function saveWidth(key: string, value: number) {
+  try { localStorage.setItem(key, String(value)) } catch { /* noop */ }
 }
 
 const dividerStyles = {
@@ -203,6 +228,12 @@ export default function ManuscriptPage() {
   const [editingChapterTitle, setEditingChapterTitle] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [sceneWordCounts, setSceneWordCounts] = useState<Map<string, number>>(new Map())
+  const [charPanelPct, setCharPanelPct] = useState(30)
+  const [charPanelVisible, setCharPanelVisible] = useState(true)
+  const [deleteSceneTarget, setDeleteSceneTarget] = useState<Scene | null>(null)
+  const [sidebarWidth, setSidebarWidth] = useState(() => clampWidth(loadWidth('pw-sidebar-width', 256), SIDEBAR_MIN, SIDEBAR_MAX_VW))
+  const [rightWidth, setRightWidth] = useState(() => clampWidth(loadWidth('pw-rightpanel-width', 320), RIGHT_MIN, RIGHT_MAX_VW))
+  const sidebarRef = useRef<HTMLElement>(null)
 
   const blobToAssetRef = useRef<Map<string, string>>(new Map())
   // fileInputRef kept for EditorToolbar compatibility
@@ -230,6 +261,70 @@ export default function ManuscriptPage() {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [toggleFocusMode])
+
+  // ── Sidebar character panel drag resize ───────────────────────────────────
+  function onDragHandleMouseDown(e: React.MouseEvent) {
+    e.preventDefault()
+    const sidebar = sidebarRef.current
+    if (!sidebar) return
+    const startY = e.clientY
+    const sidebarH = sidebar.getBoundingClientRect().height
+    const startPct = charPanelPct
+
+    function onMouseMove(ev: MouseEvent) {
+      const delta = startY - ev.clientY
+      const newPct = Math.round(startPct + (delta / sidebarH) * 100)
+      if (newPct < 20) {
+        setCharPanelPct(0)
+        setCharPanelVisible(false)
+      } else {
+        setCharPanelVisible(true)
+        setCharPanelPct(Math.min(70, newPct))
+      }
+    }
+    function onMouseUp() {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+  }
+
+  // ── Sidebar width drag resize ──────────────────────────────────────────────
+  function onSidebarResizeMouseDown(e: React.MouseEvent) {
+    e.preventDefault()
+    const startX = e.clientX
+    const startWidth = sidebarWidth
+    function onMouseMove(ev: MouseEvent) {
+      const next = clampWidth(startWidth + (ev.clientX - startX), SIDEBAR_MIN, SIDEBAR_MAX_VW)
+      setSidebarWidth(next)
+      saveWidth('pw-sidebar-width', next)
+    }
+    function onMouseUp() {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+  }
+
+  // ── Right panel width drag resize ──────────────────────────────────────────
+  function onRightResizeMouseDown(e: React.MouseEvent) {
+    e.preventDefault()
+    const startX = e.clientX
+    const startWidth = rightWidth
+    function onMouseMove(ev: MouseEvent) {
+      const next = clampWidth(startWidth - (ev.clientX - startX), RIGHT_MIN, RIGHT_MAX_VW)
+      setRightWidth(next)
+      saveWidth('pw-rightpanel-width', next)
+    }
+    function onMouseUp() {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+  }
 
   // ── Chapter title rename ───────────────────────────────────────────────────
   async function saveChapterTitle() {
@@ -295,9 +390,13 @@ export default function ManuscriptPage() {
   }, [project, activeChapterId, setProject])
 
   // ── Delete scene ───────────────────────────────────────────────────────────
+  const confirmDeleteScene = useCallback((scene: Scene) => {
+    setDeleteSceneTarget(scene)
+  }, [])
+
   const handleDeleteScene = useCallback((scene: Scene) => {
+    setDeleteSceneTarget(null)
     if (!project || !activeChapterId) return
-    if (!window.confirm(`確認刪除「場景 ${scene.order}」？此操作無法還原。`)) return
 
     const updated: Project = {
       ...project,
@@ -343,8 +442,8 @@ export default function ManuscriptPage() {
   return (
     <div className={pageStyles.root} style={{ fontFamily: "'Noto Sans TC', sans-serif" }}>
       {!focusMode && (
-        <aside className={pageStyles.sidebar(sidebarOpen)}>
-          <div className={pageStyles.sidebarInner}>
+        <aside className={pageStyles.sidebar(sidebarOpen)} ref={sidebarRef} style={{ width: sidebarWidth }}>
+          <div className={pageStyles.sidebarTree}>
             {project ? (
               <ChapterTree
                 project={project}
@@ -361,20 +460,34 @@ export default function ManuscriptPage() {
             )}
           </div>
 
-          {project && project.characters.length > 0 && (
-            <div className={pageStyles.characterPanel}>
-              <p className={pageStyles.characterLabel}>角色</p>
-              <ul className="space-y-1">
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {project.characters.slice(0, 3).map((ch: any) => (
-                  <li key={ch.id} className={pageStyles.characterName}>{ch.name}</li>
-                ))}
-              </ul>
-              <button className={pageStyles.characterLink}>
-                {t('manuscript.view_all_characters')}
-              </button>
-            </div>
+          {project && (
+            <>
+              <div className={pageStyles.dragHandle} onMouseDown={onDragHandleMouseDown}>
+                <div className={pageStyles.dragHandleBar} />
+              </div>
+              {charPanelVisible && (
+                <div
+                  className={pageStyles.charPanel}
+                  style={{ height: `${charPanelPct}%` }}
+                >
+                  <SidebarCharacterPanel
+                    project={project}
+                    bookFolderId={bookId ?? ''}
+                    onProjectUpdate={setProject}
+                  />
+                </div>
+              )}
+              {!charPanelVisible && (
+                <button
+                  className="shrink-0 py-1.5 text-xs text-placeholder hover:text-muted text-center hover:bg-accent-light transition-colors"
+                  onClick={() => { setCharPanelVisible(true); setCharPanelPct(30) }}
+                >
+                  角色 ▲
+                </button>
+              )}
+            </>
           )}
+          <div className={pageStyles.sidebarResizeHandle} onMouseDown={onSidebarResizeMouseDown} />
         </aside>
       )}
 
@@ -416,7 +529,7 @@ export default function ManuscriptPage() {
                         <SceneDivider
                           sceneIndex={i}
                           wordCount={sceneWordCounts.get(scene.id) ?? 0}
-                          onDelete={() => handleDeleteScene(scene)}
+                          onDelete={() => confirmDeleteScene(scene)}
                         />
                       )}
                       <SceneEditor
@@ -452,10 +565,20 @@ export default function ManuscriptPage() {
       </div>
 
       {!focusMode && project && (
-        <aside className={pageStyles.rightPanel}>
+        <aside className={pageStyles.rightPanel} style={{ width: rightWidth }}>
+          <div className={pageStyles.rightPanelResizeHandle} onMouseDown={onRightResizeMouseDown} />
           <SidePanel project={project} onProjectUpdate={setProject} />
         </aside>
       )}
+
+      <ConfirmDialog
+        open={deleteSceneTarget !== null}
+        title="刪除場景"
+        message={`確認刪除「場景 ${deleteSceneTarget?.order ?? ''}」？此操作無法還原。`}
+        confirmLabel="刪除"
+        onConfirm={() => deleteSceneTarget && handleDeleteScene(deleteSceneTarget)}
+        onCancel={() => setDeleteSceneTarget(null)}
+      />
     </div>
   )
 }
