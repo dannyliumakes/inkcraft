@@ -1,16 +1,21 @@
-// Uses GIS implicit flow — no refresh token available
+// Implicit flow with silent refresh via prompt:none
 // On 401, clear token and prompt re-login
+import { useEffect, useRef, useCallback } from 'react'
 import { useGoogleLogin } from '@react-oauth/google'
 import { useAuthStore } from '../stores/authStore'
+
+const SCOPE = 'https://www.googleapis.com/auth/drive.appdata'
+// Refresh 5 minutes before expiry
+const REFRESH_BUFFER_MS = 5 * 60 * 1000
 
 export function LoginButton() {
   const setAccessToken = useAuthStore((s) => s.setAccessToken)
 
   const login = useGoogleLogin({
     flow: 'implicit',
-    scope: 'https://www.googleapis.com/auth/drive.appdata',
+    scope: SCOPE,
     onSuccess: (tokenResponse) => {
-      setAccessToken(tokenResponse.access_token)
+      setAccessToken(tokenResponse.access_token, tokenResponse.expires_in)
     },
     onError: (error) => {
       console.error('Google login error:', error)
@@ -27,6 +32,47 @@ export function LoginButton() {
   )
 }
 
+// Attempts silent token refresh using existing Google session (no UI popup)
+function useSilentRefresh() {
+  const setAccessToken = useAuthStore((s) => s.setAccessToken)
+  const clearAccessToken = useAuthStore((s) => s.clearAccessToken)
+  const tokenExpiresAt = useAuthStore((s) => s.tokenExpiresAt)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const silentLogin = useGoogleLogin({
+    flow: 'implicit',
+    scope: SCOPE,
+    prompt: 'none',
+    onSuccess: (tokenResponse) => {
+      setAccessToken(tokenResponse.access_token, tokenResponse.expires_in)
+    },
+    onError: () => {
+      // Google session expired or user revoked — require manual login
+      clearAccessToken()
+    },
+  })
+
+  const scheduleRefresh = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    if (!tokenExpiresAt) return
+
+    const msUntilRefresh = tokenExpiresAt - Date.now() - REFRESH_BUFFER_MS
+    if (msUntilRefresh <= 0) {
+      silentLogin()
+      return
+    }
+
+    timerRef.current = setTimeout(() => silentLogin(), msUntilRefresh)
+  }, [tokenExpiresAt, silentLogin])
+
+  useEffect(() => {
+    scheduleRefresh()
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+    }
+  }, [scheduleRefresh])
+}
+
 interface RequireAuthProps {
   children: React.ReactNode
 }
@@ -38,6 +84,7 @@ export function useRequireAuth() {
 
 export function RequireAuth({ children }: RequireAuthProps) {
   const { isAuthenticated } = useRequireAuth()
+  useSilentRefresh()
 
   if (!isAuthenticated) {
     return (

@@ -3,7 +3,8 @@ import { persist } from 'zustand/middleware'
 
 interface AuthState {
   accessToken: string | null;
-  setAccessToken: (token: string) => void;
+  tokenExpiresAt: number | null; // unix ms
+  setAccessToken: (token: string, expiresInSeconds?: number) => void;
   clearAccessToken: () => void;
 }
 
@@ -11,8 +12,10 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       accessToken: null,
-      setAccessToken: (token) => set({ accessToken: token }),
-      clearAccessToken: () => set({ accessToken: null }),
+      tokenExpiresAt: null,
+      setAccessToken: (token, expiresInSeconds = 3600) =>
+        set({ accessToken: token, tokenExpiresAt: Date.now() + expiresInSeconds * 1000 }),
+      clearAccessToken: () => set({ accessToken: null, tokenExpiresAt: null }),
     }),
     { name: 'pw-auth' },
   ),
